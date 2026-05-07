@@ -1,7 +1,7 @@
 import type { DragEvent } from 'react';
 import { PALETTE, PALETTE_GROUPS } from '../constants/diagram.constants';
 import { NODE_KINDS, type NodeKind, type PaletteItem } from '../types/diagram.types';
-import { iconMap, ServerIcon } from './icons/DiagramIcons';
+import { iconMap, ServerIcon, TypeIcon } from './icons/DiagramIcons';
 
 interface PalettePanelProps {
   onDragStart: (event: DragEvent<HTMLButtonElement>, item: PaletteItem) => void;
@@ -47,6 +47,27 @@ export function PalettePanel({ onDragStart }: PalettePanelProps) {
           <div className="palette__subtitle">{heroItem.subtitle}</div>
         </div>
       </button>
+
+      <div className="palette__group">
+        <div className="palette__group-label">Anotaciones</div>
+        <button
+          type="button"
+          draggable
+          onDragStart={(e) => {
+            e.dataTransfer.setData('application/reactflow', JSON.stringify({ __isText: true }));
+            e.dataTransfer.effectAllowed = 'move';
+          }}
+          className="palette__text-item"
+        >
+          <div className="palette__icon" style={{ background: '#f8fafc', color: '#64748b' }}>
+            <TypeIcon size={17} />
+          </div>
+          <div>
+            <div className="palette__label">Texto</div>
+            <div className="palette__subtitle">Texto libre con formato</div>
+          </div>
+        </button>
+      </div>
 
       {PALETTE_GROUPS.map((group) => (
         <div key={group.label} className="palette__group">

@@ -24,7 +24,7 @@ export function DiagramCanvas({ builder }: DiagramCanvasProps) {
         onDrop={builder.onDrop}
         onDragOver={builder.onDragOver}
         onNodeClick={(_, node) => builder.selectNode(node)}
-        onNodeDoubleClick={(_, node) => builder.openNodeEditor(node)}
+        onNodeDoubleClick={(_, node) => { if ((node.type as string) !== 'textNode') builder.openNodeEditor(node); }}
         onEdgeClick={(_, edge) => builder.selectEdge(edge)}
         onEdgeDoubleClick={(_, edge) => builder.openEdgeEditor(edge)}
         onNodeContextMenu={(e, node) => { e.preventDefault(); builder.selectNode(node); builder.openContextMenu(e.clientX, e.clientY, 'node'); }}
@@ -42,7 +42,7 @@ export function DiagramCanvas({ builder }: DiagramCanvasProps) {
         <Controls />
         <MiniMap pannable zoomable />
         <Panel position="top-center">
-          <div className="canvas-message">{builder.message}</div>
+          <div className="canvas-message">Arrastra elementos al lienzo</div>
         </Panel>
         <Panel position="bottom-center">
           <div className="canvas-help">

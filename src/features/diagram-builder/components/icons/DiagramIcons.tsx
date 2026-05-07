@@ -278,6 +278,25 @@ export function ChevronRightIcon({ size }: IconProps) {
   );
 }
 
+export function TypeIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <polyline points="4 7 4 4 20 4 20 7" />
+      <line x1="9" y1="20" x2="15" y2="20" />
+      <line x1="12" y1="4" x2="12" y2="20" />
+    </IconBase>
+  );
+}
+
+export function StickyNoteIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z" />
+      <path d="M15 3v6h6" />
+    </IconBase>
+  );
+}
+
 export const iconMap: Record<NodeKind, (props: IconProps) => ReactElement> = {
   [NODE_KINDS.DEFAULT]:   BoxIcon,
   [NODE_KINDS.FRONTEND]:  MonitorIcon,

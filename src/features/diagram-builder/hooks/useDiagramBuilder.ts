@@ -3,6 +3,7 @@ import type { ChangeEvent, DragEvent } from 'react';
 import { addEdge, useEdgesState, useNodesState, type Connection, type Edge, type ReactFlowInstance } from '@xyflow/react';
 import { INITIAL_EDGES, INITIAL_NODES } from '../constants/diagram.constants';
 import { SoftwareNodeComponent } from '../components/SoftwareNode';
+import { TextNodeComponent } from '../components/TextNode';
 import { NODE_KINDS, type EdgeFormData, type NodeFormData, type PaletteItem, type SoftwareEdge, type SoftwareNode } from '../types/diagram.types';
 import { createAnimatedEdge, createNode, normalizeNodeData } from '../utils/diagramFactory';
 import { isValidDiagramPayload } from '../utils/diagramValidation';
@@ -29,7 +30,7 @@ export function useDiagramBuilder() {
     [nodes, edges, selectedNodeId, selectedEdgeId],
   );
 
-  const nodeTypes = useMemo(() => ({ softwareNode: SoftwareNodeComponent }), []);
+  const nodeTypes = useMemo(() => ({ softwareNode: SoftwareNodeComponent, textNode: TextNodeComponent }), []);
 
   const selectNode = useCallback((node: SoftwareNode) => {
     setSelectedNodeId(node.id);
@@ -99,13 +100,25 @@ export function useDiagramBuilder() {
       if (!rawData || !rfInstance) return;
 
       try {
-        const item = JSON.parse(rawData) as PaletteItem;
+        const payload = JSON.parse(rawData) as Record<string, unknown>;
         const position = rfInstance.screenToFlowPosition({ x: event.clientX, y: event.clientY });
-        const newNode = createNode({ item, position });
 
-        setNodes((current) => current.concat(newNode));
-        setSelectedNodeId(newNode.id);
-        setMessage(`Nodo agregado: ${newNode.data.label}`);
+        if (payload.__isText) {
+          const newNode = {
+            id: `text-${Date.now()}`,
+            type: 'textNode',
+            position,
+            data: { text: 'Texto', bold: false, italic: false, underline: false, fontSize: 16, color: '#0f172a' },
+          } as unknown as SoftwareNode;
+          setNodes((current) => current.concat(newNode));
+          setSelectedNodeId(newNode.id);
+        } else {
+          const item = payload as unknown as PaletteItem;
+          const newNode = createNode({ item, position });
+          setNodes((current) => current.concat(newNode));
+          setSelectedNodeId(newNode.id);
+          setMessage(`Nodo agregado: ${newNode.data.label}`);
+        }
       } catch {
         setMessage('No se pudo agregar el nodo arrastrado.');
       }

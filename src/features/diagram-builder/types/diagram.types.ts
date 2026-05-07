@@ -48,6 +48,16 @@ export interface EdgeFormData {
 export type SoftwareNode = Node<SoftwareNodeData, 'softwareNode'>;
 export type SoftwareEdge = Edge;
 
+export interface TextNodeData extends Record<string, unknown> {
+  text: string;
+  bold: boolean;
+  italic: boolean;
+  underline: boolean;
+  fontSize: number;
+  color: string;
+}
+export type TextNode = Node<TextNodeData, 'textNode'>;
+
 export interface DiagramPayload {
   nodes: SoftwareNode[];
   edges: SoftwareEdge[];
