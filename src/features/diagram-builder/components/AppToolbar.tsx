@@ -1,5 +1,5 @@
 import type { ChangeEvent } from 'react';
-import { ChevronLeftIcon, ChevronRightIcon, DownloadIcon, ResetIcon, SparklesIcon, TrashIcon, UploadIcon } from './icons/DiagramIcons';
+import { ChevronLeftIcon, ChevronRightIcon, DownloadIcon, LayersIcon, ResetIcon, TrashIcon, UploadIcon } from './icons/DiagramIcons';
 
 interface AppToolbarProps {
   isSidebarOpen: boolean;
@@ -35,9 +35,12 @@ export function AppToolbar({
 
       <div className="app-toolbar__brand">
         <div className="app-toolbar__brand-icon">
-          <SparklesIcon size={17} />
+          <LayersIcon size={17} />
         </div>
-        <span className="app-toolbar__brand-name">Software Diagram</span>
+        <div className="app-toolbar__brand-text">
+          <span className="app-toolbar__brand-name">Arcto</span>
+          <span className="app-toolbar__brand-tagline">Architecture Diagrams</span>
+        </div>
       </div>
 
       <div className="app-toolbar__spacer" />

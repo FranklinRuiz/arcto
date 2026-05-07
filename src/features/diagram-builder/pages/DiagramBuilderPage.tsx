@@ -12,7 +12,7 @@ export function DiagramBuilderPage() {
     <div className="app-layout">
       <AppToolbar
         isSidebarOpen={isSidebarOpen}
-        hasSelection={!!(builder.selectedNode || builder.selectedEdge)}
+        hasSelection={builder.hasSelection}
         onToggleSidebar={() => setIsSidebarOpen((v) => !v)}
         deleteSelected={builder.deleteSelected}
         resetDiagram={builder.resetDiagram}

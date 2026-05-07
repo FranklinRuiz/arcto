@@ -83,12 +83,28 @@ textarea {
   flex-shrink: 0;
 }
 
+.app-toolbar__brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
 .app-toolbar__brand-name {
   font-size: 15px;
   font-weight: 900;
   letter-spacing: -0.02em;
   color: #0f172a;
   white-space: nowrap;
+  line-height: 1;
+}
+
+.app-toolbar__brand-tagline {
+  font-size: 10px;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  line-height: 1;
 }
 
 .app-toolbar__spacer {
@@ -157,7 +173,7 @@ textarea {
 }
 
 .sidebar {
-  width: 340px;
+  width: 320px;
   overflow: hidden;
   border-right: 1px solid #e2e8f0;
   background: #ffffff;
@@ -174,10 +190,29 @@ textarea {
 }
 
 .sidebar__inner {
-  width: 340px;
+  width: 320px;
   height: 100%;
   overflow-y: auto;
-  padding: 16px;
+  padding: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: #e2e8f0 transparent;
+}
+
+.sidebar__inner::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar__inner::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar__inner::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 99px;
+}
+
+.sidebar__inner::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
 }
 
 .app-header {
@@ -232,10 +267,60 @@ textarea {
   text-transform: uppercase;
 }
 
-.palette {
+.palette-section {
+  width: 100%;
+}
+
+.palette__hero {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 9px 11px;
+  text-align: left;
+  cursor: grab;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  background: white;
+  box-shadow: 0 2px 8px rgb(15 23 42 / 0.04);
+  transition: 160ms ease;
+}
+
+.palette__hero:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 6px 18px rgb(15 23 42 / 0.09);
+  transform: translateY(-1px);
+}
+
+.palette__hero-text {
+  min-width: 0;
+}
+
+.palette__group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.palette__group:last-child {
+  margin-bottom: 0;
+}
+
+.palette__group-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  padding: 0 3px;
+}
+
+.palette__group-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 6px;
+  gap: 5px;
 }
 
 .palette__item {
@@ -244,19 +329,19 @@ textarea {
   align-items: center;
   gap: 6px;
   width: 100%;
-  padding: 10px 8px;
+  padding: 10px 6px 8px;
   text-align: center;
   cursor: grab;
-  border: 1px solid #e2e8f0;
+  border: 1.5px solid #e2e8f0;
   border-radius: 14px;
   background: white;
-  box-shadow: 0 4px 10px rgb(15 23 42 / 0.05);
   transition: 160ms ease;
 }
 
 .palette__item:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 15px rgb(15 23 42 / 0.09);
+  border-color: #cbd5e1;
+  box-shadow: 0 6px 18px rgb(15 23 42 / 0.1);
+  transform: translateY(-2px);
 }
 
 .palette__icon {
@@ -265,18 +350,19 @@ textarea {
   height: 34px;
   place-items: center;
   border-radius: 10px;
-  background: #f1f5f9;
+  flex-shrink: 0;
 }
 
 .palette__label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
-  line-height: 1.2;
+  line-height: 1.25;
+  color: #0f172a;
 }
 
 .palette__subtitle {
   color: #94a3b8;
-  font-size: 10px;
+  font-size: 9.5px;
   line-height: 1.2;
 }
 
@@ -489,9 +575,6 @@ textarea {
   box-shadow: 0 16px 28px rgb(15 23 42 / 0.18);
 }
 
-.software-node--selected {
-  outline: 4px solid rgb(148 163 184 / 0.45);
-}
 
 .software-node--frontend {
   color: #075985;
@@ -627,8 +710,8 @@ textarea {
 }
 
 .software-node__handle {
-  width: 11px !important;
-  height: 11px !important;
+  width: 9px !important;
+  height: 9px !important;
   background: #cbd5e1 !important;
   border: 2px solid white !important;
   cursor: crosshair !important;
@@ -748,6 +831,15 @@ textarea {
 
 .context-menu__item--danger:hover {
   background: #fef2f2;
+}
+
+.software-node--selected {
+  outline: 2px solid rgb(148 163 184 / 0.6);
+  outline-offset: 2px;
+}
+
+.react-flow__node.selected > div {
+  box-shadow: none !important;
 }
 
 .react-flow__edge-textbg {

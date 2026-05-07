@@ -1,6 +1,11 @@
 import { MarkerType } from '@xyflow/react';
 import { NODE_KINDS, type PaletteItem, type SoftwareEdge, type SoftwareNode } from '../types/diagram.types';
 
+interface PaletteGroup {
+  label: string;
+  items: PaletteItem[];
+}
+
 export const PALETTE: PaletteItem[] = [
   {
     type: NODE_KINDS.DEFAULT,
@@ -85,6 +90,32 @@ export const PALETTE: PaletteItem[] = [
     label: 'Worker / Job',
     subtitle: 'Proceso async',
     description: 'Proceso asíncrono o batch para tareas de larga duración en segundo plano.',
+  },
+];
+
+const paletteMap = new Map(PALETTE.map((p) => [p.type, p]));
+const pick = (kind: keyof typeof NODE_KINDS) => paletteMap.get(NODE_KINDS[kind])!;
+
+export const PALETTE_GROUPS: PaletteGroup[] = [
+  {
+    label: 'Presentación',
+    items: [pick('FRONTEND'), pick('MOBILE')],
+  },
+  {
+    label: 'Servicios',
+    items: [pick('GATEWAY'), pick('BACKEND'), pick('WORKER')],
+  },
+  {
+    label: 'Datos',
+    items: [pick('DATABASE'), pick('CACHE'), pick('QUEUE')],
+  },
+  {
+    label: 'Infraestructura',
+    items: [pick('CLOUD'), pick('ONPREMISE'), pick('MAINFRAME')],
+  },
+  {
+    label: 'Seguridad y Ext.',
+    items: [pick('SECURITY'), pick('EXTERNAL')],
   },
 ];
 

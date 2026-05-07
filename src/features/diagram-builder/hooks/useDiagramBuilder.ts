@@ -16,7 +16,7 @@ export function useDiagramBuilder() {
   const [editingEdgeId, setEditingEdgeId] = useState<string | null>(null);
   const [nodeLabel, setNodeLabel] = useState('');
   const [nodeSubtitle, setNodeSubtitle] = useState('');
-  const [message, setMessage] = useState('Arrastra elementos al lienzo. Pasa el cursor sobre un nodo para ver los conectores en los 4 lados.');
+  const [message, setMessage] = useState('Arrastra elementos al lienzo');
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; type: 'node' | 'edge' } | null>(null);
 
@@ -24,6 +24,10 @@ export function useDiagramBuilder() {
   const selectedEdge = useMemo(() => edges.find((edge) => edge.id === selectedEdgeId) || null, [edges, selectedEdgeId]);
   const editingNode = useMemo(() => nodes.find((node) => node.id === editingNodeId) || null, [nodes, editingNodeId]);
   const editingEdge = useMemo(() => edges.find((edge) => edge.id === editingEdgeId) || null, [edges, editingEdgeId]);
+  const hasSelection = useMemo(
+    () => nodes.some((n) => n.selected) || edges.some((e) => e.selected) || !!selectedNodeId || !!selectedEdgeId,
+    [nodes, edges, selectedNodeId, selectedEdgeId],
+  );
 
   const nodeTypes = useMemo(() => ({ softwareNode: SoftwareNodeComponent }), []);
 
@@ -274,6 +278,7 @@ export function useDiagramBuilder() {
     nodeTypes,
     selectedNode,
     selectedEdge,
+    hasSelection,
     editingNode,
     editingEdge,
     contextMenu,
