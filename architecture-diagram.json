@@ -1,0 +1,226 @@
+{
+  "nodes": [
+    {
+      "id": "xyflow-lib",
+      "type": "softwareNode",
+      "position": { "x": 80, "y": 60 },
+      "data": {
+        "label": "@xyflow/react",
+        "subtitle": "v12.10.2 — Motor de grafos",
+        "description": "Librería externa que provee el canvas ReactFlow, MiniMap, Controls, Background y la gestión interna de nodos y conexiones.",
+        "kind": "cloud",
+        "icon": "cloud"
+      }
+    },
+    {
+      "id": "ts-vitest",
+      "type": "softwareNode",
+      "position": { "x": 550, "y": 60 },
+      "data": {
+        "label": "TypeScript + Vitest",
+        "subtitle": "Tooling / ES2022",
+        "description": "Tipado estático estricto con TypeScript ES2022 y suite de 6 pruebas unitarias con Vitest (diagramFactory y diagramValidation).",
+        "kind": "security",
+        "icon": "security"
+      }
+    },
+    {
+      "id": "browser-api",
+      "type": "softwareNode",
+      "position": { "x": 1020, "y": 60 },
+      "data": {
+        "label": "Browser File API",
+        "subtitle": "HTML5 / DOM nativo",
+        "description": "API nativa del navegador. Usa Blob + URL.createObjectURL para exportar JSON y FileReader para importar diagramas desde disco.",
+        "kind": "cloud",
+        "icon": "cloud"
+      }
+    },
+    {
+      "id": "sidebar-panel",
+      "type": "softwareNode",
+      "position": { "x": 80, "y": 290 },
+      "data": {
+        "label": "Sidebar Panel",
+        "subtitle": "AppHeader · Palette · Actions",
+        "description": "Panel izquierdo que contiene: AppHeader (título), PalettePanel (6 tipos arrastrables), QuickCreatePanel (formulario) y DiagramActions (export/import/reset/delete).",
+        "kind": "frontend",
+        "icon": "frontend"
+      }
+    },
+    {
+      "id": "diagram-canvas",
+      "type": "softwareNode",
+      "position": { "x": 550, "y": 290 },
+      "data": {
+        "label": "DiagramCanvas",
+        "subtitle": "ReactFlow Wrapper",
+        "description": "Lienzo principal. Renderiza SoftwareNode personalizados, recibe drops desde la paleta, calcula posición relativa al viewport y muestra MiniMap + Controls.",
+        "kind": "frontend",
+        "icon": "frontend"
+      }
+    },
+    {
+      "id": "edit-modals",
+      "type": "softwareNode",
+      "position": { "x": 1020, "y": 290 },
+      "data": {
+        "label": "Edit Modals",
+        "subtitle": "NodeEditModal · EdgeEditModal",
+        "description": "Modales activados por doble-clic. NodeEditModal edita label, subtitle, description y kind del nodo. EdgeEditModal edita la etiqueta de la conexión.",
+        "kind": "frontend",
+        "icon": "frontend"
+      }
+    },
+    {
+      "id": "state-manager",
+      "type": "softwareNode",
+      "position": { "x": 550, "y": 520 },
+      "data": {
+        "label": "useDiagramBuilder",
+        "subtitle": "Custom React Hook — 256 líneas",
+        "description": "Hook central con toda la lógica: gestiona selección, creación/edición/borrado de nodos y conexiones, orquesta export/import JSON y controla mensajes de estado.",
+        "kind": "backend",
+        "icon": "backend"
+      }
+    },
+    {
+      "id": "diagram-factory",
+      "type": "softwareNode",
+      "position": { "x": 180, "y": 750 },
+      "data": {
+        "label": "diagramFactory",
+        "subtitle": "Pure Functions / Utility",
+        "description": "Funciones puras para crear nodos (createNode), conexiones (createAnimatedEdge) con IDs únicos y normalizar datos de entrada (normalizeNodeData).",
+        "kind": "worker",
+        "icon": "worker"
+      }
+    },
+    {
+      "id": "diagram-validation",
+      "type": "softwareNode",
+      "position": { "x": 920, "y": 750 },
+      "data": {
+        "label": "diagramValidation",
+        "subtitle": "Pure Functions / Guard",
+        "description": "Valida la estructura del JSON importado: verifica que sea un objeto con arrays nodes[] y edges[] antes de aplicar al estado del diagrama.",
+        "kind": "worker",
+        "icon": "worker"
+      }
+    },
+    {
+      "id": "diagram-state",
+      "type": "softwareNode",
+      "position": { "x": 550, "y": 980 },
+      "data": {
+        "label": "Diagram State",
+        "subtitle": "useNodesState · useEdgesState",
+        "description": "Estado reactivo en memoria: SoftwareNode[] + SoftwareEdge[] gestionados por hooks de @xyflow/react. Sin servidor ni base de datos — 100% client-side.",
+        "kind": "database",
+        "icon": "database"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "sidebar-to-state",
+      "source": "sidebar-panel",
+      "target": "state-manager",
+      "type": "smoothstep",
+      "animated": true,
+      "label": "eventos UI / drag-drop / form",
+      "markerEnd": { "type": "arrowclosed" },
+      "style": { "strokeWidth": 3 }
+    },
+    {
+      "id": "canvas-to-state",
+      "source": "diagram-canvas",
+      "target": "state-manager",
+      "type": "smoothstep",
+      "animated": true,
+      "label": "onNodesChange / onEdgesChange",
+      "markerEnd": { "type": "arrowclosed" },
+      "style": { "strokeWidth": 3 }
+    },
+    {
+      "id": "modals-to-state",
+      "source": "edit-modals",
+      "target": "state-manager",
+      "type": "smoothstep",
+      "animated": true,
+      "label": "submit edición nodo/conexión",
+      "markerEnd": { "type": "arrowclosed" },
+      "style": { "strokeWidth": 3 }
+    },
+    {
+      "id": "state-to-canvas",
+      "source": "state-manager",
+      "target": "diagram-canvas",
+      "type": "smoothstep",
+      "animated": true,
+      "label": "nodes[] + edges[] + handlers",
+      "markerEnd": { "type": "arrowclosed" },
+      "style": { "strokeWidth": 3 }
+    },
+    {
+      "id": "state-to-factory",
+      "source": "state-manager",
+      "target": "diagram-factory",
+      "type": "smoothstep",
+      "animated": true,
+      "label": "createNode() / createEdge()",
+      "markerEnd": { "type": "arrowclosed" },
+      "style": { "strokeWidth": 3 }
+    },
+    {
+      "id": "state-to-validation",
+      "source": "state-manager",
+      "target": "diagram-validation",
+      "type": "smoothstep",
+      "animated": true,
+      "label": "validateDiagram(json)",
+      "markerEnd": { "type": "arrowclosed" },
+      "style": { "strokeWidth": 3 }
+    },
+    {
+      "id": "state-to-db",
+      "source": "state-manager",
+      "target": "diagram-state",
+      "type": "smoothstep",
+      "animated": true,
+      "label": "read / write state",
+      "markerEnd": { "type": "arrowclosed" },
+      "style": { "strokeWidth": 3 }
+    },
+    {
+      "id": "canvas-to-xyflow",
+      "source": "diagram-canvas",
+      "target": "xyflow-lib",
+      "type": "smoothstep",
+      "animated": true,
+      "label": "ReactFlow / MiniMap / Controls",
+      "markerEnd": { "type": "arrowclosed" },
+      "style": { "strokeWidth": 3 }
+    },
+    {
+      "id": "state-to-browser",
+      "source": "state-manager",
+      "target": "browser-api",
+      "type": "smoothstep",
+      "animated": true,
+      "label": "export Blob / import FileReader",
+      "markerEnd": { "type": "arrowclosed" },
+      "style": { "strokeWidth": 3 }
+    },
+    {
+      "id": "validation-to-state-db",
+      "source": "diagram-validation",
+      "target": "diagram-state",
+      "type": "smoothstep",
+      "animated": true,
+      "label": "DiagramPayload validado",
+      "markerEnd": { "type": "arrowclosed" },
+      "style": { "strokeWidth": 3 }
+    }
+  ]
+}
