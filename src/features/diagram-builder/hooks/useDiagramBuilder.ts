@@ -111,7 +111,7 @@ export function useDiagramBuilder() {
 
   const addQuickNode = useCallback(() => {
     const newNode = createNode({
-      item: { type: NODE_KINDS.BACKEND, label: 'Nuevo componente', subtitle: 'Descripción técnica' },
+      item: { type: NODE_KINDS.BACKEND, label: 'Nuevo componente', subtitle: 'Descripción técnica', description: '' },
       position: { x: 260 + nodes.length * 30, y: 300 + nodes.length * 20 },
       customLabel: nodeLabel,
       customSubtitle: nodeSubtitle,
@@ -168,7 +168,20 @@ export function useDiagramBuilder() {
   );
 
   const deleteSelected = useCallback(() => {
-    if (selectedNodeId) {
+    const multiNodes = nodes.filter((n) => n.selected);
+    const multiEdges = edges.filter((e) => e.selected);
+
+    if (multiNodes.length > 0 || multiEdges.length > 0) {
+      const nodeIds = new Set(multiNodes.map((n) => n.id));
+      const edgeIds = new Set(multiEdges.map((e) => e.id));
+      setNodes((current) => current.filter((n) => !nodeIds.has(n.id)));
+      setEdges((current) => current.filter((e) => !nodeIds.has(e.source) && !nodeIds.has(e.target) && !edgeIds.has(e.id)));
+      setSelectedNodeId(null);
+      setEditingNodeId(null);
+      setEditingEdgeId(null);
+      const total = multiNodes.length + multiEdges.length;
+      setMessage(`${total} elemento${total !== 1 ? 's' : ''} eliminado${total !== 1 ? 's' : ''}.`);
+    } else if (selectedNodeId) {
       setNodes((current) => current.filter((node) => node.id !== selectedNodeId));
       setEdges((current) => current.filter((edge) => edge.source !== selectedNodeId && edge.target !== selectedNodeId));
       setSelectedNodeId(null);
@@ -182,7 +195,7 @@ export function useDiagramBuilder() {
       setMessage('Conexión eliminada.');
     }
     setContextMenu(null);
-  }, [selectedNodeId, selectedEdgeId, setNodes, setEdges]);
+  }, [nodes, edges, selectedNodeId, selectedEdgeId, setNodes, setEdges]);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {

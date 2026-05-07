@@ -1,21 +1,29 @@
 import { Handle, Position, type NodeProps } from '@xyflow/react';
-import { NODE_KINDS, type SoftwareNode } from '../types/diagram.types';
+import { NODE_KINDS, type NodeKind, type SoftwareNode } from '../types/diagram.types';
 import { iconMap, ServerIcon } from './icons/DiagramIcons';
 
-const kindClassName = {
-  [NODE_KINDS.FRONTEND]: 'software-node--frontend',
-  [NODE_KINDS.BACKEND]: 'software-node--backend',
-  [NODE_KINDS.DATABASE]: 'software-node--database',
-  [NODE_KINDS.CLOUD]: 'software-node--cloud',
-  [NODE_KINDS.SECURITY]: 'software-node--security',
-  [NODE_KINDS.WORKER]: 'software-node--worker',
+const kindClassName: Record<NodeKind, string> = {
+  [NODE_KINDS.DEFAULT]:   'software-node--default',
+  [NODE_KINDS.FRONTEND]:  'software-node--frontend',
+  [NODE_KINDS.MOBILE]:    'software-node--mobile',
+  [NODE_KINDS.GATEWAY]:   'software-node--gateway',
+  [NODE_KINDS.BACKEND]:   'software-node--backend',
+  [NODE_KINDS.DATABASE]:  'software-node--database',
+  [NODE_KINDS.CACHE]:     'software-node--cache',
+  [NODE_KINDS.QUEUE]:     'software-node--queue',
+  [NODE_KINDS.SECURITY]:  'software-node--security',
+  [NODE_KINDS.CLOUD]:     'software-node--cloud',
+  [NODE_KINDS.EXTERNAL]:  'software-node--external',
+  [NODE_KINDS.WORKER]:    'software-node--worker',
+  [NODE_KINDS.ONPREMISE]: 'software-node--onpremise',
+  [NODE_KINDS.MAINFRAME]: 'software-node--mainframe',
 };
 
 export function SoftwareNodeComponent({ data, selected }: NodeProps<SoftwareNode>) {
   const Icon = iconMap[data.icon] ?? ServerIcon;
 
   return (
-    <div className={`software-node ${kindClassName[data.kind]} ${selected ? 'software-node--selected' : ''}`}>
+    <div className={`software-node ${kindClassName[data.kind] ?? ''} ${selected ? 'software-node--selected' : ''}`}>
       <Handle id="top-1" type="source" position={Position.Top}    style={{ left: '10%' }} className="software-node__handle" />
       <Handle id="top-2" type="source" position={Position.Top}    style={{ left: '30%' }} className="software-node__handle" />
       <Handle id="top-3" type="source" position={Position.Top}    style={{ left: '50%' }} className="software-node__handle" />

@@ -1,12 +1,20 @@
 import type { Edge, Node } from '@xyflow/react';
 
 export const NODE_KINDS = {
+  DEFAULT: 'default',
   FRONTEND: 'frontend',
+  MOBILE: 'mobile',
+  GATEWAY: 'gateway',
   BACKEND: 'backend',
   DATABASE: 'database',
-  CLOUD: 'cloud',
+  CACHE: 'cache',
+  QUEUE: 'queue',
   SECURITY: 'security',
+  CLOUD: 'cloud',
+  EXTERNAL: 'external',
   WORKER: 'worker',
+  ONPREMISE: 'onpremise',
+  MAINFRAME: 'mainframe',
 } as const;
 
 export type NodeKind = (typeof NODE_KINDS)[keyof typeof NODE_KINDS];
@@ -23,6 +31,7 @@ export interface PaletteItem {
   type: NodeKind;
   label: string;
   subtitle: string;
+  description: string;
 }
 
 export interface NodeFormData {

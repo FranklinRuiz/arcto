@@ -87,6 +87,92 @@ export function ShieldIcon({ size }: IconProps) {
   );
 }
 
+export function BoxIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <rect x="3" y="3" width="18" height="18" rx="3" />
+      <path d="M3 9h18" />
+      <path d="M9 21V9" />
+    </IconBase>
+  );
+}
+
+export function SmartphoneIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <rect x="5" y="2" width="14" height="20" rx="3" />
+      <path d="M12 18h.01" />
+    </IconBase>
+  );
+}
+
+export function NetworkIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <circle cx="12" cy="5" r="2" />
+      <circle cx="5" cy="19" r="2" />
+      <circle cx="19" cy="19" r="2" />
+      <path d="M12 7v4" />
+      <path d="M12 11 7 17" />
+      <path d="M12 11l5 6" />
+    </IconBase>
+  );
+}
+
+export function ZapIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <path d="M13 2 4.09 12.56A1 1 0 0 0 5 14h6l-2 8 8.91-10.56A1 1 0 0 0 17 10h-6l2-8Z" />
+    </IconBase>
+  );
+}
+
+export function InboxIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" />
+      <path d="M2 14h4l2 3h8l2-3h4" />
+    </IconBase>
+  );
+}
+
+export function MainframeIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <rect x="3" y="2" width="18" height="7" rx="2" />
+      <rect x="3" y="11" width="18" height="7" rx="2" />
+      <path d="M7 5.5h.01" />
+      <path d="M7 14.5h.01" />
+      <path d="M10 5.5h6" />
+      <path d="M10 14.5h6" />
+      <path d="M9 9v2" />
+      <path d="M15 9v2" />
+    </IconBase>
+  );
+}
+
+export function OnPremiseIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <path d="M3 21h18" />
+      <path d="M5 21V7l7-5 7 5v14" />
+      <rect x="9" y="13" width="6" height="8" />
+      <path d="M9 10h6" />
+    </IconBase>
+  );
+}
+
+export function GlobeIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 3c-2.5 2.5-4 6-4 9s1.5 6.5 4 9" />
+      <path d="M12 3c2.5 2.5 4 6 4 9s-1.5 6.5-4 9" />
+      <path d="M3 12h18" />
+    </IconBase>
+  );
+}
+
 export function PlusIcon({ size }: IconProps) {
   return (
     <IconBase size={size}>
@@ -166,11 +252,35 @@ export function CloseIcon({ size }: IconProps) {
   );
 }
 
+export function ChevronLeftIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <path d="m15 18-6-6 6-6" />
+    </IconBase>
+  );
+}
+
+export function ChevronRightIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <path d="m9 18 6-6-6-6" />
+    </IconBase>
+  );
+}
+
 export const iconMap: Record<NodeKind, (props: IconProps) => ReactElement> = {
-  [NODE_KINDS.FRONTEND]: MonitorIcon,
-  [NODE_KINDS.BACKEND]: ServerIcon,
-  [NODE_KINDS.DATABASE]: DatabaseIcon,
-  [NODE_KINDS.CLOUD]: CloudIcon,
-  [NODE_KINDS.SECURITY]: ShieldIcon,
-  [NODE_KINDS.WORKER]: CpuIcon,
+  [NODE_KINDS.DEFAULT]:   BoxIcon,
+  [NODE_KINDS.FRONTEND]:  MonitorIcon,
+  [NODE_KINDS.MOBILE]:    SmartphoneIcon,
+  [NODE_KINDS.GATEWAY]:   NetworkIcon,
+  [NODE_KINDS.BACKEND]:   ServerIcon,
+  [NODE_KINDS.DATABASE]:  DatabaseIcon,
+  [NODE_KINDS.CACHE]:     ZapIcon,
+  [NODE_KINDS.QUEUE]:     InboxIcon,
+  [NODE_KINDS.SECURITY]:  ShieldIcon,
+  [NODE_KINDS.CLOUD]:     CloudIcon,
+  [NODE_KINDS.EXTERNAL]:  GlobeIcon,
+  [NODE_KINDS.WORKER]:    CpuIcon,
+  [NODE_KINDS.ONPREMISE]: OnPremiseIcon,
+  [NODE_KINDS.MAINFRAME]: MainframeIcon,
 };

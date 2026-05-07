@@ -9,7 +9,7 @@ describe('diagramFactory', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0.123);
 
     const node = createNode({
-      item: { type: NODE_KINDS.SECURITY, label: 'Firewall', subtitle: 'FortiGate' },
+      item: { type: NODE_KINDS.SECURITY, label: 'Firewall', subtitle: 'FortiGate', description: '' },
       position: { x: 10, y: 20 },
     });
 

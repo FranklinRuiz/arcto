@@ -32,7 +32,7 @@ export function createNode(params: {
     data: {
       label: params.customLabel?.trim() || params.item.label || 'Nuevo componente',
       subtitle: params.customSubtitle?.trim() || params.item.subtitle || 'Descripción técnica',
-      description: 'Describe aquí la responsabilidad técnica de este componente.',
+      description: params.item.description || 'Describe aquí la responsabilidad técnica de este componente.',
       kind,
       icon: kind,
     },

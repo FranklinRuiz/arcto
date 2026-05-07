@@ -30,8 +30,11 @@ export function DiagramCanvas({ builder }: DiagramCanvasProps) {
         onNodeContextMenu={(e, node) => { e.preventDefault(); builder.selectNode(node); builder.openContextMenu(e.clientX, e.clientY, 'node'); }}
         onEdgeContextMenu={(e, edge) => { e.preventDefault(); builder.selectEdge(edge); builder.openContextMenu(e.clientX, e.clientY, 'edge'); }}
         onPaneClick={builder.clearSelection}
+        onPaneContextMenu={(e) => e.preventDefault()}
         fitView
         connectionMode={ConnectionMode.Loose}
+        panOnDrag={[2]}
+        selectionOnDrag
         connectionLineStyle={{ strokeWidth: 3 }}
         defaultEdgeOptions={{ animated: true, type: 'smoothstep' }}
       >
