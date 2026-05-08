@@ -1,12 +1,12 @@
 import type { ChangeEvent } from 'react';
-import { ChevronLeftIcon, ChevronRightIcon, DownloadIcon, LayersIcon, ResetIcon, TrashIcon, UploadIcon } from './icons/DiagramIcons';
+import { ChevronLeftIcon, ChevronRightIcon, DownloadIcon, LayersIcon, TrashIcon, UploadIcon } from './icons/DiagramIcons';
 
 interface AppToolbarProps {
   isSidebarOpen: boolean;
   hasSelection: boolean;
   onToggleSidebar: () => void;
   deleteSelected: () => void;
-  resetDiagram: () => void;
+  clearDiagram: () => void;
   exportJson: () => void;
   importJson: (event: ChangeEvent<HTMLInputElement>) => void;
 }
@@ -16,7 +16,7 @@ export function AppToolbar({
   hasSelection,
   onToggleSidebar,
   deleteSelected,
-  resetDiagram,
+  clearDiagram,
   exportJson,
   importJson,
 }: AppToolbarProps) {
@@ -58,28 +58,32 @@ export function AppToolbar({
         </button>
         <button
           type="button"
-          onClick={resetDiagram}
+          onClick={clearDiagram}
           className="toolbar-action"
-          title="Restaurar diagrama inicial"
+          title="Limpiar lienzo"
         >
-          <ResetIcon size={14} />
-          <span>Reset</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M3 6h18" />
+            <path d="M8 6V4h8v2" />
+            <path d="M19 6l-1 14H6L5 6" />
+          </svg>
+          <span>Limpiar</span>
         </button>
         <div className="app-toolbar__sep" />
-        <button
-          type="button"
-          onClick={exportJson}
-          className="toolbar-action"
-          title="Exportar como JSON"
-        >
-          <DownloadIcon size={14} />
-          <span>Exportar</span>
-        </button>
         <label className="toolbar-action" title="Importar desde JSON">
           <UploadIcon size={14} />
           <span>Importar</span>
           <input type="file" accept="application/json" className="visually-hidden" onChange={importJson} />
         </label>
+        <button
+          type="button"
+          onClick={exportJson}
+          className="toolbar-action toolbar-action--primary"
+          title="Exportar como JSON"
+        >
+          <DownloadIcon size={14} />
+          <span>Exportar</span>
+        </button>
       </div>
     </header>
   );

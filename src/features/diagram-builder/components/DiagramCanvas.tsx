@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Background, ConnectionMode, Controls, ReactFlow } from '@xyflow/react';
 import type { useDiagramBuilder } from '../hooks/useDiagramBuilder';
 import { EdgeEditModal } from './EdgeEditModal';
@@ -10,8 +11,15 @@ interface DiagramCanvasProps {
 }
 
 export function DiagramCanvas({ builder }: DiagramCanvasProps) {
+  const [isPanning, setIsPanning] = useState(false);
+
   return (
-    <main className="canvas-shell">
+    <main
+      className={`canvas-shell${isPanning ? ' canvas-shell--panning' : ''}`}
+      onMouseDown={(e) => { if (e.button === 2) setIsPanning(true); }}
+      onMouseUp={() => setIsPanning(false)}
+      onMouseLeave={() => setIsPanning(false)}
+    >
       <ReactFlow
         nodes={builder.nodes}
         edges={builder.edges}
@@ -26,7 +34,7 @@ export function DiagramCanvas({ builder }: DiagramCanvasProps) {
         onNodeDoubleClick={(_, node) => { if ((node.type as string) !== 'textNode') builder.openNodeEditor(node); }}
         onEdgeClick={(_, edge) => builder.selectEdge(edge)}
         onEdgeDoubleClick={(_, edge) => builder.openEdgeEditor(edge)}
-        onNodeContextMenu={(e) => e.preventDefault()}
+        onNodeContextMenu={(e) => { if ((e.target as HTMLElement).tagName !== 'TEXTAREA') e.preventDefault(); }}
         onEdgeContextMenu={(e) => e.preventDefault()}
         onPaneClick={builder.clearSelection}
         onPaneContextMenu={(e) => e.preventDefault()}
@@ -39,7 +47,7 @@ export function DiagramCanvas({ builder }: DiagramCanvasProps) {
         proOptions={{ hideAttribution: true }}
       >
         <Background gap={18} size={1} />
-        <Controls />
+        <Controls showInteractive={false} />
       </ReactFlow>
 
       <NodeEditModal node={builder.editingNode} onClose={builder.closeNodeEditor} onSave={builder.saveNodeEditor} />

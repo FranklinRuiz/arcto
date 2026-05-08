@@ -15,7 +15,7 @@ export function DiagramBuilderPage() {
         hasSelection={builder.hasSelection}
         onToggleSidebar={() => setIsSidebarOpen((v) => !v)}
         deleteSelected={builder.deleteSelected}
-        resetDiagram={builder.resetDiagram}
+        clearDiagram={builder.clearDiagram}
         exportJson={builder.exportJson}
         importJson={builder.importJson}
       />

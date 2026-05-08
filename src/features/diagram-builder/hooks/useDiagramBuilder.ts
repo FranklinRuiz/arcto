@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent, DragEvent } from 'react';
 import { addEdge, useEdgesState, useNodesState, type Connection, type Edge, type ReactFlowInstance } from '@xyflow/react';
 import { INITIAL_EDGES, INITIAL_NODES } from '../constants/diagram.constants';
@@ -8,9 +8,25 @@ import { NODE_KINDS, type EdgeFormData, type NodeFormData, type PaletteItem, typ
 import { createAnimatedEdge, createNode, normalizeNodeData } from '../utils/diagramFactory';
 import { isValidDiagramPayload } from '../utils/diagramValidation';
 
+const STORAGE_KEY = 'arcto-diagram';
+
+function loadFromStorage(): { nodes: SoftwareNode[]; edges: SoftwareEdge[] } | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!isValidDiagramPayload(parsed)) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
 export function useDiagramBuilder() {
-  const [nodes, setNodes, onNodesChange] = useNodesState<SoftwareNode>(INITIAL_NODES);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<SoftwareEdge>(INITIAL_EDGES);
+  const saved = useMemo(() => loadFromStorage(), []);
+  const [nodes, setNodes, onNodesChange] = useNodesState<SoftwareNode>(saved?.nodes ?? INITIAL_NODES);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<SoftwareEdge>(saved?.edges ?? INITIAL_EDGES);
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [rfInstance, setRfInstance] = useState<ReactFlowInstance<SoftwareNode, SoftwareEdge> | null>(null);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
@@ -31,6 +47,35 @@ export function useDiagramBuilder() {
   );
 
   const nodeTypes = useMemo(() => ({ softwareNode: SoftwareNodeComponent, textNode: TextNodeComponent }), []);
+
+  // ── Historial para deshacer ──
+  const historyRef = useRef<Array<{ nodes: SoftwareNode[]; edges: SoftwareEdge[] }>>([]);
+  const historyIndexRef = useRef(-1);
+  const isUndoingRef = useRef(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (isUndoingRef.current) {
+        isUndoingRef.current = false;
+        return;
+      }
+      const snapshot = { nodes, edges };
+      historyRef.current = historyRef.current.slice(0, historyIndexRef.current + 1);
+      historyRef.current.push(snapshot);
+      if (historyRef.current.length > 60) historyRef.current.shift();
+      else historyIndexRef.current++;
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [nodes, edges]);
+
+  // ── Guardar en localStorage ──
+  useEffect(() => {
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ nodes, edges }));
+    }, 600);
+    return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
+  }, [nodes, edges]);
 
   const selectNode = useCallback((node: SoftwareNode) => {
     setSelectedNodeId(node.id);
@@ -86,6 +131,15 @@ export function useDiagramBuilder() {
   const onDragStart = useCallback((event: DragEvent<HTMLButtonElement>, item: PaletteItem) => {
     event.dataTransfer.setData('application/reactflow', JSON.stringify(item));
     event.dataTransfer.effectAllowed = 'move';
+    const ghost = document.createElement('div');
+    ghost.style.cssText =
+      'position:fixed;top:-200px;left:-200px;padding:6px 14px;background:#0f172a;color:white;' +
+      'border-radius:10px;font:700 13px/1.4 Inter,sans-serif;white-space:nowrap;pointer-events:none;' +
+      'box-shadow:0 8px 24px rgba(15,23,42,0.35);';
+    ghost.textContent = item.label;
+    document.body.appendChild(ghost);
+    event.dataTransfer.setDragImage(ghost, ghost.offsetWidth / 2, 20);
+    requestAnimationFrame(() => document.body.removeChild(ghost));
   }, []);
 
   const onDragOver = useCallback((event: DragEvent) => {
@@ -225,16 +279,36 @@ export function useDiagramBuilder() {
     setContextMenu(null);
   }, [nodes, edges, selectedNodeId, selectedEdgeId, setNodes, setEdges]);
 
+  const undo = useCallback(() => {
+    if (historyIndexRef.current <= 0) return;
+    historyIndexRef.current--;
+    const snapshot = historyRef.current[historyIndexRef.current];
+    isUndoingRef.current = true;
+    setNodes(snapshot.nodes);
+    setEdges(snapshot.edges);
+    setSelectedNodeId(null);
+    setEditingNodeId(null);
+    setEditingEdgeId(null);
+  }, [setNodes, setEdges]);
+
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== 'Delete') return;
       const tag = (e.target as HTMLElement).tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-      deleteSelected();
+
+      if (e.key === 'Delete') {
+        deleteSelected();
+        return;
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+      }
     };
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
-  }, [deleteSelected]);
+  }, [deleteSelected, undo]);
 
   const openContextMenu = useCallback((x: number, y: number, type: 'node' | 'edge') => {
     setContextMenu({ x, y, type });
@@ -251,6 +325,14 @@ export function useDiagramBuilder() {
     setEditingNodeId(null);
     setEditingEdgeId(null);
     setMessage('Diagrama restaurado al estado inicial.');
+  }, [setNodes, setEdges]);
+
+  const clearDiagram = useCallback(() => {
+    setNodes([]);
+    setEdges([]);
+    setSelectedNodeId(null);
+    setEditingNodeId(null);
+    setEditingEdgeId(null);
   }, [setNodes, setEdges]);
 
   const exportJson = useCallback(() => {
@@ -327,6 +409,7 @@ export function useDiagramBuilder() {
     saveEdgeEditor,
     deleteSelected,
     resetDiagram,
+    clearDiagram,
     exportJson,
     importJson,
     selectNode,

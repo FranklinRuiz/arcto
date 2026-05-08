@@ -139,6 +139,15 @@ export function PalettePanel({ onDragStart, selectedNode, updateTextNodeData }: 
           onDragStart={(e) => {
             e.dataTransfer.setData('application/reactflow', JSON.stringify({ __isText: true }));
             e.dataTransfer.effectAllowed = 'move';
+            const ghost = document.createElement('div');
+            ghost.style.cssText =
+              'position:fixed;top:-200px;left:-200px;padding:6px 14px;background:#0f172a;color:white;' +
+              'border-radius:10px;font:700 13px/1.4 Inter,sans-serif;white-space:nowrap;pointer-events:none;' +
+              'box-shadow:0 8px 24px rgba(15,23,42,0.35);';
+            ghost.textContent = 'Texto';
+            document.body.appendChild(ghost);
+            e.dataTransfer.setDragImage(ghost, ghost.offsetWidth / 2, 20);
+            requestAnimationFrame(() => document.body.removeChild(ghost));
           }}
           className="palette__text-item"
         >
@@ -174,7 +183,7 @@ export function PalettePanel({ onDragStart, selectedNode, updateTextNodeData }: 
                   className="palette__item"
                 >
                   <div className="palette__icon" style={iconStyle[item.type]}>
-                    <Icon size={17} />
+                    <Icon size={15} />
                   </div>
                   <div className="palette__label">{item.label}</div>
                   <div className="palette__subtitle">{item.subtitle}</div>
