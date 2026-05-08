@@ -1,8 +1,34 @@
-import { useState } from 'react';
-import { Background, ConnectionMode, Controls, ReactFlow } from '@xyflow/react';
+import { memo, useState } from 'react';
+import { Background, ConnectionMode, Controls, ReactFlow, SmoothStepEdge, Position } from '@xyflow/react';
+import type { EdgeProps } from '@xyflow/react';
 import type { useDiagramBuilder } from '../hooks/useDiagramBuilder';
 import { EdgeEditModal } from './EdgeEditModal';
 import { NodeEditModal } from './NodeEditModal';
+
+const INSET = 4;
+
+const SnappedEdge = memo((props: EdgeProps) => {
+  const { sourcePosition, targetPosition, sourceX, sourceY, targetX, targetY } = props;
+
+  const sX = sourcePosition === Position.Right  ? sourceX - INSET
+           : sourcePosition === Position.Left   ? sourceX + INSET
+           : sourceX;
+  const sY = sourcePosition === Position.Bottom ? sourceY - INSET
+           : sourcePosition === Position.Top    ? sourceY + INSET
+           : sourceY;
+
+  const tX = targetPosition === Position.Left   ? targetX + INSET
+           : targetPosition === Position.Right  ? targetX - INSET
+           : targetX;
+  const tY = targetPosition === Position.Top    ? targetY + INSET
+           : targetPosition === Position.Bottom ? targetY - INSET
+           : targetY;
+
+  return <SmoothStepEdge {...props} sourceX={sX} sourceY={sY} targetX={tX} targetY={tY} />;
+});
+SnappedEdge.displayName = 'SnappedEdge';
+
+const EDGE_TYPES = { smoothstep: SnappedEdge };
 
 type DiagramBuilderState = ReturnType<typeof useDiagramBuilder>;
 
@@ -24,6 +50,7 @@ export function DiagramCanvas({ builder }: DiagramCanvasProps) {
         nodes={builder.nodes}
         edges={builder.edges}
         nodeTypes={builder.nodeTypes}
+        edgeTypes={EDGE_TYPES}
         onNodesChange={builder.onNodesChange}
         onEdgesChange={builder.onEdgesChange}
         onConnect={builder.onConnect}
