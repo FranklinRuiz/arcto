@@ -20,7 +20,12 @@ export function DiagramBuilderPage() {
         importJson={builder.importJson}
       />
       <div className="diagram-layout">
-        <Sidebar isOpen={isSidebarOpen} onDragStart={builder.onDragStart} />
+        <Sidebar
+          isOpen={isSidebarOpen}
+          onDragStart={builder.onDragStart}
+          selectedNode={builder.selectedNode}
+          updateTextNodeData={builder.updateTextNodeData}
+        />
         <DiagramCanvas builder={builder} />
       </div>
     </div>

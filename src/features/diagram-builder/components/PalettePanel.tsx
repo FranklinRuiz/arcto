@@ -1,10 +1,12 @@
 import type { DragEvent } from 'react';
 import { PALETTE, PALETTE_GROUPS } from '../constants/diagram.constants';
-import { NODE_KINDS, type NodeKind, type PaletteItem } from '../types/diagram.types';
+import { NODE_KINDS, type NodeKind, type PaletteItem, type SoftwareNode, type TextNodeData } from '../types/diagram.types';
 import { iconMap, ServerIcon, TypeIcon } from './icons/DiagramIcons';
 
 interface PalettePanelProps {
   onDragStart: (event: DragEvent<HTMLButtonElement>, item: PaletteItem) => void;
+  selectedNode: SoftwareNode | null;
+  updateTextNodeData: (nodeId: string, patch: Partial<TextNodeData>) => void;
 }
 
 const iconStyle: Record<NodeKind, { background: string; color: string }> = {
@@ -24,10 +26,91 @@ const iconStyle: Record<NodeKind, { background: string; color: string }> = {
   [NODE_KINDS.WORKER]:    { background: '#ffe4e6', color: '#be123c' },
 };
 
+const FONT_SIZES = [10, 12, 14, 16, 18, 20, 24, 28, 32, 40, 48];
+const TEXT_COLORS = [
+  { value: '#0f172a', label: 'Negro' },
+  { value: '#334155', label: 'Gris oscuro' },
+  { value: '#64748b', label: 'Gris' },
+  { value: '#6366f1', label: 'Índigo' },
+  { value: '#0ea5e9', label: 'Azul' },
+  { value: '#16a34a', label: 'Verde' },
+  { value: '#dc2626', label: 'Rojo' },
+  { value: '#ea580c', label: 'Naranja' },
+];
+
 const heroItem = PALETTE.find((p) => p.type === NODE_KINDS.DEFAULT)!;
 
-export function PalettePanel({ onDragStart }: PalettePanelProps) {
+interface TextEditPanelProps {
+  data: TextNodeData;
+  onUpdate: (patch: Partial<TextNodeData>) => void;
+}
+
+function TextEditPanel({ data, onUpdate }: TextEditPanelProps) {
+  return (
+    <div className="text-edit-panel">
+      <div className="text-edit-panel__row">
+        <div className="text-edit-panel__fmt">
+          <button
+            type="button"
+            className={`text-edit-btn${data.bold ? ' text-edit-btn--active' : ''}`}
+            onClick={() => onUpdate({ bold: !data.bold })}
+            title="Negrita"
+          >
+            <strong>B</strong>
+          </button>
+          <button
+            type="button"
+            className={`text-edit-btn${data.italic ? ' text-edit-btn--active' : ''}`}
+            onClick={() => onUpdate({ italic: !data.italic })}
+            title="Cursiva"
+          >
+            <em>I</em>
+          </button>
+          <button
+            type="button"
+            className={`text-edit-btn${data.underline ? ' text-edit-btn--active' : ''}`}
+            onClick={() => onUpdate({ underline: !data.underline })}
+            title="Subrayado"
+          >
+            <span style={{ textDecoration: 'underline' }}>U</span>
+          </button>
+        </div>
+
+        <div className="select-wrapper select-wrapper--sm">
+          <select
+            className="form-control form-control--select text-edit-panel__size"
+            value={data.fontSize}
+            onChange={(e) => onUpdate({ fontSize: Number(e.target.value) })}
+            title="Tamaño"
+          >
+            {FONT_SIZES.map((s) => (
+              <option key={s} value={s}>{s}px</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="text-edit-panel__colors">
+        {TEXT_COLORS.map((c) => (
+          <button
+            key={c.value}
+            type="button"
+            className={`text-edit-swatch${data.color === c.value ? ' text-edit-swatch--active' : ''}`}
+            style={{ background: c.value }}
+            onClick={() => onUpdate({ color: c.value })}
+            title={c.label}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function PalettePanel({ onDragStart, selectedNode, updateTextNodeData }: PalettePanelProps) {
   const HeroIcon = iconMap[heroItem.type] ?? ServerIcon;
+
+  const isTextSelected = selectedNode !== null && (selectedNode.type as string) === 'textNode';
+  const textData = isTextSelected ? (selectedNode!.data as unknown as TextNodeData) : null;
 
   return (
     <section className="palette-section">
@@ -67,6 +150,13 @@ export function PalettePanel({ onDragStart }: PalettePanelProps) {
             <div className="palette__subtitle">Texto libre con formato</div>
           </div>
         </button>
+
+        {isTextSelected && textData && selectedNode && (
+          <TextEditPanel
+            data={textData}
+            onUpdate={(patch) => updateTextNodeData(selectedNode!.id, patch)}
+          />
+        )}
       </div>
 
       {PALETTE_GROUPS.map((group) => (
@@ -97,4 +187,3 @@ export function PalettePanel({ onDragStart }: PalettePanelProps) {
     </section>
   );
 }
-

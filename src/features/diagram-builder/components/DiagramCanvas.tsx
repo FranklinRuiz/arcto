@@ -1,6 +1,5 @@
-import { Background, ConnectionMode, Controls, MiniMap, Panel, ReactFlow } from '@xyflow/react';
+import { Background, ConnectionMode, Controls, ReactFlow } from '@xyflow/react';
 import type { useDiagramBuilder } from '../hooks/useDiagramBuilder';
-import { ContextMenu } from './ContextMenu';
 import { EdgeEditModal } from './EdgeEditModal';
 import { NodeEditModal } from './NodeEditModal';
 
@@ -27,8 +26,8 @@ export function DiagramCanvas({ builder }: DiagramCanvasProps) {
         onNodeDoubleClick={(_, node) => { if ((node.type as string) !== 'textNode') builder.openNodeEditor(node); }}
         onEdgeClick={(_, edge) => builder.selectEdge(edge)}
         onEdgeDoubleClick={(_, edge) => builder.openEdgeEditor(edge)}
-        onNodeContextMenu={(e, node) => { e.preventDefault(); builder.selectNode(node); builder.openContextMenu(e.clientX, e.clientY, 'node'); }}
-        onEdgeContextMenu={(e, edge) => { e.preventDefault(); builder.selectEdge(edge); builder.openContextMenu(e.clientX, e.clientY, 'edge'); }}
+        onNodeContextMenu={(e) => e.preventDefault()}
+        onEdgeContextMenu={(e) => e.preventDefault()}
         onPaneClick={builder.clearSelection}
         onPaneContextMenu={(e) => e.preventDefault()}
         fitView
@@ -37,31 +36,14 @@ export function DiagramCanvas({ builder }: DiagramCanvasProps) {
         selectionOnDrag
         connectionLineStyle={{ strokeWidth: 3 }}
         defaultEdgeOptions={{ animated: true, type: 'smoothstep' }}
+        proOptions={{ hideAttribution: true }}
       >
         <Background gap={18} size={1} />
         <Controls />
-        <MiniMap pannable zoomable />
-        <Panel position="top-center">
-          <div className="canvas-message">Arrastra elementos al lienzo</div>
-        </Panel>
-        <Panel position="bottom-center">
-          <div className="canvas-help">
-            {builder.selectedNode ? `Nodo seleccionado: ${builder.selectedNode.data.label}` : 'Haz doble clic en un nodo o conexión para editar.'}
-          </div>
-        </Panel>
       </ReactFlow>
 
       <NodeEditModal node={builder.editingNode} onClose={builder.closeNodeEditor} onSave={builder.saveNodeEditor} />
       <EdgeEditModal edge={builder.editingEdge} onClose={builder.closeEdgeEditor} onSave={builder.saveEdgeEditor} />
-      {builder.contextMenu && (
-        <ContextMenu
-          x={builder.contextMenu.x}
-          y={builder.contextMenu.y}
-          type={builder.contextMenu.type}
-          onDelete={builder.deleteSelected}
-          onClose={builder.closeContextMenu}
-        />
-      )}
     </main>
   );
 }

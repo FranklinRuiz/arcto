@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { EdgeFormData, SoftwareEdge } from '../types/diagram.types';
 import { buildEdgeFormFromEdge } from '../utils/diagramFactory';
 import { CloseIcon, SaveIcon } from './icons/DiagramIcons';
@@ -11,49 +11,50 @@ interface EdgeEditModalProps {
 
 export function EdgeEditModal({ edge, onClose, onSave }: EdgeEditModalProps) {
   const [form, setForm] = useState<EdgeFormData>({ label: '' });
+  const inputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => { setForm(buildEdgeFormFromEdge(edge)); }, [edge]);
+  useEffect(() => { if (edge) setTimeout(() => inputRef.current?.focus(), 50); }, [edge]);
   useEffect(() => {
-    setForm(buildEdgeFormFromEdge(edge));
-  }, [edge]);
+    const h = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', h);
+    return () => document.removeEventListener('keydown', h);
+  }, [onClose]);
 
   if (!edge) return null;
 
-  const save = () => {
-    onSave(edge.id, form);
-  };
+  const save = () => onSave(edge.id, form);
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal">
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal modal--animated" onClick={(e) => e.stopPropagation()}>
+
         <div className="modal__header">
-          <div>
-            <h2 className="modal__title">Editar conexión</h2>
-            <p className="modal__subtitle">Modifica el texto que aparece sobre la línea.</p>
-          </div>
-          <button type="button" onClick={onClose} className="icon-button" aria-label="Cerrar editor de conexión">
-            <CloseIcon size={18} />
+          <h2 className="modal__title">Editar conexión</h2>
+          <button type="button" onClick={onClose} className="icon-button" aria-label="Cerrar">
+            <CloseIcon size={16} />
           </button>
         </div>
 
         <label className="form-field">
-          <span>Texto de la conexión</span>
+          <span>Protocolo / etiqueta</span>
           <input
+            ref={inputRef}
             value={form.label}
-            onChange={(event) => setForm({ label: event.target.value })}
+            onChange={(e) => setForm({ label: e.target.value })}
             className="form-control"
-            placeholder="Ejemplo: HTTPS, REST, JDBC, API Gateway..."
-            autoFocus
+            placeholder="Ej: HTTPS, REST, Kafka…"
+            onKeyDown={(e) => e.key === 'Enter' && save()}
           />
         </label>
 
         <div className="modal__footer">
-          <button type="button" onClick={onClose} className="button">
-            Cancelar
-          </button>
+          <button type="button" onClick={onClose} className="button">Cancelar</button>
           <button type="button" onClick={save} className="button button--primary">
-            <SaveIcon size={16} /> Guardar cambios
+            <SaveIcon size={15} /> Guardar
           </button>
         </div>
+
       </div>
     </div>
   );

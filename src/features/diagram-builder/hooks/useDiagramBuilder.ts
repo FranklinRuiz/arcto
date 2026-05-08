@@ -4,7 +4,7 @@ import { addEdge, useEdgesState, useNodesState, type Connection, type Edge, type
 import { INITIAL_EDGES, INITIAL_NODES } from '../constants/diagram.constants';
 import { SoftwareNodeComponent } from '../components/SoftwareNode';
 import { TextNodeComponent } from '../components/TextNode';
-import { NODE_KINDS, type EdgeFormData, type NodeFormData, type PaletteItem, type SoftwareEdge, type SoftwareNode } from '../types/diagram.types';
+import { NODE_KINDS, type EdgeFormData, type NodeFormData, type PaletteItem, type SoftwareEdge, type SoftwareNode, type TextNodeData } from '../types/diagram.types';
 import { createAnimatedEdge, createNode, normalizeNodeData } from '../utils/diagramFactory';
 import { isValidDiagramPayload } from '../utils/diagramValidation';
 
@@ -175,6 +175,17 @@ export function useDiagramBuilder() {
     [setEdges],
   );
 
+  const updateTextNodeData = useCallback(
+    (nodeId: string, patch: Partial<TextNodeData>) => {
+      setNodes((current) =>
+        current.map((node) =>
+          node.id === nodeId ? { ...node, data: { ...node.data, ...patch } } : node,
+        ),
+      );
+    },
+    [setNodes],
+  );
+
   const saveEdgeEditor = useCallback(
     (edgeId: string, formData: EdgeFormData) => {
       updateEdgeDataById(edgeId, formData);
@@ -323,5 +334,6 @@ export function useDiagramBuilder() {
     clearSelection,
     openContextMenu,
     closeContextMenu,
+    updateTextNodeData,
   };
 }
