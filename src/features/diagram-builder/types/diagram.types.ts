@@ -58,7 +58,9 @@ export interface TextNodeData extends Record<string, unknown> {
 }
 export type TextNode = Node<TextNodeData, 'textNode'>;
 
+export type DiagramNode = SoftwareNode | TextNode;
+
 export interface DiagramPayload {
-  nodes: SoftwareNode[];
+  nodes: DiagramNode[];
   edges: SoftwareEdge[];
 }

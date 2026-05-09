@@ -16,7 +16,7 @@ function loadFromStorage(): { nodes: SoftwareNode[]; edges: SoftwareEdge[] } | n
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (!isValidDiagramPayload(parsed)) return null;
-    return parsed;
+    return parsed as { nodes: SoftwareNode[]; edges: SoftwareEdge[] };
   } catch {
     return null;
   }
@@ -376,7 +376,9 @@ export function useDiagramBuilder() {
             return;
           }
 
-          setNodes(parsed.nodes.map((node) => ({ ...node, data: normalizeNodeData(node.data) })));
+          setNodes(parsed.nodes.map((node) =>
+            node.type === 'textNode' ? node as unknown as SoftwareNode : { ...node, data: normalizeNodeData(node.data) },
+          ) as SoftwareNode[]);
           setEdges(parsed.edges);
           setSelectedNodeId(null);
           setEditingNodeId(null);
