@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent, DragEvent } from 'react';
-import { addEdge, useEdgesState, useNodesState, type Connection, type Edge, type ReactFlowInstance } from '@xyflow/react';
+import { addEdge, reconnectEdge, useEdgesState, useNodesState, type Connection, type Edge, type ReactFlowInstance } from '@xyflow/react';
 import { INITIAL_EDGES, INITIAL_NODES } from '../constants/diagram.constants';
 import { SoftwareNodeComponent } from '../components/SoftwareNode';
 import { TextNodeComponent } from '../components/TextNode';
@@ -257,6 +257,13 @@ export function useDiagramBuilder() {
     [updateEdgeDataById],
   );
 
+  const onReconnect = useCallback(
+    (oldEdge: Edge, newConnection: Connection) => {
+      setEdges((current) => reconnectEdge(oldEdge, newConnection, current));
+    },
+    [setEdges],
+  );
+
   const deleteSelected = useCallback(() => {
     const multiNodes = nodes.filter((n) => n.selected);
     const multiEdges = edges.filter((e) => e.selected);
@@ -416,6 +423,7 @@ export function useDiagramBuilder() {
     closeEdgeEditor,
     saveEdgeEditor,
     commitInlineEdgeEdit,
+    onReconnect,
     deleteSelected,
     resetDiagram,
     clearDiagram,

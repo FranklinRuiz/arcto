@@ -45,6 +45,8 @@ export function DiagramCanvas({ builder }: DiagramCanvasProps) {
           onNodeDoubleClick={(_, node) => { if ((node.type as string) !== 'textNode') builder.openNodeEditor(node); }}
           onEdgeClick={(_, edge) => builder.selectEdge(edge)}
           onEdgeDoubleClick={(_, edge) => builder.openEdgeEditor(edge)}
+          onReconnect={builder.onReconnect}
+          reconnectRadius={20}
           onNodeContextMenu={(e) => { if ((e.target as HTMLElement).tagName !== 'TEXTAREA') e.preventDefault(); }}
           onEdgeContextMenu={(e) => e.preventDefault()}
           onPaneClick={builder.clearSelection}
