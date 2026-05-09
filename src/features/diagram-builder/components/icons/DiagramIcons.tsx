@@ -214,16 +214,6 @@ export function UploadIcon({ size }: IconProps) {
   );
 }
 
-export function SparklesIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <path d="M12 3l1.7 4.3L18 9l-4.3 1.7L12 15l-1.7-4.3L6 9l4.3-1.7L12 3Z" />
-      <path d="M19 14l.9 2.1L22 17l-2.1.9L19 20l-.9-2.1L16 17l2.1-.9L19 14Z" />
-      <path d="M5 15l.7 1.6L7 17l-1.3.4L5 19l-.7-1.6L3 17l1.3-.4L5 15Z" />
-    </IconBase>
-  );
-}
-
 export function SaveIcon({ size }: IconProps) {
   return (
     <IconBase size={size}>
@@ -284,15 +274,6 @@ export function TypeIcon({ size }: IconProps) {
       <polyline points="4 7 4 4 20 4 20 7" />
       <line x1="9" y1="20" x2="15" y2="20" />
       <line x1="12" y1="4" x2="12" y2="20" />
-    </IconBase>
-  );
-}
-
-export function StickyNoteIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z" />
-      <path d="M15 3v6h6" />
     </IconBase>
   );
 }

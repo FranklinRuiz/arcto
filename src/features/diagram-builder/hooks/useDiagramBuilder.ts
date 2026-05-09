@@ -35,7 +35,6 @@ export function useDiagramBuilder() {
   const [nodeSubtitle, setNodeSubtitle] = useState('');
   const [message, setMessage] = useState('Arrastra elementos al lienzo');
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; type: 'node' | 'edge' } | null>(null);
 
   const selectedNode = useMemo(() => nodes.find((node) => node.id === selectedNodeId) || null, [nodes, selectedNodeId]);
   const selectedEdge = useMemo(() => edges.find((edge) => edge.id === selectedEdgeId) || null, [edges, selectedEdgeId]);
@@ -90,7 +89,6 @@ export function useDiagramBuilder() {
   const clearSelection = useCallback(() => {
     setSelectedNodeId(null);
     setSelectedEdgeId(null);
-    setContextMenu(null);
   }, []);
 
   const openNodeEditor = useCallback((node: SoftwareNode) => {
@@ -291,7 +289,6 @@ export function useDiagramBuilder() {
       setEditingEdgeId(null);
       setMessage('Conexión eliminada.');
     }
-    setContextMenu(null);
   }, [nodes, edges, selectedNodeId, selectedEdgeId, setNodes, setEdges]);
 
   const undo = useCallback(() => {
@@ -324,14 +321,6 @@ export function useDiagramBuilder() {
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [deleteSelected, undo]);
-
-  const openContextMenu = useCallback((x: number, y: number, type: 'node' | 'edge') => {
-    setContextMenu({ x, y, type });
-  }, []);
-
-  const closeContextMenu = useCallback(() => {
-    setContextMenu(null);
-  }, []);
 
   const resetDiagram = useCallback(() => {
     setNodes(INITIAL_NODES);
@@ -404,7 +393,6 @@ export function useDiagramBuilder() {
     hasSelection,
     editingNode,
     editingEdge,
-    contextMenu,
     nodeLabel,
     nodeSubtitle,
     message,
@@ -434,8 +422,6 @@ export function useDiagramBuilder() {
     selectNode,
     selectEdge,
     clearSelection,
-    openContextMenu,
-    closeContextMenu,
     updateTextNodeData,
   };
 }
