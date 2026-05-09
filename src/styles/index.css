@@ -1105,6 +1105,37 @@ textarea {
   fill: #334155;
 }
 
+.edge-label-display {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 1px 8px 3px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+  white-space: nowrap;
+  user-select: none;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.1);
+}
+
+.edge-label-input {
+  display: block;
+  background: #fff;
+  border: 1.5px solid #6366f1;
+  border-radius: 6px;
+  height: 24px;
+  line-height: 24px;
+  padding: 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+  outline: none;
+  min-width: 60px;
+  text-align: center;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+  font-family: inherit;
+}
+
 /* ── Text annotation node ── */
 
 .text-node {

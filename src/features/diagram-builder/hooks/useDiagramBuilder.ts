@@ -249,6 +249,14 @@ export function useDiagramBuilder() {
     [updateEdgeDataById],
   );
 
+  const commitInlineEdgeEdit = useCallback(
+    (edgeId: string, label: string) => {
+      updateEdgeDataById(edgeId, { label });
+      setEditingEdgeId(null);
+    },
+    [updateEdgeDataById],
+  );
+
   const deleteSelected = useCallback(() => {
     const multiNodes = nodes.filter((n) => n.selected);
     const multiEdges = edges.filter((e) => e.selected);
@@ -407,6 +415,7 @@ export function useDiagramBuilder() {
     openEdgeEditor,
     closeEdgeEditor,
     saveEdgeEditor,
+    commitInlineEdgeEdit,
     deleteSelected,
     resetDiagram,
     clearDiagram,
