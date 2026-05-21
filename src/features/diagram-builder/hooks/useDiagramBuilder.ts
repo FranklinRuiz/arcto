@@ -225,7 +225,7 @@ export function useDiagramBuilder() {
             id: `text-${Date.now()}`,
             type: 'textNode',
             position,
-            data: { text: 'Texto', bold: false, italic: false, underline: false, fontSize: 16, color: '#0f172a' },
+            data: { text: 'Texto', bold: false, italic: false, underline: false, fontSize: 16, color: '#0f172a', fontFamily: 'inter' },
           } as unknown as SoftwareNode;
           setNodes((current) => current.concat(newNode));
           setSelectedNodeId(newNode.id);

@@ -196,47 +196,6 @@ export function GlobeIcon({ size }: IconProps) {
   );
 }
 
-export function PlusIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <path d="M12 5v14" />
-      <path d="M5 12h14" />
-    </IconBase>
-  );
-}
-
-export function TrashIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <path d="M3 6h18" />
-      <path d="M8 6V4h8v2" />
-      <path d="M19 6l-1 14H6L5 6" />
-      <path d="M10 11v6" />
-      <path d="M14 11v6" />
-    </IconBase>
-  );
-}
-
-export function DownloadIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <path d="M12 3v12" />
-      <path d="m7 10 5 5 5-5" />
-      <path d="M5 21h14" />
-    </IconBase>
-  );
-}
-
-export function UploadIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <path d="M12 21V9" />
-      <path d="m7 14 5-5 5 5" />
-      <path d="M5 3h14" />
-    </IconBase>
-  );
-}
-
 export function SaveIcon({ size }: IconProps) {
   return (
     <IconBase size={size}>
@@ -247,46 +206,11 @@ export function SaveIcon({ size }: IconProps) {
   );
 }
 
-export function ResetIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <path d="M3 12a9 9 0 1 0 3-6.7" />
-      <path d="M3 4v6h6" />
-    </IconBase>
-  );
-}
-
 export function CloseIcon({ size }: IconProps) {
   return (
     <IconBase size={size}>
       <path d="M18 6 6 18" />
       <path d="m6 6 12 12" />
-    </IconBase>
-  );
-}
-
-export function LayersIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <path d="M12 2 2 7l10 5 10-5-10-5Z" />
-      <path d="M2 17l10 5 10-5" />
-      <path d="M2 12l10 5 10-5" />
-    </IconBase>
-  );
-}
-
-export function ChevronLeftIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <path d="m15 18-6-6 6-6" />
-    </IconBase>
-  );
-}
-
-export function ChevronRightIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <path d="m9 18 6-6-6-6" />
     </IconBase>
   );
 }

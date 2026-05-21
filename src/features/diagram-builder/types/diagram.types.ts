@@ -67,6 +67,7 @@ export interface TextNodeData extends Record<string, unknown> {
   underline: boolean;
   fontSize: number;
   color: string;
+  fontFamily: 'inter' | 'jetbrains';
 }
 export type TextNode = Node<TextNodeData, 'textNode'>;
 
