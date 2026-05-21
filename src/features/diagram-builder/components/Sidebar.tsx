@@ -1,5 +1,5 @@
 import type { DragEvent } from 'react';
-import type { PaletteItem, SoftwareNode, TextNodeData } from '../types/diagram.types';
+import type { PaletteItem, SoftwareEdge, SoftwareNode, TextNodeData } from '../types/diagram.types';
 import { PalettePanel } from './PalettePanel';
 
 interface SidebarProps {
@@ -7,9 +7,11 @@ interface SidebarProps {
   onDragStart: (event: DragEvent<HTMLButtonElement>, item: PaletteItem) => void;
   selectedNode: SoftwareNode | null;
   updateTextNodeData: (nodeId: string, patch: Partial<TextNodeData>) => void;
+  selectedEdge: SoftwareEdge | null;
+  toggleEdgeAsync: (edgeId: string) => void;
 }
 
-export function Sidebar({ isOpen, onDragStart, selectedNode, updateTextNodeData }: SidebarProps) {
+export function Sidebar({ isOpen, onDragStart, selectedNode, updateTextNodeData, selectedEdge, toggleEdgeAsync }: SidebarProps) {
   return (
     <aside className={`sidebar${isOpen ? '' : ' sidebar--collapsed'}`}>
       <div className="sidebar__inner">
@@ -17,6 +19,8 @@ export function Sidebar({ isOpen, onDragStart, selectedNode, updateTextNodeData 
           onDragStart={onDragStart}
           selectedNode={selectedNode}
           updateTextNodeData={updateTextNodeData}
+          selectedEdge={selectedEdge}
+          toggleEdgeAsync={toggleEdgeAsync}
         />
       </div>
     </aside>

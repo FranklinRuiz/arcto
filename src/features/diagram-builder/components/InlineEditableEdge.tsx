@@ -5,7 +5,11 @@ import { EdgeEditContext } from './EdgeEditContext';
 const INSET = 4;
 
 export const InlineEditableEdge = memo((props: EdgeProps) => {
-  const { id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, label, markerEnd, style } = props;
+  const { id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, label, markerEnd, style, data, animated } = props;
+  const dashed = Boolean((data as Record<string, unknown>)?.dashed);
+  const edgeStyle = dashed
+    ? { ...style, strokeDasharray: '8 5', ...(animated ? {} : { animation: 'none' }) }
+    : style;
 
   const { editingEdgeId, onCommit, onCancel } = useContext(EdgeEditContext);
   const isEditing = editingEdgeId === id;
@@ -57,7 +61,7 @@ export const InlineEditableEdge = memo((props: EdgeProps) => {
 
   return (
     <>
-      <BaseEdge path={edgePath} markerEnd={markerEnd} style={style} />
+      <BaseEdge path={edgePath} markerEnd={markerEnd} style={edgeStyle} />
       <EdgeLabelRenderer>
         {isEditing ? (
           <div

@@ -45,8 +45,20 @@ export interface EdgeFormData {
   label: string;
 }
 
+export interface GroupNodeData extends Record<string, unknown> {
+  label: string;
+  color: string;
+}
+
+export interface GroupFormData {
+  label: string;
+  color: string;
+}
+
 export type SoftwareNode = Node<SoftwareNodeData, 'softwareNode'>;
-export type SoftwareEdge = Edge;
+export type IconNode = Node<SoftwareNodeData, 'iconNode'>;
+export type GroupNode = Node<GroupNodeData, 'groupNode'>;
+export type SoftwareEdge = Edge<{ dashed?: boolean }>;
 
 export interface TextNodeData extends Record<string, unknown> {
   text: string;
@@ -58,7 +70,7 @@ export interface TextNodeData extends Record<string, unknown> {
 }
 export type TextNode = Node<TextNodeData, 'textNode'>;
 
-export type DiagramNode = SoftwareNode | TextNode;
+export type DiagramNode = SoftwareNode | TextNode | IconNode | GroupNode;
 
 export interface DiagramPayload {
   nodes: DiagramNode[];

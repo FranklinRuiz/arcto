@@ -1,5 +1,5 @@
 import { MarkerType, type XYPosition } from '@xyflow/react';
-import { NODE_KINDS, type EdgeFormData, type NodeFormData, type NodeKind, type PaletteItem, type SoftwareEdge, type SoftwareNode, type SoftwareNodeData } from '../types/diagram.types';
+import { NODE_KINDS, type EdgeFormData, type GroupNode, type IconNode, type NodeFormData, type NodeKind, type PaletteItem, type SoftwareEdge, type SoftwareNode, type SoftwareNodeData } from '../types/diagram.types';
 
 function isNodeKind(value: unknown): value is NodeKind {
   return Object.values(NODE_KINDS).includes(value as NodeKind);
@@ -53,10 +53,41 @@ export function createAnimatedEdge(params: {
     sourceHandle: params.sourceHandle,
     targetHandle: params.targetHandle,
     type: 'smoothstep',
-    animated: true,
+    animated: false,
     label: params.label?.trim() || 'conexión',
     markerEnd: { type: MarkerType.ArrowClosed },
     style: { strokeWidth: 3 },
+    data: { dashed: false },
+  };
+}
+
+export function createIconNode(params: {
+  item: PaletteItem;
+  position: XYPosition;
+}): IconNode {
+  const kind = params.item.type || NODE_KINDS.BACKEND;
+  return {
+    id: `icon-${kind}-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    type: 'iconNode',
+    position: params.position,
+    data: {
+      label: params.item.label,
+      subtitle: params.item.subtitle,
+      description: params.item.description,
+      kind,
+      icon: kind,
+    },
+  };
+}
+
+export function createGroupNode(params: { position: XYPosition }): GroupNode {
+  return {
+    id: `group-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    type: 'groupNode',
+    position: params.position,
+    style: { width: 400, height: 280 },
+    zIndex: -1,
+    data: { label: 'Grupo', color: '#0d9488' },
   };
 }
 

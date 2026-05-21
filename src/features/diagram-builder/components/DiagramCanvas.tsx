@@ -42,7 +42,12 @@ export function DiagramCanvas({ builder }: DiagramCanvasProps) {
           onDrop={builder.onDrop}
           onDragOver={builder.onDragOver}
           onNodeClick={(_, node) => builder.selectNode(node)}
-          onNodeDoubleClick={(_, node) => { if ((node.type as string) !== 'textNode') builder.openNodeEditor(node); }}
+          onNodeDoubleClick={(_, node) => {
+            const t = node.type as string;
+            if (t === 'textNode') return;
+            if (t === 'groupNode') builder.openGroupEditor(node);
+            else builder.openNodeEditor(node);
+          }}
           onEdgeClick={(_, edge) => builder.selectEdge(edge)}
           onEdgeDoubleClick={(_, edge) => builder.openEdgeEditor(edge)}
           onReconnect={builder.onReconnect}

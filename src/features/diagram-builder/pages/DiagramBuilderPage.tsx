@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { AppToolbar } from '../components/AppToolbar';
 import { DiagramCanvas } from '../components/DiagramCanvas';
+import { GroupEditModal } from '../components/GroupEditModal';
 import { Sidebar } from '../components/Sidebar';
 import { useDiagramBuilder } from '../hooks/useDiagramBuilder';
 
@@ -25,9 +26,16 @@ export function DiagramBuilderPage() {
           onDragStart={builder.onDragStart}
           selectedNode={builder.selectedNode}
           updateTextNodeData={builder.updateTextNodeData}
+          selectedEdge={builder.selectedEdge}
+          toggleEdgeAsync={builder.toggleEdgeAsync}
         />
         <DiagramCanvas builder={builder} />
       </div>
+      <GroupEditModal
+        node={builder.editingGroup}
+        onClose={builder.closeGroupEditor}
+        onSave={builder.saveGroupEditor}
+      />
     </div>
   );
 }

@@ -1,30 +1,15 @@
 import type { DragEvent } from 'react';
-import { PALETTE, PALETTE_GROUPS } from '../constants/diagram.constants';
-import { NODE_KINDS, type NodeKind, type PaletteItem, type SoftwareNode, type TextNodeData } from '../types/diagram.types';
+import { KIND_ICON_COLORS, PALETTE, PALETTE_GROUPS } from '../constants/diagram.constants';
+import { NODE_KINDS, type PaletteItem, type SoftwareEdge, type SoftwareNode, type TextNodeData } from '../types/diagram.types';
 import { iconMap, ServerIcon, TypeIcon } from './icons/DiagramIcons';
 
 interface PalettePanelProps {
   onDragStart: (event: DragEvent<HTMLButtonElement>, item: PaletteItem) => void;
   selectedNode: SoftwareNode | null;
   updateTextNodeData: (nodeId: string, patch: Partial<TextNodeData>) => void;
+  selectedEdge: SoftwareEdge | null;
+  toggleEdgeAsync: (edgeId: string) => void;
 }
-
-const iconStyle: Record<NodeKind, { background: string; color: string }> = {
-  [NODE_KINDS.DEFAULT]:   { background: '#f1f5f9', color: '#64748b' },
-  [NODE_KINDS.FRONTEND]:  { background: '#e0f2fe', color: '#0369a1' },
-  [NODE_KINDS.MOBILE]:    { background: '#cffafe', color: '#0e7490' },
-  [NODE_KINDS.GATEWAY]:   { background: '#ffedd5', color: '#c2410c' },
-  [NODE_KINDS.BACKEND]:   { background: '#ede9fe', color: '#6d28d9' },
-  [NODE_KINDS.DATABASE]:  { background: '#d1fae5', color: '#065f46' },
-  [NODE_KINDS.CACHE]:     { background: '#dcfce7', color: '#166534' },
-  [NODE_KINDS.QUEUE]:     { background: '#fce7f3', color: '#9d174d' },
-  [NODE_KINDS.SECURITY]:  { background: '#fef3c7', color: '#92400e' },
-  [NODE_KINDS.CLOUD]:     { background: '#e0e7ff', color: '#3730a3' },
-  [NODE_KINDS.ONPREMISE]: { background: '#dbeafe', color: '#1e3a8a' },
-  [NODE_KINDS.EXTERNAL]:  { background: '#f1f5f9', color: '#475569' },
-  [NODE_KINDS.MAINFRAME]: { background: '#e7e5e4', color: '#1c1917' },
-  [NODE_KINDS.WORKER]:    { background: '#ffe4e6', color: '#be123c' },
-};
 
 const FONT_SIZES = [10, 12, 14, 16, 18, 20, 24, 28, 32, 40, 48];
 const TEXT_COLORS = [
@@ -39,6 +24,59 @@ const TEXT_COLORS = [
 ];
 
 const heroItem = PALETTE.find((p) => p.type === NODE_KINDS.DEFAULT)!;
+
+function SyncPreview() {
+  return (
+    <svg width="44" height="12" viewBox="0 0 44 12" fill="none">
+      <line x1="0" y1="6" x2="36" y2="6" stroke="currentColor" strokeWidth="2" />
+      <path d="M36 2 L44 6 L36 10 Z" fill="currentColor" />
+    </svg>
+  );
+}
+
+function AsyncPreview() {
+  return (
+    <svg width="44" height="12" viewBox="0 0 44 12" fill="none">
+      <line x1="0" y1="6" x2="36" y2="6" stroke="currentColor" strokeWidth="2" strokeDasharray="5 3" />
+      <path d="M36 2 L44 6 L36 10 Z" fill="currentColor" />
+    </svg>
+  );
+}
+
+function EdgePropertiesPanel({
+  edge,
+  onToggleAsync,
+}: {
+  edge: SoftwareEdge;
+  onToggleAsync: () => void;
+}) {
+  const isAsync = Boolean(edge.data?.dashed) && (edge as { animated?: boolean }).animated;
+
+  return (
+    <div className="edge-props-panel">
+      <div className="panel__title">Conexión seleccionada</div>
+      <div className="edge-type-row">
+        <button
+          type="button"
+          className={`edge-type-btn${!isAsync ? ' edge-type-btn--active' : ''}`}
+          onClick={() => { if (isAsync) onToggleAsync(); }}
+        >
+          <SyncPreview />
+          <span>Síncrona</span>
+        </button>
+        <button
+          type="button"
+          className={`edge-type-btn${isAsync ? ' edge-type-btn--active' : ''}`}
+          onClick={() => { if (!isAsync) onToggleAsync(); }}
+        >
+          <AsyncPreview />
+          <span>Asíncrona</span>
+        </button>
+      </div>
+      <div className="edge-hint">Doble clic sobre la flecha para editar etiqueta</div>
+    </div>
+  );
+}
 
 interface TextEditPanelProps {
   data: TextNodeData;
@@ -106,7 +144,19 @@ function TextEditPanel({ data, onUpdate }: TextEditPanelProps) {
   );
 }
 
-export function PalettePanel({ onDragStart, selectedNode, updateTextNodeData }: PalettePanelProps) {
+function dragGhost(label: string, e: DragEvent<HTMLButtonElement>) {
+  const ghost = document.createElement('div');
+  ghost.style.cssText =
+    'position:fixed;top:-200px;left:-200px;padding:6px 14px;background:#0f172a;color:white;' +
+    'border-radius:10px;font:700 13px/1.4 Inter,sans-serif;white-space:nowrap;pointer-events:none;' +
+    'box-shadow:0 8px 24px rgba(15,23,42,0.35);';
+  ghost.textContent = label;
+  document.body.appendChild(ghost);
+  e.dataTransfer.setDragImage(ghost, ghost.offsetWidth / 2, 20);
+  requestAnimationFrame(() => document.body.removeChild(ghost));
+}
+
+export function PalettePanel({ onDragStart, selectedNode, updateTextNodeData, selectedEdge, toggleEdgeAsync }: PalettePanelProps) {
   const HeroIcon = iconMap[heroItem.type] ?? ServerIcon;
 
   const isTextSelected = selectedNode !== null && (selectedNode.type as string) === 'textNode';
@@ -116,20 +166,52 @@ export function PalettePanel({ onDragStart, selectedNode, updateTextNodeData }: 
     <section className="palette-section">
       <div className="panel__title">Elementos</div>
 
+      {selectedEdge && (
+        <EdgePropertiesPanel
+          edge={selectedEdge}
+          onToggleAsync={() => toggleEdgeAsync(selectedEdge.id)}
+        />
+      )}
+
       <button
         type="button"
         draggable
         onDragStart={(e) => onDragStart(e, heroItem)}
         className="palette__hero"
       >
-        <div className="palette__icon" style={iconStyle[heroItem.type]}>
-          <HeroIcon size={20} />
+        <div className="palette__icon" style={KIND_ICON_COLORS[heroItem.type]}>
+          <HeroIcon size="100%" />
         </div>
         <div className="palette__hero-text">
           <div className="palette__label">{heroItem.label}</div>
           <div className="palette__subtitle">{heroItem.subtitle}</div>
         </div>
       </button>
+
+      <div className="palette__group">
+        <div className="palette__group-label">Contenedores</div>
+        <button
+          type="button"
+          draggable
+          onDragStart={(e) => {
+            e.dataTransfer.setData('application/reactflow', JSON.stringify({ __isGroup: true }));
+            e.dataTransfer.effectAllowed = 'move';
+            dragGhost('Contenedor', e);
+          }}
+          className="palette__hero palette__hero--group"
+        >
+          <div className="palette__icon palette__icon--group">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="3" strokeDasharray="4 2" />
+              <path d="M3 8h18" />
+            </svg>
+          </div>
+          <div className="palette__hero-text">
+            <div className="palette__label">Contenedor</div>
+            <div className="palette__subtitle">Agrupa elementos</div>
+          </div>
+        </button>
+      </div>
 
       <div className="palette__group">
         <div className="palette__group-label">Anotaciones</div>
@@ -139,20 +221,12 @@ export function PalettePanel({ onDragStart, selectedNode, updateTextNodeData }: 
           onDragStart={(e) => {
             e.dataTransfer.setData('application/reactflow', JSON.stringify({ __isText: true }));
             e.dataTransfer.effectAllowed = 'move';
-            const ghost = document.createElement('div');
-            ghost.style.cssText =
-              'position:fixed;top:-200px;left:-200px;padding:6px 14px;background:#0f172a;color:white;' +
-              'border-radius:10px;font:700 13px/1.4 Inter,sans-serif;white-space:nowrap;pointer-events:none;' +
-              'box-shadow:0 8px 24px rgba(15,23,42,0.35);';
-            ghost.textContent = 'Texto';
-            document.body.appendChild(ghost);
-            e.dataTransfer.setDragImage(ghost, ghost.offsetWidth / 2, 20);
-            requestAnimationFrame(() => document.body.removeChild(ghost));
+            dragGhost('Texto', e);
           }}
           className="palette__text-item"
         >
           <div className="palette__icon" style={{ background: '#f8fafc', color: '#64748b' }}>
-            <TypeIcon size={17} />
+            <TypeIcon size="100%" />
           </div>
           <div>
             <div className="palette__label">Texto</div>
@@ -168,31 +242,34 @@ export function PalettePanel({ onDragStart, selectedNode, updateTextNodeData }: 
         )}
       </div>
 
-      {PALETTE_GROUPS.map((group) => (
-        <div key={group.label} className="palette__group">
-          <div className="palette__group-label">{group.label}</div>
-          <div className="palette__group-grid">
-            {group.items.map((item) => {
-              const Icon = iconMap[item.type] ?? ServerIcon;
-              return (
-                <button
-                  key={item.type}
-                  type="button"
-                  draggable
-                  onDragStart={(e) => onDragStart(e, item)}
-                  className="palette__item"
-                >
-                  <div className="palette__icon" style={iconStyle[item.type]}>
-                    <Icon size={15} />
-                  </div>
-                  <div className="palette__label">{item.label}</div>
-                  <div className="palette__subtitle">{item.subtitle}</div>
-                </button>
-              );
-            })}
+      <div className="palette__group">
+        {PALETTE_GROUPS.map((group) => (
+          <div key={group.label} className="palette__icon-subgroup">
+            <div className="palette__group-label">{group.label}</div>
+            <div className="palette__group-grid">
+              {group.items.map((item) => {
+                const Icon = iconMap[item.type] ?? ServerIcon;
+                return (
+                  <button
+                    key={`card-${item.type}`}
+                    type="button"
+                    draggable
+                    onDragStart={(e) => onDragStart(e, item)}
+                    className="palette__item"
+                  >
+                    <div className="palette__icon" style={KIND_ICON_COLORS[item.type]}>
+                      <Icon size="100%" />
+                    </div>
+                    <div className="palette__label">{item.label}</div>
+                    <div className="palette__subtitle">{item.subtitle}</div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
+
     </section>
   );
 }

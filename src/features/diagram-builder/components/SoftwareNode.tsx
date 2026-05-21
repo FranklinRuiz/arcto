@@ -45,7 +45,7 @@ export function SoftwareNodeComponent({ data, selected }: NodeProps<SoftwareNode
       <Handle id="left-3" type="source" position={Position.Left} style={{ top: '75%' }} className="software-node__handle" />
       <div className="software-node__content">
         <div className="software-node__icon">
-          <Icon size={23} />
+          <Icon size="100%" />
         </div>
         <div className="software-node__text">
           <div className="software-node__title">{data.label}</div>

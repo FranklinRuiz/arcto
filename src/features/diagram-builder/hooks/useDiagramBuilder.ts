@@ -4,8 +4,10 @@ import { addEdge, reconnectEdge, useEdgesState, useNodesState, type Connection, 
 import { INITIAL_EDGES, INITIAL_NODES } from '../constants/diagram.constants';
 import { SoftwareNodeComponent } from '../components/SoftwareNode';
 import { TextNodeComponent } from '../components/TextNode';
-import { NODE_KINDS, type EdgeFormData, type NodeFormData, type PaletteItem, type SoftwareEdge, type SoftwareNode, type TextNodeData } from '../types/diagram.types';
-import { createAnimatedEdge, createNode, normalizeNodeData } from '../utils/diagramFactory';
+import { IconNodeComponent } from '../components/IconNode';
+import { GroupNodeComponent } from '../components/GroupNode';
+import { NODE_KINDS, type EdgeFormData, type GroupFormData, type GroupNode, type NodeFormData, type PaletteItem, type SoftwareEdge, type SoftwareNode, type TextNodeData } from '../types/diagram.types';
+import { createAnimatedEdge, createGroupNode, createIconNode, createNode, normalizeNodeData } from '../utils/diagramFactory';
 import { isValidDiagramPayload } from '../utils/diagramValidation';
 
 const STORAGE_KEY = 'arcto-diagram';
@@ -31,8 +33,7 @@ export function useDiagramBuilder() {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
   const [editingEdgeId, setEditingEdgeId] = useState<string | null>(null);
-  const [nodeLabel, setNodeLabel] = useState('');
-  const [nodeSubtitle, setNodeSubtitle] = useState('');
+  const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
   const [message, setMessage] = useState('Arrastra elementos al lienzo');
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
 
@@ -40,12 +41,21 @@ export function useDiagramBuilder() {
   const selectedEdge = useMemo(() => edges.find((edge) => edge.id === selectedEdgeId) || null, [edges, selectedEdgeId]);
   const editingNode = useMemo(() => nodes.find((node) => node.id === editingNodeId) || null, [nodes, editingNodeId]);
   const editingEdge = useMemo(() => edges.find((edge) => edge.id === editingEdgeId) || null, [edges, editingEdgeId]);
+  const editingGroup = useMemo(
+    () => (nodes.find((n) => n.id === editingGroupId) as GroupNode | undefined) || null,
+    [nodes, editingGroupId],
+  );
   const hasSelection = useMemo(
     () => nodes.some((n) => n.selected) || edges.some((e) => e.selected) || !!selectedNodeId || !!selectedEdgeId,
     [nodes, edges, selectedNodeId, selectedEdgeId],
   );
 
-  const nodeTypes = useMemo(() => ({ softwareNode: SoftwareNodeComponent, textNode: TextNodeComponent }), []);
+  const nodeTypes = useMemo(() => ({
+    softwareNode: SoftwareNodeComponent,
+    textNode: TextNodeComponent,
+    iconNode: IconNodeComponent,
+    groupNode: GroupNodeComponent,
+  }), []);
 
   // ── Historial para deshacer ──
   const historyRef = useRef<Array<{ nodes: SoftwareNode[]; edges: SoftwareEdge[] }>>([]);
@@ -110,6 +120,61 @@ export function useDiagramBuilder() {
     setEditingEdgeId(null);
   }, []);
 
+  const openGroupEditor = useCallback((node: SoftwareNode) => {
+    setEditingGroupId(node.id);
+  }, []);
+
+  const closeGroupEditor = useCallback(() => {
+    setEditingGroupId(null);
+  }, []);
+
+  const saveGroupEditor = useCallback(
+    (nodeId: string, formData: GroupFormData) => {
+      setNodes((current) =>
+        current.map((node) =>
+          node.id === nodeId ? { ...node, data: { ...node.data, ...formData } } : node,
+        ),
+      );
+      setEditingGroupId(null);
+      setMessage('Grupo actualizado correctamente.');
+    },
+    [setNodes],
+  );
+
+  const toggleEdgeDashed = useCallback(
+    (edgeId: string) => {
+      setEdges((current) =>
+        current.map((edge) => {
+          if (edge.id !== edgeId) return edge;
+          const nowDashed = !edge.data?.dashed;
+          return {
+            ...edge,
+            animated: false,
+            data: { ...edge.data, dashed: nowDashed },
+          };
+        }),
+      );
+    },
+    [setEdges],
+  );
+
+  const toggleEdgeAsync = useCallback(
+    (edgeId: string) => {
+      setEdges((current) =>
+        current.map((edge) => {
+          if (edge.id !== edgeId) return edge;
+          const nowAsync = !(edge.data?.dashed && edge.animated);
+          return {
+            ...edge,
+            animated: nowAsync,
+            data: { ...edge.data, dashed: nowAsync },
+          };
+        }),
+      );
+    },
+    [setEdges],
+  );
+
   const onConnect = useCallback(
     (params: Connection) => {
       const newEdge = createAnimatedEdge({
@@ -164,6 +229,17 @@ export function useDiagramBuilder() {
           } as unknown as SoftwareNode;
           setNodes((current) => current.concat(newNode));
           setSelectedNodeId(newNode.id);
+        } else if (payload.__isGroup) {
+          const newGroup = createGroupNode({ position: { x: position.x - 200, y: position.y - 140 } });
+          setNodes((current) => [newGroup as unknown as SoftwareNode, ...current]);
+          setSelectedNodeId(newGroup.id);
+          setMessage('Contenedor agregado. Doble clic para editar su nombre.');
+        } else if (payload.__isIcon) {
+          const item = payload as unknown as PaletteItem;
+          const newNode = createIconNode({ item, position });
+          setNodes((current) => current.concat(newNode as unknown as SoftwareNode));
+          setSelectedNodeId(newNode.id);
+          setMessage(`Nodo icónico agregado: ${newNode.data.label}`);
         } else {
           const item = payload as unknown as PaletteItem;
           const newNode = createNode({ item, position });
@@ -177,21 +253,6 @@ export function useDiagramBuilder() {
     },
     [rfInstance, setNodes],
   );
-
-  const addQuickNode = useCallback(() => {
-    const newNode = createNode({
-      item: { type: NODE_KINDS.BACKEND, label: 'Nuevo componente', subtitle: 'Descripción técnica', description: '' },
-      position: { x: 260 + nodes.length * 30, y: 300 + nodes.length * 20 },
-      customLabel: nodeLabel,
-      customSubtitle: nodeSubtitle,
-    });
-
-    setNodes((current) => [...current, newNode]);
-    setSelectedNodeId(newNode.id);
-    setNodeLabel('');
-    setNodeSubtitle('');
-    setMessage('Nodo rápido agregado. Haz doble clic sobre él para editarlo.');
-  }, [nodeLabel, nodeSubtitle, nodes.length, setNodes]);
 
   const updateNodeDataById = useCallback(
     (nodeId: string, formData: NodeFormData) => {
@@ -269,7 +330,7 @@ export function useDiagramBuilder() {
     if (multiNodes.length > 0 || multiEdges.length > 0) {
       const nodeIds = new Set(multiNodes.map((n) => n.id));
       const edgeIds = new Set(multiEdges.map((e) => e.id));
-      setNodes((current) => current.filter((n) => !nodeIds.has(n.id)));
+      setNodes((current) => current.filter((n) => !nodeIds.has(n.id) && !(n.parentId && nodeIds.has(n.parentId))));
       setEdges((current) => current.filter((e) => !nodeIds.has(e.source) && !nodeIds.has(e.target) && !edgeIds.has(e.id)));
       setSelectedNodeId(null);
       setEditingNodeId(null);
@@ -321,15 +382,6 @@ export function useDiagramBuilder() {
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [deleteSelected, undo]);
-
-  const resetDiagram = useCallback(() => {
-    setNodes(INITIAL_NODES);
-    setEdges(INITIAL_EDGES);
-    setSelectedNodeId(null);
-    setEditingNodeId(null);
-    setEditingEdgeId(null);
-    setMessage('Diagrama restaurado al estado inicial.');
-  }, [setNodes, setEdges]);
 
   const clearDiagram = useCallback(() => {
     setNodes([]);
@@ -393,29 +445,28 @@ export function useDiagramBuilder() {
     hasSelection,
     editingNode,
     editingEdge,
-    nodeLabel,
-    nodeSubtitle,
+    editingGroup,
     message,
     setRfInstance,
-    setNodeLabel,
-    setNodeSubtitle,
     onNodesChange,
     onEdgesChange,
     onConnect,
     onDragStart,
     onDragOver,
     onDrop,
-    addQuickNode,
     openNodeEditor,
     closeNodeEditor,
     saveNodeEditor,
     openEdgeEditor,
     closeEdgeEditor,
     saveEdgeEditor,
+    openGroupEditor,
+    closeGroupEditor,
+    saveGroupEditor,
     commitInlineEdgeEdit,
+    toggleEdgeAsync,
     onReconnect,
     deleteSelected,
-    resetDiagram,
     clearDiagram,
     exportJson,
     importJson,

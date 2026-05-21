@@ -1,5 +1,22 @@
 import { MarkerType } from '@xyflow/react';
-import { NODE_KINDS, type PaletteItem, type SoftwareEdge, type SoftwareNode } from '../types/diagram.types';
+import { NODE_KINDS, type NodeKind, type PaletteItem, type SoftwareEdge, type SoftwareNode } from '../types/diagram.types';
+
+export const KIND_ICON_COLORS: Record<NodeKind, { background: string; color: string }> = {
+  [NODE_KINDS.DEFAULT]:   { background: '#f1f5f9', color: '#64748b' },
+  [NODE_KINDS.FRONTEND]:  { background: '#e0f2fe', color: '#0369a1' },
+  [NODE_KINDS.MOBILE]:    { background: '#cffafe', color: '#0e7490' },
+  [NODE_KINDS.GATEWAY]:   { background: '#ffedd5', color: '#c2410c' },
+  [NODE_KINDS.BACKEND]:   { background: '#ede9fe', color: '#6d28d9' },
+  [NODE_KINDS.DATABASE]:  { background: '#d1fae5', color: '#065f46' },
+  [NODE_KINDS.CACHE]:     { background: '#dcfce7', color: '#166534' },
+  [NODE_KINDS.QUEUE]:     { background: '#fce7f3', color: '#9d174d' },
+  [NODE_KINDS.SECURITY]:  { background: '#fef3c7', color: '#92400e' },
+  [NODE_KINDS.CLOUD]:     { background: '#e0e7ff', color: '#3730a3' },
+  [NODE_KINDS.EXTERNAL]:  { background: '#f1f5f9', color: '#475569' },
+  [NODE_KINDS.WORKER]:    { background: '#ffe4e6', color: '#be123c' },
+  [NODE_KINDS.ONPREMISE]: { background: '#dbeafe', color: '#1e3a8a' },
+  [NODE_KINDS.MAINFRAME]: { background: '#e7e5e4', color: '#1c1917' },
+};
 
 interface PaletteGroup {
   label: string;
@@ -119,64 +136,142 @@ export const PALETTE_GROUPS: PaletteGroup[] = [
   },
 ];
 
-export const INITIAL_NODES: SoftwareNode[] = [
+export const ICON_PALETTE_GROUPS: PaletteGroup[] = [
   {
-    id: 'frontend-1',
-    type: 'softwareNode',
-    position: { x: 160, y: 120 },
+    label: 'Clientes',
+    items: [pick('FRONTEND'), pick('MOBILE')],
+  },
+  {
+    label: 'Servicios',
+    items: [pick('GATEWAY'), pick('BACKEND'), pick('EXTERNAL')],
+  },
+  {
+    label: 'Infraestructura',
+    items: [pick('DATABASE'), pick('CLOUD'), pick('SECURITY')],
+  },
+];
+
+export const INITIAL_NODES: SoftwareNode[] = [
+  // Grupo contenedor
+  {
+    id: 'group-1',
+    type: 'groupNode',
+    position: { x: 60, y: 60 },
+    zIndex: -1,
+    style: { width: 420, height: 300 },
+    data: { label: 'Red Cliente', color: '#0d9488' },
+  } as unknown as SoftwareNode,
+
+  // Nodos icónicos dentro del grupo
+  {
+    id: 'web-1',
+    type: 'iconNode',
+    position: { x: 100, y: 120 },
     data: {
-      label: 'Frontend Web',
+      label: 'Web',
       subtitle: 'React / Angular',
-      description: 'Interfaz principal consumida por usuarios finales.',
+      description: '',
       kind: NODE_KINDS.FRONTEND,
       icon: NODE_KINDS.FRONTEND,
     },
   },
   {
-    id: 'api-1',
-    type: 'softwareNode',
-    position: { x: 480, y: 120 },
+    id: 'mobile-1',
+    type: 'iconNode',
+    position: { x: 100, y: 250 },
     data: {
-      label: 'API Backend',
-      subtitle: 'Spring Boot / .NET',
-      description: 'Expone servicios REST y contiene la lógica de negocio.',
+      label: 'Móvil',
+      subtitle: 'iOS / Android',
+      description: '',
+      kind: NODE_KINDS.MOBILE,
+      icon: NODE_KINDS.MOBILE,
+    },
+  },
+
+  // Nodo tarjeta (proxy / backend)
+  {
+    id: 'proxy-1',
+    type: 'softwareNode',
+    position: { x: 270, y: 155 },
+    data: {
+      label: 'API Gateway',
+      subtitle: 'Proxy / Auth',
+      description: 'Punto de entrada único para todos los clientes.',
+      kind: NODE_KINDS.GATEWAY,
+      icon: NODE_KINDS.GATEWAY,
+    },
+  },
+
+  // Nodos icónicos externos
+  {
+    id: 'internet-1',
+    type: 'iconNode',
+    position: { x: 570, y: 180 },
+    data: {
+      label: 'Internet',
+      subtitle: '',
+      description: '',
+      kind: NODE_KINDS.EXTERNAL,
+      icon: NODE_KINDS.EXTERNAL,
+    },
+  },
+  {
+    id: 'apis-1',
+    type: 'iconNode',
+    position: { x: 760, y: 180 },
+    data: {
+      label: 'Websites / APIs',
+      subtitle: '',
+      description: '',
       kind: NODE_KINDS.BACKEND,
       icon: NODE_KINDS.BACKEND,
     },
   },
-  {
-    id: 'db-1',
-    type: 'softwareNode',
-    position: { x: 800, y: 120 },
-    data: {
-      label: 'Base de Datos',
-      subtitle: 'SQL Server / MySQL',
-      description: 'Almacena la información transaccional del sistema.',
-      kind: NODE_KINDS.DATABASE,
-      icon: NODE_KINDS.DATABASE,
-    },
-  },
-];
+] as unknown as SoftwareNode[];
 
 export const INITIAL_EDGES: SoftwareEdge[] = [
   {
-    id: 'frontend-api',
-    source: 'frontend-1',
-    target: 'api-1',
+    id: 'web-proxy',
+    source: 'web-1',
+    target: 'proxy-1',
     type: 'smoothstep',
-    animated: true,
-    label: 'HTTPS / JSON',
+    animated: false,
+    label: '',
     markerEnd: { type: MarkerType.ArrowClosed },
-    style: { strokeWidth: 3 },
+    style: { strokeWidth: 2 },
+    data: { dashed: true },
   },
   {
-    id: 'api-db',
-    source: 'api-1',
-    target: 'db-1',
+    id: 'mobile-proxy',
+    source: 'mobile-1',
+    target: 'proxy-1',
     type: 'smoothstep',
-    animated: true,
-    label: 'JPA / Query',
+    animated: false,
+    label: '',
     markerEnd: { type: MarkerType.ArrowClosed },
-    style: { strokeWidth: 3 },
+    style: { strokeWidth: 2 },
+    data: { dashed: true },
+  },
+  {
+    id: 'proxy-internet',
+    source: 'proxy-1',
+    target: 'internet-1',
+    type: 'smoothstep',
+    animated: false,
+    label: '',
+    markerEnd: { type: MarkerType.ArrowClosed },
+    style: { strokeWidth: 2 },
+    data: { dashed: false },
+  },
+  {
+    id: 'internet-apis',
+    source: 'internet-1',
+    target: 'apis-1',
+    type: 'smoothstep',
+    animated: false,
+    label: '',
+    markerEnd: { type: MarkerType.ArrowClosed },
+    style: { strokeWidth: 2 },
+    data: { dashed: false },
   },
 ];
