@@ -152,124 +152,67 @@ export const ICON_PALETTE_GROUPS: PaletteGroup[] = [
 ];
 
 export const INITIAL_NODES: SoftwareNode[] = [
-  // Grupo contenedor
   {
-    id: 'group-1',
-    type: 'groupNode',
-    position: { x: 60, y: 60 },
-    zIndex: -1,
-    style: { width: 420, height: 300 },
-    data: { label: 'Red Cliente', color: '#0d9488' },
-  } as unknown as SoftwareNode,
-
-  // Nodos icónicos dentro del grupo
-  {
-    id: 'web-1',
-    type: 'iconNode',
-    position: { x: 100, y: 120 },
+    id: 'init-frontend',
+    type: 'softwareNode',
+    position: { x: 60, y: 160 },
     data: {
-      label: 'Web',
+      label: 'Frontend Web',
       subtitle: 'React / Angular',
-      description: '',
+      description: 'Interfaz web consumida por clientes o...',
       kind: NODE_KINDS.FRONTEND,
       icon: NODE_KINDS.FRONTEND,
     },
   },
   {
-    id: 'mobile-1',
-    type: 'iconNode',
-    position: { x: 100, y: 250 },
-    data: {
-      label: 'Móvil',
-      subtitle: 'iOS / Android',
-      description: '',
-      kind: NODE_KINDS.MOBILE,
-      icon: NODE_KINDS.MOBILE,
-    },
-  },
-
-  // Nodo tarjeta (proxy / backend)
-  {
-    id: 'proxy-1',
+    id: 'init-service',
     type: 'softwareNode',
-    position: { x: 270, y: 155 },
+    position: { x: 390, y: 160 },
     data: {
-      label: 'API Gateway',
-      subtitle: 'Proxy / Auth',
-      description: 'Punto de entrada único para todos los clientes.',
-      kind: NODE_KINDS.GATEWAY,
-      icon: NODE_KINDS.GATEWAY,
-    },
-  },
-
-  // Nodos icónicos externos
-  {
-    id: 'internet-1',
-    type: 'iconNode',
-    position: { x: 570, y: 180 },
-    data: {
-      label: 'Internet',
-      subtitle: '',
-      description: '',
-      kind: NODE_KINDS.EXTERNAL,
-      icon: NODE_KINDS.EXTERNAL,
-    },
-  },
-  {
-    id: 'apis-1',
-    type: 'iconNode',
-    position: { x: 760, y: 180 },
-    data: {
-      label: 'Websites / APIs',
-      subtitle: '',
-      description: '',
+      label: 'Microservicio',
+      subtitle: 'REST / gRPC',
+      description: 'Servicio autónomo con lógica de negocio...',
       kind: NODE_KINDS.BACKEND,
       icon: NODE_KINDS.BACKEND,
+    },
+  },
+  {
+    id: 'init-db',
+    type: 'softwareNode',
+    position: { x: 720, y: 160 },
+    data: {
+      label: 'Base de Datos',
+      subtitle: 'SQL / NoSQL',
+      description: 'Almacén de datos transaccional o analítico...',
+      kind: NODE_KINDS.DATABASE,
+      icon: NODE_KINDS.DATABASE,
     },
   },
 ] as unknown as SoftwareNode[];
 
 export const INITIAL_EDGES: SoftwareEdge[] = [
   {
-    id: 'web-proxy',
-    source: 'web-1',
-    target: 'proxy-1',
+    id: 'init-frontend-service',
+    source: 'init-frontend',
+    sourceHandle: 'right-2',
+    target: 'init-service',
+    targetHandle: 'left-2',
     type: 'smoothstep',
     animated: false,
-    label: '',
-    markerEnd: { type: MarkerType.ArrowClosed },
-    style: { strokeWidth: 2 },
-    data: { dashed: true },
-  },
-  {
-    id: 'mobile-proxy',
-    source: 'mobile-1',
-    target: 'proxy-1',
-    type: 'smoothstep',
-    animated: false,
-    label: '',
-    markerEnd: { type: MarkerType.ArrowClosed },
-    style: { strokeWidth: 2 },
-    data: { dashed: true },
-  },
-  {
-    id: 'proxy-internet',
-    source: 'proxy-1',
-    target: 'internet-1',
-    type: 'smoothstep',
-    animated: false,
-    label: '',
+    label: '/api/consulta',
     markerEnd: { type: MarkerType.ArrowClosed },
     style: { strokeWidth: 2 },
     data: { dashed: false },
   },
   {
-    id: 'internet-apis',
-    source: 'internet-1',
-    target: 'apis-1',
+    id: 'init-service-db',
+    source: 'init-service',
+    sourceHandle: 'right-2',
+    target: 'init-db',
+    targetHandle: 'left-2',
     type: 'smoothstep',
     animated: false,
-    label: '',
+    label: 'jdbc',
     markerEnd: { type: MarkerType.ArrowClosed },
     style: { strokeWidth: 2 },
     data: { dashed: false },

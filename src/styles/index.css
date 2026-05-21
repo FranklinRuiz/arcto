@@ -640,8 +640,8 @@ textarea {
 }
 
 .software-node {
-  min-width: 175px;
-  max-width: 215px;
+  min-width: 195px;
+  max-width: 240px;
   padding: 10px 12px;
   border: 1.5px solid #e2e8f0;
   border-radius: 14px;

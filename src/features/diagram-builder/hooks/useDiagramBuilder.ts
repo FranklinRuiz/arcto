@@ -417,9 +417,10 @@ export function useDiagramBuilder() {
             return;
           }
 
-          setNodes(parsed.nodes.map((node) =>
-            node.type === 'textNode' ? node as unknown as SoftwareNode : { ...node, data: normalizeNodeData(node.data) },
-          ) as SoftwareNode[]);
+          setNodes(parsed.nodes.map((node) => {
+            if (node.type === 'textNode' || node.type === 'groupNode') return node as unknown as SoftwareNode;
+            return { ...node, data: normalizeNodeData(node.data) };
+          }) as SoftwareNode[]);
           setEdges(parsed.edges);
           setSelectedNodeId(null);
           setEditingNodeId(null);
