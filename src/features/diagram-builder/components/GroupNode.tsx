@@ -8,7 +8,7 @@ export function GroupNodeComponent({ data, selected }: NodeProps<GroupNode>) {
         isVisible={selected}
         minWidth={180}
         minHeight={120}
-        handleStyle={{ width: 8, height: 8, borderRadius: 2, background: data.color, border: '2px solid white' }}
+        handleStyle={{ width: 10, height: 10, borderRadius: 3, background: data.color, border: '2px solid white' }}
         lineStyle={{ borderColor: data.color, borderWidth: 1.5, borderStyle: 'dashed' }}
       />
       <Handle id="top"    type="source" position={Position.Top}    className="group-node__handle" />
