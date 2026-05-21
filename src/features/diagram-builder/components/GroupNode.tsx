@@ -3,7 +3,7 @@ import type { GroupNode } from '../types/diagram.types';
 
 export function GroupNodeComponent({ data, selected }: NodeProps<GroupNode>) {
   return (
-    <>
+    <div className="group-node-outer">
       <NodeResizer
         isVisible={selected}
         minWidth={180}
@@ -26,6 +26,6 @@ export function GroupNodeComponent({ data, selected }: NodeProps<GroupNode>) {
           {data.label}
         </div>
       </div>
-    </>
+    </div>
   );
 }
