@@ -6,7 +6,7 @@ import { SoftwareNodeComponent } from '../components/SoftwareNode';
 import { TextNodeComponent } from '../components/TextNode';
 import { IconNodeComponent } from '../components/IconNode';
 import { GroupNodeComponent } from '../components/GroupNode';
-import { NODE_KINDS, type EdgeFormData, type GroupFormData, type GroupNode, type NodeFormData, type PaletteItem, type SoftwareEdge, type SoftwareNode, type TextNodeData } from '../types/diagram.types';
+import { NODE_KINDS, type EdgeFormData, type GroupFormData, type NodeFormData, type PaletteItem, type SoftwareEdge, type SoftwareNode, type TextNodeData } from '../types/diagram.types';
 import { createAnimatedEdge, createGroupNode, createIconNode, createNode, normalizeNodeData } from '../utils/diagramFactory';
 import { isValidDiagramPayload } from '../utils/diagramValidation';
 
@@ -31,20 +31,12 @@ export function useDiagramBuilder() {
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [rfInstance, setRfInstance] = useState<ReactFlowInstance<SoftwareNode, SoftwareEdge> | null>(null);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
   const [editingEdgeId, setEditingEdgeId] = useState<string | null>(null);
-  const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
-  const [message, setMessage] = useState('Arrastra elementos al lienzo');
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
 
   const selectedNode = useMemo(() => nodes.find((node) => node.id === selectedNodeId) || null, [nodes, selectedNodeId]);
   const selectedEdge = useMemo(() => edges.find((edge) => edge.id === selectedEdgeId) || null, [edges, selectedEdgeId]);
-  const editingNode = useMemo(() => nodes.find((node) => node.id === editingNodeId) || null, [nodes, editingNodeId]);
   const editingEdge = useMemo(() => edges.find((edge) => edge.id === editingEdgeId) || null, [edges, editingEdgeId]);
-  const editingGroup = useMemo(
-    () => (nodes.find((n) => n.id === editingGroupId) as GroupNode | undefined) || null,
-    [nodes, editingGroupId],
-  );
   const hasSelection = useMemo(
     () => nodes.some((n) => n.selected) || edges.some((e) => e.selected) || !!selectedNodeId || !!selectedEdgeId,
     [nodes, edges, selectedNodeId, selectedEdgeId],
@@ -101,45 +93,13 @@ export function useDiagramBuilder() {
     setSelectedEdgeId(null);
   }, []);
 
-  const openNodeEditor = useCallback((node: SoftwareNode) => {
-    setSelectedNodeId(node.id);
-    setEditingNodeId(node.id);
-    setMessage(`Editando nodo: ${node.data.label}`);
-  }, []);
-
-  const closeNodeEditor = useCallback(() => {
-    setEditingNodeId(null);
-  }, []);
-
   const openEdgeEditor = useCallback((edge: Edge) => {
     setEditingEdgeId(edge.id);
-    setMessage(`Editando conexión: ${typeof edge.label === 'string' ? edge.label : 'sin texto'}`);
   }, []);
 
   const closeEdgeEditor = useCallback(() => {
     setEditingEdgeId(null);
   }, []);
-
-  const openGroupEditor = useCallback((node: SoftwareNode) => {
-    setEditingGroupId(node.id);
-  }, []);
-
-  const closeGroupEditor = useCallback(() => {
-    setEditingGroupId(null);
-  }, []);
-
-  const saveGroupEditor = useCallback(
-    (nodeId: string, formData: GroupFormData) => {
-      setNodes((current) =>
-        current.map((node) =>
-          node.id === nodeId ? { ...node, data: { ...node.data, ...formData } } : node,
-        ),
-      );
-      setEditingGroupId(null);
-      setMessage('Grupo actualizado correctamente.');
-    },
-    [setNodes],
-  );
 
   const toggleEdgeDashed = useCallback(
     (edgeId: string) => {
@@ -186,7 +146,6 @@ export function useDiagramBuilder() {
       });
 
       setEdges((current) => addEdge(newEdge, current));
-      setMessage('Conexión creada correctamente.');
     },
     [setEdges],
   );
@@ -233,47 +192,22 @@ export function useDiagramBuilder() {
           const newGroup = createGroupNode({ position: { x: position.x - 200, y: position.y - 140 } });
           setNodes((current) => [newGroup as unknown as SoftwareNode, ...current]);
           setSelectedNodeId(newGroup.id);
-          setMessage('Contenedor agregado. Doble clic para editar su nombre.');
         } else if (payload.__isIcon) {
           const item = payload as unknown as PaletteItem;
           const newNode = createIconNode({ item, position });
           setNodes((current) => current.concat(newNode as unknown as SoftwareNode));
           setSelectedNodeId(newNode.id);
-          setMessage(`Nodo icónico agregado: ${newNode.data.label}`);
         } else {
           const item = payload as unknown as PaletteItem;
           const newNode = createNode({ item, position });
           setNodes((current) => current.concat(newNode));
           setSelectedNodeId(newNode.id);
-          setMessage(`Nodo agregado: ${newNode.data.label}`);
         }
       } catch {
-        setMessage('No se pudo agregar el nodo arrastrado.');
+        // invalid drop data, ignore
       }
     },
     [rfInstance, setNodes],
-  );
-
-  const updateNodeDataById = useCallback(
-    (nodeId: string, formData: NodeFormData) => {
-      setNodes((current) =>
-        current.map((node) => {
-          if (node.id !== nodeId) return node;
-          return { ...node, data: normalizeNodeData({ ...node.data, ...formData }) };
-        }),
-      );
-    },
-    [setNodes],
-  );
-
-  const saveNodeEditor = useCallback(
-    (nodeId: string, formData: NodeFormData) => {
-      updateNodeDataById(nodeId, formData);
-      setSelectedNodeId(nodeId);
-      setEditingNodeId(null);
-      setMessage('Cambios del nodo guardados correctamente.');
-    },
-    [updateNodeDataById],
   );
 
   const updateEdgeDataById = useCallback(
@@ -286,6 +220,52 @@ export function useDiagramBuilder() {
       );
     },
     [setEdges],
+  );
+
+  const liveUpdateEdge = useCallback(
+    (edgeId: string, patch: { label?: string; color?: string; strokeWidth?: number }) => {
+      setEdges((current) =>
+        current.map((edge) => {
+          if (edge.id !== edgeId) return edge;
+          const next = { ...edge };
+          if (patch.label !== undefined) next.label = patch.label;
+          if (patch.color !== undefined || patch.strokeWidth !== undefined) {
+            next.style = {
+              ...edge.style,
+              ...(patch.color !== undefined ? { stroke: patch.color } : {}),
+              ...(patch.strokeWidth !== undefined ? { strokeWidth: patch.strokeWidth } : {}),
+            };
+          }
+          return next;
+        }),
+      );
+    },
+    [setEdges],
+  );
+
+  const liveUpdateGroup = useCallback(
+    (nodeId: string, patch: Partial<GroupFormData>) => {
+      setNodes((current) =>
+        current.map((node) =>
+          node.id === nodeId ? { ...node, data: { ...node.data, ...patch } } : node,
+        ),
+      );
+    },
+    [setNodes],
+  );
+
+  const liveUpdateNode = useCallback(
+    (nodeId: string, patch: Partial<NodeFormData>) => {
+      setNodes((current) =>
+        current.map((node) => {
+          if (node.id !== nodeId) return node;
+          const data = { ...node.data, ...patch };
+          if (patch.kind) data.icon = patch.kind;
+          return { ...node, data };
+        }),
+      );
+    },
+    [setNodes],
   );
 
   const updateTextNodeData = useCallback(
@@ -303,7 +283,6 @@ export function useDiagramBuilder() {
     (edgeId: string, formData: EdgeFormData) => {
       updateEdgeDataById(edgeId, formData);
       setEditingEdgeId(null);
-      setMessage('Cambios de la conexión guardados correctamente.');
     },
     [updateEdgeDataById],
   );
@@ -333,22 +312,16 @@ export function useDiagramBuilder() {
       setNodes((current) => current.filter((n) => !nodeIds.has(n.id) && !(n.parentId && nodeIds.has(n.parentId))));
       setEdges((current) => current.filter((e) => !nodeIds.has(e.source) && !nodeIds.has(e.target) && !edgeIds.has(e.id)));
       setSelectedNodeId(null);
-      setEditingNodeId(null);
       setEditingEdgeId(null);
-      const total = multiNodes.length + multiEdges.length;
-      setMessage(`${total} elemento${total !== 1 ? 's' : ''} eliminado${total !== 1 ? 's' : ''}.`);
     } else if (selectedNodeId) {
       setNodes((current) => current.filter((node) => node.id !== selectedNodeId));
       setEdges((current) => current.filter((edge) => edge.source !== selectedNodeId && edge.target !== selectedNodeId));
       setSelectedNodeId(null);
-      setEditingNodeId(null);
       setEditingEdgeId(null);
-      setMessage('Nodo eliminado junto con sus conexiones.');
     } else if (selectedEdgeId) {
       setEdges((current) => current.filter((edge) => edge.id !== selectedEdgeId));
       setSelectedEdgeId(null);
       setEditingEdgeId(null);
-      setMessage('Conexión eliminada.');
     }
   }, [nodes, edges, selectedNodeId, selectedEdgeId, setNodes, setEdges]);
 
@@ -360,36 +333,73 @@ export function useDiagramBuilder() {
     setNodes(snapshot.nodes);
     setEdges(snapshot.edges);
     setSelectedNodeId(null);
-    setEditingNodeId(null);
     setEditingEdgeId(null);
   }, [setNodes, setEdges]);
+
+  const deleteSelectedRef = useRef(deleteSelected);
+  deleteSelectedRef.current = deleteSelected;
+  const undoRef = useRef(undo);
+  undoRef.current = undo;
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement).tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
 
-      if (e.key === 'Delete') {
-        deleteSelected();
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        deleteSelectedRef.current();
         return;
       }
 
       if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
         e.preventDefault();
-        undo();
+        undoRef.current();
       }
     };
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
-  }, [deleteSelected, undo]);
+  }, []);
 
   const clearDiagram = useCallback(() => {
     setNodes([]);
     setEdges([]);
     setSelectedNodeId(null);
-    setEditingNodeId(null);
     setEditingEdgeId(null);
   }, [setNodes, setEdges]);
+
+  const placeItem = useCallback(
+    (payload: PaletteItem | { __isGroup: boolean } | { __isText: boolean }) => {
+      if (!rfInstance) return;
+      const container = document.querySelector('.canvas-shell');
+      const rect = container?.getBoundingClientRect();
+      const cx = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+      const cy = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
+      const base = rfInstance.screenToFlowPosition({ x: cx, y: cy });
+      const jitter = () => (Math.random() - 0.5) * 40;
+      const position = { x: base.x + jitter(), y: base.y + jitter() };
+
+      if ('__isText' in payload) {
+        const newNode = {
+          id: `text-${Date.now()}`,
+          type: 'textNode',
+          position,
+          data: { text: 'Texto', bold: false, italic: false, underline: false, fontSize: 16, color: '#0f172a', fontFamily: 'inter' },
+        } as unknown as SoftwareNode;
+        setNodes((current) => current.concat(newNode));
+        setSelectedNodeId(newNode.id);
+      } else if ('__isGroup' in payload) {
+        const newGroup = createGroupNode({ position: { x: position.x - 200, y: position.y - 140 } });
+        setNodes((current) => [newGroup as unknown as SoftwareNode, ...current]);
+        setSelectedNodeId(newGroup.id);
+      } else {
+        const item = payload as PaletteItem;
+        const newNode = createNode({ item, position });
+        setNodes((current) => current.concat(newNode));
+        setSelectedNodeId(newNode.id);
+      }
+    },
+    [rfInstance, setNodes],
+  );
 
   const exportJson = useCallback(() => {
     const data = JSON.stringify({ nodes, edges }, null, 2);
@@ -400,7 +410,6 @@ export function useDiagramBuilder() {
     link.download = 'diagrama-software.json';
     link.click();
     URL.revokeObjectURL(url);
-    setMessage('Diagrama exportado en JSON.');
   }, [nodes, edges]);
 
   const importJson = useCallback(
@@ -412,10 +421,7 @@ export function useDiagramBuilder() {
       reader.onload = () => {
         try {
           const parsed = JSON.parse(String(reader.result));
-          if (!isValidDiagramPayload(parsed)) {
-            setMessage('El archivo JSON no tiene la estructura esperada: { nodes: [], edges: [] }.');
-            return;
-          }
+          if (!isValidDiagramPayload(parsed)) return;
 
           setNodes(parsed.nodes.map((node) => {
             if (node.type === 'textNode' || node.type === 'groupNode') return node as unknown as SoftwareNode;
@@ -423,11 +429,9 @@ export function useDiagramBuilder() {
           }) as SoftwareNode[]);
           setEdges(parsed.edges);
           setSelectedNodeId(null);
-          setEditingNodeId(null);
           setEditingEdgeId(null);
-          setMessage('Diagrama importado correctamente.');
         } catch {
-          setMessage('El archivo no tiene un formato JSON válido.');
+          // invalid JSON, ignore
         } finally {
           event.target.value = '';
         }
@@ -444,10 +448,7 @@ export function useDiagramBuilder() {
     selectedNode,
     selectedEdge,
     hasSelection,
-    editingNode,
     editingEdge,
-    editingGroup,
-    message,
     setRfInstance,
     onNodesChange,
     onEdgesChange,
@@ -455,15 +456,9 @@ export function useDiagramBuilder() {
     onDragStart,
     onDragOver,
     onDrop,
-    openNodeEditor,
-    closeNodeEditor,
-    saveNodeEditor,
     openEdgeEditor,
     closeEdgeEditor,
     saveEdgeEditor,
-    openGroupEditor,
-    closeGroupEditor,
-    saveGroupEditor,
     commitInlineEdgeEdit,
     toggleEdgeAsync,
     onReconnect,
@@ -474,6 +469,10 @@ export function useDiagramBuilder() {
     selectNode,
     selectEdge,
     clearSelection,
+    liveUpdateEdge,
+    liveUpdateGroup,
+    liveUpdateNode,
     updateTextNodeData,
+    placeItem,
   };
 }

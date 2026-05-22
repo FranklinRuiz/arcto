@@ -2,6 +2,7 @@ import type { Edge, Node } from '@xyflow/react';
 
 export const NODE_KINDS = {
   DEFAULT: 'default',
+  USER: 'user',
   FRONTEND: 'frontend',
   MOBILE: 'mobile',
   GATEWAY: 'gateway',

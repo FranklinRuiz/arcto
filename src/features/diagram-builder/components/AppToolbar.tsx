@@ -1,10 +1,10 @@
 import type { ChangeEvent } from 'react';
-import { BrushCleaning, ChevronLeft, ChevronRight, Download, Layers, Trash2, Upload } from 'lucide-react';
+import { BrushCleaning, Download, Layers, LayoutGrid, Trash2, Upload } from 'lucide-react';
 
 interface AppToolbarProps {
-  isSidebarOpen: boolean;
+  isLibraryOpen: boolean;
   hasSelection: boolean;
-  onToggleSidebar: () => void;
+  onToggleLibrary: () => void;
   deleteSelected: () => void;
   clearDiagram: () => void;
   exportJson: () => void;
@@ -12,9 +12,9 @@ interface AppToolbarProps {
 }
 
 export function AppToolbar({
-  isSidebarOpen,
+  isLibraryOpen,
   hasSelection,
-  onToggleSidebar,
+  onToggleLibrary,
   deleteSelected,
   clearDiagram,
   exportJson,
@@ -22,17 +22,6 @@ export function AppToolbar({
 }: AppToolbarProps) {
   return (
     <header className="app-toolbar">
-      <button
-        type="button"
-        onClick={onToggleSidebar}
-        className="toolbar-toggle"
-        title={isSidebarOpen ? 'Contraer panel de elementos' : 'Expandir panel de elementos'}
-      >
-        {isSidebarOpen ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
-      </button>
-
-      <div className="app-toolbar__sep" />
-
       <div className="app-toolbar__brand">
         <div className="app-toolbar__brand-icon">
           <Layers size={17} />
@@ -43,7 +32,7 @@ export function AppToolbar({
         </div>
       </div>
 
-      <div className="app-toolbar__spacer" />
+      <div className="app-toolbar__sep" />
 
       <div className="app-toolbar__actions">
         <button
@@ -79,6 +68,15 @@ export function AppToolbar({
         >
           <Download size={15} />
           <span>Exportar</span>
+        </button>
+        <div className="app-toolbar__sep" />
+        <button
+          type="button"
+          onClick={onToggleLibrary}
+          className={`toolbar-toggle${isLibraryOpen ? ' toolbar-toggle--active' : ''}`}
+          title={isLibraryOpen ? 'Cerrar librería' : 'Abrir librería de elementos'}
+        >
+          <LayoutGrid size={16} />
         </button>
       </div>
     </header>

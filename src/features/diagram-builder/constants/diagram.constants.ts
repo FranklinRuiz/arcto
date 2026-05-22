@@ -3,6 +3,7 @@ import { NODE_KINDS, type NodeKind, type PaletteItem, type SoftwareEdge, type So
 
 export const KIND_ICON_COLORS: Record<NodeKind, { background: string; color: string }> = {
   [NODE_KINDS.DEFAULT]:   { background: '#f1f5f9', color: '#64748b' },
+  [NODE_KINDS.USER]:      { background: '#f0f9ff', color: '#0284c7' },
   [NODE_KINDS.FRONTEND]:  { background: '#e0f2fe', color: '#0369a1' },
   [NODE_KINDS.MOBILE]:    { background: '#cffafe', color: '#0e7490' },
   [NODE_KINDS.GATEWAY]:   { background: '#ffedd5', color: '#c2410c' },
@@ -29,6 +30,12 @@ export const PALETTE: PaletteItem[] = [
     label: 'Componente',
     subtitle: 'Elemento libre',
     description: 'Elemento genérico reutilizable en cualquier capa del diagrama.',
+  },
+  {
+    type: NODE_KINDS.USER,
+    label: 'Usuario',
+    subtitle: 'Actor / Cliente',
+    description: 'Persona o actor externo que interactúa con el sistema.',
   },
   {
     type: NODE_KINDS.FRONTEND,
@@ -115,6 +122,10 @@ const pick = (kind: keyof typeof NODE_KINDS) => paletteMap.get(NODE_KINDS[kind])
 
 export const PALETTE_GROUPS: PaletteGroup[] = [
   {
+    label: 'Actores',
+    items: [pick('USER')],
+  },
+  {
     label: 'Presentación',
     items: [pick('FRONTEND'), pick('MOBILE')],
   },
@@ -136,20 +147,6 @@ export const PALETTE_GROUPS: PaletteGroup[] = [
   },
 ];
 
-export const ICON_PALETTE_GROUPS: PaletteGroup[] = [
-  {
-    label: 'Clientes',
-    items: [pick('FRONTEND'), pick('MOBILE')],
-  },
-  {
-    label: 'Servicios',
-    items: [pick('GATEWAY'), pick('BACKEND'), pick('EXTERNAL')],
-  },
-  {
-    label: 'Infraestructura',
-    items: [pick('DATABASE'), pick('CLOUD'), pick('SECURITY')],
-  },
-];
 
 export const INITIAL_NODES: SoftwareNode[] = [
   {

@@ -1,7 +1,6 @@
-import { memo, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Background, ConnectionMode, Controls, ReactFlow } from '@xyflow/react';
 import type { useDiagramBuilder } from '../hooks/useDiagramBuilder';
-import { NodeEditModal } from './NodeEditModal';
 import { EdgeEditContext } from './EdgeEditContext';
 import { InlineEditableEdge } from './InlineEditableEdge';
 
@@ -31,6 +30,7 @@ export function DiagramCanvas({ builder }: DiagramCanvasProps) {
     >
       <EdgeEditContext.Provider value={edgeEditContext}>
         <ReactFlow
+          deleteKeyCode={['Delete', 'Backspace']}
           nodes={builder.nodes}
           edges={builder.edges}
           nodeTypes={builder.nodeTypes}
@@ -42,12 +42,6 @@ export function DiagramCanvas({ builder }: DiagramCanvasProps) {
           onDrop={builder.onDrop}
           onDragOver={builder.onDragOver}
           onNodeClick={(_, node) => builder.selectNode(node)}
-          onNodeDoubleClick={(_, node) => {
-            const t = node.type as string;
-            if (t === 'textNode') return;
-            if (t === 'groupNode') builder.openGroupEditor(node);
-            else builder.openNodeEditor(node);
-          }}
           onEdgeClick={(_, edge) => builder.selectEdge(edge)}
           onEdgeDoubleClick={(_, edge) => builder.openEdgeEditor(edge)}
           onReconnect={builder.onReconnect}
@@ -69,7 +63,6 @@ export function DiagramCanvas({ builder }: DiagramCanvasProps) {
         </ReactFlow>
       </EdgeEditContext.Provider>
 
-      <NodeEditModal node={builder.editingNode} onClose={builder.closeNodeEditor} onSave={builder.saveNodeEditor} />
     </main>
   );
 }

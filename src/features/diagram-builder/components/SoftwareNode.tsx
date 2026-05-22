@@ -4,6 +4,7 @@ import { iconMap, ServerIcon } from './icons/DiagramIcons';
 
 const kindClassName: Record<NodeKind, string> = {
   [NODE_KINDS.DEFAULT]:   'software-node--default',
+  [NODE_KINDS.USER]:      'software-node--user',
   [NODE_KINDS.FRONTEND]:  'software-node--frontend',
   [NODE_KINDS.MOBILE]:    'software-node--mobile',
   [NODE_KINDS.GATEWAY]:   'software-node--gateway',

@@ -4,6 +4,7 @@ import { iconMap, ServerIcon } from './icons/DiagramIcons';
 
 const kindColors: Record<NodeKind, { color: string; border: string }> = {
   [NODE_KINDS.DEFAULT]:   { color: '#64748b', border: '#cbd5e1' },
+  [NODE_KINDS.USER]:      { color: '#0284c7', border: '#7dd3fc' },
   [NODE_KINDS.FRONTEND]:  { color: '#0369a1', border: '#7dd3fc' },
   [NODE_KINDS.MOBILE]:    { color: '#0e7490', border: '#67e8f9' },
   [NODE_KINDS.GATEWAY]:   { color: '#c2410c', border: '#fdba74' },

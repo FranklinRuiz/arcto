@@ -215,6 +215,17 @@ export function CloseIcon({ size }: IconProps) {
   );
 }
 
+export function UserIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <circle cx="12" cy="7" r="4" fill="currentColor" fillOpacity="0.15" />
+      <circle cx="12" cy="7" r="4" />
+      <path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" fill="currentColor" fillOpacity="0.1" />
+      <path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" />
+    </IconBase>
+  );
+}
+
 export function TypeIcon({ size }: IconProps) {
   return (
     <IconBase size={size}>
@@ -227,6 +238,7 @@ export function TypeIcon({ size }: IconProps) {
 
 export const iconMap: Record<NodeKind, (props: IconProps) => ReactElement> = {
   [NODE_KINDS.DEFAULT]:   BoxIcon,
+  [NODE_KINDS.USER]:      UserIcon,
   [NODE_KINDS.FRONTEND]:  MonitorIcon,
   [NODE_KINDS.MOBILE]:    SmartphoneIcon,
   [NODE_KINDS.GATEWAY]:   NetworkIcon,

@@ -1,20 +1,36 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { AppToolbar } from '../components/AppToolbar';
 import { DiagramCanvas } from '../components/DiagramCanvas';
-import { GroupEditModal } from '../components/GroupEditModal';
+import { LibraryPanel } from '../components/LibraryPanel';
 import { Sidebar } from '../components/Sidebar';
 import { useDiagramBuilder } from '../hooks/useDiagramBuilder';
 
 export function DiagramBuilderPage() {
   const builder = useDiagramBuilder();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isPropertiesOpen, setIsPropertiesOpen] = useState(false);
+  const [isLibraryOpen, setIsLibraryOpen] = useState(false);
+
+  useEffect(() => {
+    const nodeType = builder.selectedNode?.type as string | undefined;
+    const isPropertiesNode = nodeType === 'softwareNode' || nodeType === 'iconNode' || nodeType === 'groupNode';
+    const hasEdge = !!builder.selectedEdge;
+    setIsPropertiesOpen(isPropertiesNode || hasEdge);
+  }, [builder.selectedNode, builder.selectedEdge]);
+
+  const handleClearSelection = useCallback(() => {
+    builder.clearSelection();
+    setIsPropertiesOpen(false);
+    setIsLibraryOpen(false);
+  }, [builder.clearSelection]);
+
+  const builderWithOverride = { ...builder, clearSelection: handleClearSelection };
 
   return (
     <div className="app-layout">
       <AppToolbar
-        isSidebarOpen={isSidebarOpen}
+        isLibraryOpen={isLibraryOpen}
         hasSelection={builder.hasSelection}
-        onToggleSidebar={() => setIsSidebarOpen((v) => !v)}
+        onToggleLibrary={() => setIsLibraryOpen((v) => !v)}
         deleteSelected={builder.deleteSelected}
         clearDiagram={builder.clearDiagram}
         exportJson={builder.exportJson}
@@ -22,20 +38,22 @@ export function DiagramBuilderPage() {
       />
       <div className="diagram-layout">
         <Sidebar
-          isOpen={isSidebarOpen}
-          onDragStart={builder.onDragStart}
+          isOpen={isPropertiesOpen}
           selectedNode={builder.selectedNode}
-          updateTextNodeData={builder.updateTextNodeData}
           selectedEdge={builder.selectedEdge}
           toggleEdgeAsync={builder.toggleEdgeAsync}
+          liveUpdateNode={builder.liveUpdateNode}
+          liveUpdateGroup={builder.liveUpdateGroup}
+          liveUpdateEdge={builder.liveUpdateEdge}
         />
-        <DiagramCanvas builder={builder} />
+        <LibraryPanel
+          isOpen={isLibraryOpen}
+          onClose={() => setIsLibraryOpen(false)}
+          onDragStart={builder.onDragStart}
+          onClickItem={builder.placeItem}
+        />
+        <DiagramCanvas builder={builderWithOverride} />
       </div>
-      <GroupEditModal
-        node={builder.editingGroup}
-        onClose={builder.closeGroupEditor}
-        onSave={builder.saveGroupEditor}
-      />
     </div>
   );
 }
