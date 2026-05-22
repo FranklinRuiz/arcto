@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type ChangeEvent } from 'react';
 import { LayoutGrid } from 'lucide-react';
 import { AppToolbar } from '../components/AppToolbar';
 import { DiagramCanvas } from '../components/DiagramCanvas';
@@ -29,6 +29,13 @@ export function DiagramBuilderPage() {
 
   const toggleLibrary = useCallback(() => setIsLibraryOpen((v) => !v), []);
 
+  const handleImport = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      builder.importJson(event, setDiagramTitle);
+    },
+    [builder.importJson],
+  );
+
   const builderWithOverride = { ...builder, clearSelection: handleClearSelection };
 
   return (
@@ -45,7 +52,7 @@ export function DiagramBuilderPage() {
         deleteSelected={builder.deleteSelected}
         clearDiagram={builder.clearDiagram}
         exportJson={builder.exportJson}
-        importJson={builder.importJson}
+        importJson={handleImport}
       />
       <div className="diagram-layout">
         <Sidebar

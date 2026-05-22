@@ -78,6 +78,7 @@ export type TextNode = Node<TextNodeData, 'textNode'>;
 export type DiagramNode = SoftwareNode | TextNode | IconNode | GroupNode;
 
 export interface DiagramPayload {
+  title?: string;
   nodes: DiagramNode[];
   edges: SoftwareEdge[];
 }

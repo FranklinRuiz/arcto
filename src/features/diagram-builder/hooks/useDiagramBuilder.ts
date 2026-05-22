@@ -407,19 +407,20 @@ export function useDiagramBuilder() {
     [rfInstance, setNodes],
   );
 
-  const exportJson = useCallback(() => {
-    const data = JSON.stringify({ nodes, edges }, null, 2);
+  const exportJson = useCallback((title = 'diagrama-software') => {
+    const safeFilename = title.trim().replace(/[<>:"/\\|?*]/g, '').replace(/\s+/g, '-') || 'diagrama-software';
+    const data = JSON.stringify({ title, nodes, edges }, null, 2);
     const blob = new Blob([data], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'diagrama-software.json';
+    link.download = `${safeFilename}.json`;
     link.click();
     URL.revokeObjectURL(url);
   }, [nodes, edges]);
 
   const importJson = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
+    (event: ChangeEvent<HTMLInputElement>, onTitleFound?: (title: string) => void) => {
       const file = event.target.files?.[0];
       if (!file) return;
 
@@ -428,6 +429,10 @@ export function useDiagramBuilder() {
         try {
           const parsed = JSON.parse(String(reader.result));
           if (!isValidDiagramPayload(parsed)) return;
+
+          if (typeof parsed.title === 'string' && parsed.title.trim()) {
+            onTitleFound?.(parsed.title.trim());
+          }
 
           setNodes(parsed.nodes.map((node) => {
             if (node.type === 'textNode' || node.type === 'groupNode') return node as unknown as SoftwareNode;

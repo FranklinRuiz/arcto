@@ -16,7 +16,7 @@ interface AppToolbarProps {
   undo: () => void;
   deleteSelected: () => void;
   clearDiagram: () => void;
-  exportJson: () => void;
+  exportJson: (title?: string) => void;
   importJson: (event: ChangeEvent<HTMLInputElement>) => void;
 }
 
@@ -167,7 +167,7 @@ export function AppToolbar({
         </label>
         <button
           type="button"
-          onClick={exportJson}
+          onClick={() => exportJson(diagramTitle)}
           className="header-btn-label header-btn-label--primary"
           title="Exportar diagrama como JSON"
         >
