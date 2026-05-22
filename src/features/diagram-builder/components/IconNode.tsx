@@ -18,6 +18,9 @@ const kindColors: Record<NodeKind, { color: string; border: string }> = {
   [NODE_KINDS.WORKER]:    { color: '#be123c', border: '#fda4af' },
   [NODE_KINDS.ONPREMISE]: { color: '#1e3a8a', border: '#93c5fd' },
   [NODE_KINDS.MAINFRAME]: { color: '#1c1917', border: '#a8a29e' },
+  [NODE_KINDS.AI_MODEL]:  { color: '#7c3aed', border: '#c4b5fd' },
+  [NODE_KINDS.VECTOR_DB]: { color: '#059669', border: '#6ee7b7' },
+  [NODE_KINDS.AI_AGENT]:  { color: '#a21caf', border: '#e879f9' },
 };
 
 export function IconNodeComponent({ data, selected }: NodeProps<IconNode>) {

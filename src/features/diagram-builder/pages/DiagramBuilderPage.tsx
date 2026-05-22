@@ -1,14 +1,18 @@
 import { useCallback, useEffect, useState } from 'react';
+import { LayoutGrid } from 'lucide-react';
 import { AppToolbar } from '../components/AppToolbar';
 import { DiagramCanvas } from '../components/DiagramCanvas';
 import { LibraryPanel } from '../components/LibraryPanel';
 import { Sidebar } from '../components/Sidebar';
 import { useDiagramBuilder } from '../hooks/useDiagramBuilder';
 
+const LIBRARY_PANEL_WIDTH = 272;
+
 export function DiagramBuilderPage() {
   const builder = useDiagramBuilder();
   const [isPropertiesOpen, setIsPropertiesOpen] = useState(false);
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
+  const [diagramTitle, setDiagramTitle] = useState('Arquitectura sin título');
 
   useEffect(() => {
     const nodeType = builder.selectedNode?.type as string | undefined;
@@ -23,6 +27,8 @@ export function DiagramBuilderPage() {
     setIsLibraryOpen(false);
   }, [builder.clearSelection]);
 
+  const toggleLibrary = useCallback(() => setIsLibraryOpen((v) => !v), []);
+
   const builderWithOverride = { ...builder, clearSelection: handleClearSelection };
 
   return (
@@ -30,7 +36,12 @@ export function DiagramBuilderPage() {
       <AppToolbar
         isLibraryOpen={isLibraryOpen}
         hasSelection={builder.hasSelection}
-        onToggleLibrary={() => setIsLibraryOpen((v) => !v)}
+        canUndo={builder.canUndo}
+        saveStatus={builder.saveStatus}
+        diagramTitle={diagramTitle}
+        onTitleChange={setDiagramTitle}
+        onToggleLibrary={toggleLibrary}
+        undo={builder.undo}
         deleteSelected={builder.deleteSelected}
         clearDiagram={builder.clearDiagram}
         exportJson={builder.exportJson}
@@ -52,6 +63,19 @@ export function DiagramBuilderPage() {
           onDragStart={builder.onDragStart}
           onClickItem={builder.placeItem}
         />
+
+        {/* Side tab — always visible, slides with the panel */}
+        <button
+          type="button"
+          className={`library-tab${isLibraryOpen ? ' library-tab--open' : ''}`}
+          style={{ right: isLibraryOpen ? LIBRARY_PANEL_WIDTH : 0 }}
+          onClick={toggleLibrary}
+          title={isLibraryOpen ? 'Cerrar elementos' : 'Abrir elementos'}
+        >
+          <LayoutGrid size={14} strokeWidth={2} />
+          <span className="library-tab__label">Elementos</span>
+        </button>
+
         <DiagramCanvas builder={builderWithOverride} />
       </div>
     </div>

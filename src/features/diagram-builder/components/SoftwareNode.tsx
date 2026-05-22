@@ -18,6 +18,9 @@ const kindClassName: Record<NodeKind, string> = {
   [NODE_KINDS.WORKER]:    'software-node--worker',
   [NODE_KINDS.ONPREMISE]: 'software-node--onpremise',
   [NODE_KINDS.MAINFRAME]: 'software-node--mainframe',
+  [NODE_KINDS.AI_MODEL]:  'software-node--ai-model',
+  [NODE_KINDS.VECTOR_DB]: 'software-node--vector-db',
+  [NODE_KINDS.AI_AGENT]:  'software-node--ai-agent',
 };
 
 export function SoftwareNodeComponent({ data, selected }: NodeProps<SoftwareNode>) {

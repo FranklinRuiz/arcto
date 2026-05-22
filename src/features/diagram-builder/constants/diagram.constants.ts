@@ -17,6 +17,9 @@ export const KIND_ICON_COLORS: Record<NodeKind, { background: string; color: str
   [NODE_KINDS.WORKER]:    { background: '#ffe4e6', color: '#be123c' },
   [NODE_KINDS.ONPREMISE]: { background: '#dbeafe', color: '#1e3a8a' },
   [NODE_KINDS.MAINFRAME]: { background: '#e7e5e4', color: '#1c1917' },
+  [NODE_KINDS.AI_MODEL]:  { background: '#f5f3ff', color: '#7c3aed' },
+  [NODE_KINDS.VECTOR_DB]: { background: '#ecfdf5', color: '#059669' },
+  [NODE_KINDS.AI_AGENT]:  { background: '#fdf4ff', color: '#a21caf' },
 };
 
 interface PaletteGroup {
@@ -115,6 +118,24 @@ export const PALETTE: PaletteItem[] = [
     subtitle: 'Proceso async',
     description: 'Proceso asíncrono o batch para tareas de larga duración en segundo plano.',
   },
+  {
+    type: NODE_KINDS.AI_MODEL,
+    label: 'Modelo IA / LLM',
+    subtitle: 'GPT · Claude · Gemini',
+    description: 'Modelo de lenguaje grande o servicio de IA generativa: Azure OpenAI, AWS Bedrock, Google Vertex AI.',
+  },
+  {
+    type: NODE_KINDS.VECTOR_DB,
+    label: 'Vector Store',
+    subtitle: 'RAG · Embeddings',
+    description: 'Base de datos vectorial para búsqueda semántica y RAG: Pinecone, Weaviate, pgvector, ChromaDB.',
+  },
+  {
+    type: NODE_KINDS.AI_AGENT,
+    label: 'Agente IA',
+    subtitle: 'LangChain · AutoGen',
+    description: 'Agente o orquestador de IA que coordina herramientas, memoria y modelos para tareas autónomas.',
+  },
 ];
 
 const paletteMap = new Map(PALETTE.map((p) => [p.type, p]));
@@ -144,6 +165,10 @@ export const PALETTE_GROUPS: PaletteGroup[] = [
   {
     label: 'Seguridad y Ext.',
     items: [pick('SECURITY'), pick('EXTERNAL')],
+  },
+  {
+    label: 'Inteligencia Artificial',
+    items: [pick('AI_MODEL'), pick('VECTOR_DB'), pick('AI_AGENT')],
   },
 ];
 

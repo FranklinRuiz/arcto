@@ -16,6 +16,9 @@ export const NODE_KINDS = {
   WORKER: 'worker',
   ONPREMISE: 'onpremise',
   MAINFRAME: 'mainframe',
+  AI_MODEL:  'ai_model',
+  VECTOR_DB: 'vector_db',
+  AI_AGENT:  'ai_agent',
 } as const;
 
 export type NodeKind = (typeof NODE_KINDS)[keyof typeof NODE_KINDS];

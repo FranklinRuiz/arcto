@@ -30,6 +30,9 @@ const KIND_COLORS: Record<NodeKind, { color: string; bg: string }> = {
   [NODE_KINDS.WORKER]:    { color: '#be123c', bg: '#ffe4e6' },
   [NODE_KINDS.ONPREMISE]: { color: '#1e3a8a', bg: '#dbeafe' },
   [NODE_KINDS.MAINFRAME]: { color: '#1c1917', bg: '#e7e5e4' },
+  [NODE_KINDS.AI_MODEL]:  { color: '#7c3aed', bg: '#f5f3ff' },
+  [NODE_KINDS.VECTOR_DB]: { color: '#059669', bg: '#ecfdf5' },
+  [NODE_KINDS.AI_AGENT]:  { color: '#a21caf', bg: '#fdf4ff' },
 };
 
 const PRESET_COLORS = [

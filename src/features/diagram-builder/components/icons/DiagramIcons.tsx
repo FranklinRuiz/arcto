@@ -196,25 +196,6 @@ export function GlobeIcon({ size }: IconProps) {
   );
 }
 
-export function SaveIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z" />
-      <path d="M17 21v-8H7v8" />
-      <path d="M7 3v5h8" />
-    </IconBase>
-  );
-}
-
-export function CloseIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <path d="M18 6 6 18" />
-      <path d="m6 6 12 12" />
-    </IconBase>
-  );
-}
-
 export function UserIcon({ size }: IconProps) {
   return (
     <IconBase size={size}>
@@ -222,6 +203,62 @@ export function UserIcon({ size }: IconProps) {
       <circle cx="12" cy="7" r="4" />
       <path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" fill="currentColor" fillOpacity="0.1" />
       <path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" />
+    </IconBase>
+  );
+}
+
+export function AiModelIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      {/* Chip exterior */}
+      <rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" fillOpacity="0.12" />
+      <rect x="6" y="6" width="12" height="12" rx="2" />
+      {/* Núcleo interno */}
+      <rect x="9.5" y="9.5" width="5" height="5" rx="1" fill="currentColor" fillOpacity="0.45" />
+      {/* Pines CPU */}
+      <path d="M2 9h4M2 12h4M2 15h4M18 9h4M18 12h4M18 15h4M9 2v4M12 2v4M15 2v4M9 18v4M12 18v4M15 18v4" strokeWidth="1.4" />
+      {/* Destellos IA */}
+      <path d="M10.5 11.5l1 1M13.5 11.5l-1 1" strokeWidth="1.2" strokeOpacity="0.7" />
+    </IconBase>
+  );
+}
+
+export function VectorDbIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      {/* Cilindro base */}
+      <ellipse cx="12" cy="6" rx="8" ry="2.5" fill="currentColor" fillOpacity="0.18" />
+      <ellipse cx="12" cy="6" rx="8" ry="2.5" />
+      <path d="M4 6v5c0 1.38 3.58 2.5 8 2.5S20 12.38 20 11V6" fill="currentColor" fillOpacity="0.07" />
+      <path d="M4 6v5c0 1.38 3.58 2.5 8 2.5S20 12.38 20 11V6" />
+      {/* Puntos vector embedding */}
+      <circle cx="9"  cy="17" r="1.2" fill="currentColor" />
+      <circle cx="12" cy="19" r="1.2" fill="currentColor" />
+      <circle cx="15" cy="17" r="1.2" fill="currentColor" />
+      <path d="M9 17l3 2 3-2" strokeWidth="1.2" strokeOpacity="0.55" />
+    </IconBase>
+  );
+}
+
+export function AiAgentIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      {/* Cuerpo robot */}
+      <rect x="4" y="11" width="16" height="10" rx="2" fill="currentColor" fillOpacity="0.12" />
+      <rect x="4" y="11" width="16" height="10" rx="2" />
+      {/* Cabeza */}
+      <rect x="8" y="4" width="8" height="7" rx="2" fill="currentColor" fillOpacity="0.18" />
+      <rect x="8" y="4" width="8" height="7" rx="2" />
+      {/* Ojos */}
+      <circle cx="10" cy="7.5" r="1" fill="currentColor" />
+      <circle cx="14" cy="7.5" r="1" fill="currentColor" />
+      {/* Antena */}
+      <path d="M12 4v-2" strokeWidth="1.5" />
+      <circle cx="12" cy="1.5" r="0.8" fill="currentColor" />
+      {/* Boca / sensor */}
+      <path d="M9 16h6" strokeWidth="1.5" />
+      <circle cx="9"  cy="19" r="1" fill="currentColor" fillOpacity="0.5" />
+      <circle cx="15" cy="19" r="1" fill="currentColor" fillOpacity="0.5" />
     </IconBase>
   );
 }
@@ -252,4 +289,7 @@ export const iconMap: Record<NodeKind, (props: IconProps) => ReactElement> = {
   [NODE_KINDS.WORKER]:    CpuIcon,
   [NODE_KINDS.ONPREMISE]: OnPremiseIcon,
   [NODE_KINDS.MAINFRAME]: MainframeIcon,
+  [NODE_KINDS.AI_MODEL]:  AiModelIcon,
+  [NODE_KINDS.VECTOR_DB]: VectorDbIcon,
+  [NODE_KINDS.AI_AGENT]:  AiAgentIcon,
 };

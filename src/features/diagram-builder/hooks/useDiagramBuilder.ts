@@ -53,11 +53,13 @@ export function useDiagramBuilder() {
   const historyRef = useRef<Array<{ nodes: SoftwareNode[]; edges: SoftwareEdge[] }>>([]);
   const historyIndexRef = useRef(-1);
   const isUndoingRef = useRef(false);
+  const [canUndo, setCanUndo] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       if (isUndoingRef.current) {
         isUndoingRef.current = false;
+        setCanUndo(historyIndexRef.current > 0);
         return;
       }
       const snapshot = { nodes, edges };
@@ -65,15 +67,22 @@ export function useDiagramBuilder() {
       historyRef.current.push(snapshot);
       if (historyRef.current.length > 60) historyRef.current.shift();
       else historyIndexRef.current++;
+      setCanUndo(historyIndexRef.current > 0);
     }, 500);
     return () => clearTimeout(timer);
   }, [nodes, edges]);
 
   // ── Guardar en localStorage ──
+  const [saveStatus, setSaveStatus] = useState<'saved' | 'saving'>('saved');
+  const isFirstSave = useRef(true);
+
   useEffect(() => {
+    if (!isFirstSave.current) setSaveStatus('saving');
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ nodes, edges }));
+      isFirstSave.current = false;
+      setSaveStatus('saved');
     }, 600);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
   }, [nodes, edges]);
@@ -283,14 +292,6 @@ export function useDiagramBuilder() {
     [setNodes],
   );
 
-  const saveEdgeEditor = useCallback(
-    (edgeId: string, formData: EdgeFormData) => {
-      updateEdgeDataById(edgeId, formData);
-      setEditingEdgeId(null);
-    },
-    [updateEdgeDataById],
-  );
-
   const commitInlineEdgeEdit = useCallback(
     (edgeId: string, label: string) => {
       updateEdgeDataById(edgeId, { label });
@@ -338,6 +339,7 @@ export function useDiagramBuilder() {
     setEdges(snapshot.edges);
     setSelectedNodeId(null);
     setEditingEdgeId(null);
+    setCanUndo(historyIndexRef.current > 0);
   }, [setNodes, setEdges]);
 
   const deleteSelectedRef = useRef(deleteSelected);
@@ -462,10 +464,12 @@ export function useDiagramBuilder() {
     onDrop,
     openEdgeEditor,
     closeEdgeEditor,
-    saveEdgeEditor,
     commitInlineEdgeEdit,
     toggleEdgeAsync,
     onReconnect,
+    undo,
+    canUndo,
+    saveStatus,
     deleteSelected,
     clearDiagram,
     exportJson,
