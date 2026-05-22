@@ -1073,8 +1073,8 @@ textarea.form-control {
 }
 
 .react-flow__edge:hover .react-flow__edge-path {
-  stroke: #334155;
-  stroke-width: 4;
+  filter: brightness(0.6);
+  stroke-width: 4px !important;
 }
 
 .modal-backdrop {

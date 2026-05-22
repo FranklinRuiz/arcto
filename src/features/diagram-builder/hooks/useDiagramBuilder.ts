@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent, DragEvent } from 'react';
-import { addEdge, reconnectEdge, useEdgesState, useNodesState, type Connection, type Edge, type ReactFlowInstance } from '@xyflow/react';
+import { addEdge, MarkerType, reconnectEdge, useEdgesState, useNodesState, type Connection, type Edge, type ReactFlowInstance } from '@xyflow/react';
 import { INITIAL_EDGES, INITIAL_NODES } from '../constants/diagram.constants';
 import { SoftwareNodeComponent } from '../components/SoftwareNode';
 import { TextNodeComponent } from '../components/TextNode';
@@ -235,6 +235,10 @@ export function useDiagramBuilder() {
               ...(patch.color !== undefined ? { stroke: patch.color } : {}),
               ...(patch.strokeWidth !== undefined ? { strokeWidth: patch.strokeWidth } : {}),
             };
+          }
+          if (patch.color !== undefined) {
+            const prevMarker = typeof edge.markerEnd === 'object' && edge.markerEnd !== null ? edge.markerEnd : { type: MarkerType.ArrowClosed };
+            next.markerEnd = { ...prevMarker, color: patch.color };
           }
           return next;
         }),
