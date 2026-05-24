@@ -171,7 +171,7 @@ export function LibraryPanel({ isOpen, onClose, onDragStart, onClickItem }: Libr
         {showUtilSections && (showHero || showAnnotationAccordions) && (
           <div className="library-section">
             <div className="library-section__title">
-              Elementos <span className="library-section__count">{[showHero, ...filteredAnnotationGroups.map(() => true)].filter(Boolean).length}</span>
+              Libre <span className="library-section__count">{[showHero, ...filteredAnnotationGroups.map(() => true)].filter(Boolean).length}</span>
             </div>
             <div className="library-grid">
               {showHero && (() => {
