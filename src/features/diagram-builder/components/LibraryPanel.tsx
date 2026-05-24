@@ -7,7 +7,7 @@ interface LibraryPanelProps {
   isOpen: boolean;
   onClose: () => void;
   onDragStart: (event: DragEvent<HTMLButtonElement>, item: PaletteItem) => void;
-  onClickItem: (payload: PaletteItem | { __isGroup: boolean } | { __isText: boolean }) => void;
+  onClickItem: (payload: PaletteItem | { __isGroup: boolean } | { __isText: boolean } | { __isCircleGroup: boolean } | { __isLabel: boolean }) => void;
 }
 
 const heroItem = PALETTE.find((p) => p.type === NODE_KINDS.DEFAULT)!;
@@ -31,8 +31,9 @@ export function LibraryPanel({ isOpen, onClose, onDragStart, onClickItem }: Libr
   const HeroIcon = iconMap[heroItem.type] ?? ServerIcon;
 
   const showHero = !q || 'componente'.includes(q) || 'elemento libre'.includes(q);
-  const showGroup = !q || 'contenedor'.includes(q) || 'agrupa elementos'.includes(q);
+  const showGroup = !q || 'contenedor'.includes(q) || 'agrupa elementos'.includes(q) || 'circular'.includes(q);
   const showText = !q || 'texto'.includes(q) || 'anotación'.includes(q) || 'texto libre'.includes(q);
+  const showLabel = !q || 'etiqueta'.includes(q) || 'caja'.includes(q) || 'label'.includes(q);
 
   const filteredGroups = PALETTE_GROUPS.map((group) => ({
     ...group,
@@ -41,7 +42,7 @@ export function LibraryPanel({ isOpen, onClose, onDragStart, onClickItem }: Libr
     ),
   })).filter((group) => group.items.length > 0);
 
-  const hasResults = showHero || showGroup || showText || filteredGroups.length > 0;
+  const hasResults = showHero || showGroup || showText || showLabel || filteredGroups.length > 0;
 
   return (
     <div className={`library-panel${isOpen ? '' : ' library-panel--collapsed'}`}>
@@ -77,77 +78,116 @@ export function LibraryPanel({ isOpen, onClose, onDragStart, onClickItem }: Libr
           <div className="library-empty">Sin resultados para "{search}"</div>
         )}
 
-        {showHero && (
+        {(showHero || showLabel) && (
           <div className="library-section">
             <div className="library-section__title">Elementos</div>
-            <button
-              type="button"
-              draggable
-              onDragStart={(e) => onDragStart(e, heroItem)}
-              onClick={() => onClickItem(heroItem)}
-              className="library-basic-item"
-            >
-              <div className="library-basic-item__icon" style={KIND_ICON_COLORS[heroItem.type]}>
-                <HeroIcon size="100%" />
-              </div>
-              <div className="library-basic-item__text">
-                <div className="library-basic-item__label">Componente</div>
-                <div className="library-basic-item__sub" style={{ color: '#0369a1' }}>Elemento libre</div>
-              </div>
-            </button>
+            <div className="library-container-grid">
+              {showHero && (
+                <button
+                  type="button"
+                  draggable
+                  onDragStart={(e) => onDragStart(e, heroItem)}
+                  onClick={() => onClickItem(heroItem)}
+                  className="library-card-item"
+                >
+                  <div className="library-card-item__icon" style={KIND_ICON_COLORS[heroItem.type]}>
+                    <HeroIcon size="100%" />
+                  </div>
+                  <span className="library-card-item__label">Componente</span>
+                </button>
+              )}
+              {showLabel && (
+                <button
+                  type="button"
+                  draggable
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData('application/reactflow', JSON.stringify({ __isLabel: true }));
+                    e.dataTransfer.effectAllowed = 'move';
+                    dragGhost('Etiqueta', e);
+                  }}
+                  onClick={() => onClickItem({ __isLabel: true })}
+                  className="library-card-item"
+                >
+                  <div className="library-card-item__icon" style={{ background: '#fff7ed', color: '#ea580c' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="7" width="18" height="10" rx="3" />
+                      <line x1="8" y1="12" x2="16" y2="12" />
+                    </svg>
+                  </div>
+                  <span className="library-card-item__label">Etiqueta</span>
+                </button>
+              )}
+            </div>
           </div>
         )}
 
         {showGroup && (
           <div className="library-section">
             <div className="library-section__title">Contenedores</div>
-            <button
-              type="button"
-              draggable
-              onDragStart={(e) => {
-                e.dataTransfer.setData('application/reactflow', JSON.stringify({ __isGroup: true }));
-                e.dataTransfer.effectAllowed = 'move';
-                dragGhost('Contenedor', e);
-              }}
-              onClick={() => onClickItem({ __isGroup: true })}
-              className="library-basic-item"
-            >
-              <div className="library-basic-item__icon" style={{ background: '#f0fdf4', color: '#16a34a' }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="3" width="18" height="18" rx="3" strokeDasharray="4 2" />
-                  <path d="M3 8h18" />
-                </svg>
-              </div>
-              <div className="library-basic-item__text">
-                <div className="library-basic-item__label">Contenedor</div>
-                <div className="library-basic-item__sub" style={{ color: '#16a34a' }}>Agrupa elementos</div>
-              </div>
-            </button>
+            <div className="library-container-grid">
+              <button
+                type="button"
+                draggable
+                onDragStart={(e) => {
+                  e.dataTransfer.setData('application/reactflow', JSON.stringify({ __isGroup: true }));
+                  e.dataTransfer.effectAllowed = 'move';
+                  dragGhost('Contenedor', e);
+                }}
+                onClick={() => onClickItem({ __isGroup: true })}
+                className="library-card-item"
+              >
+                <div className="library-card-item__icon" style={{ background: '#f0fdf4', color: '#16a34a' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="3" strokeDasharray="4 2" />
+                    <path d="M3 8h18" />
+                  </svg>
+                </div>
+                <span className="library-card-item__label">Contenedor</span>
+              </button>
+              <button
+                type="button"
+                draggable
+                onDragStart={(e) => {
+                  e.dataTransfer.setData('application/reactflow', JSON.stringify({ __isCircleGroup: true }));
+                  e.dataTransfer.effectAllowed = 'move';
+                  dragGhost('Circular', e);
+                }}
+                onClick={() => onClickItem({ __isCircleGroup: true })}
+                className="library-card-item"
+              >
+                <div className="library-card-item__icon" style={{ background: '#f0fdfa', color: '#0d9488' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="9" strokeDasharray="4 2" />
+                  </svg>
+                </div>
+                <span className="library-card-item__label">Circular</span>
+              </button>
+            </div>
           </div>
         )}
 
         {showText && (
           <div className="library-section">
             <div className="library-section__title">Anotaciones</div>
-            <button
-              type="button"
-              draggable
-              onDragStart={(e) => {
-                e.dataTransfer.setData('application/reactflow', JSON.stringify({ __isText: true }));
-                e.dataTransfer.effectAllowed = 'move';
-                dragGhost('Texto', e);
-              }}
-              onClick={() => onClickItem({ __isText: true })}
-              className="library-basic-item"
-            >
-              <div className="library-basic-item__icon" style={{ background: '#f8fafc', color: '#64748b' }}>
-                <TypeIcon size="100%" />
-              </div>
-              <div className="library-basic-item__text">
-                <div className="library-basic-item__label">Texto</div>
-                <div className="library-basic-item__sub">Texto libre con formato</div>
-              </div>
-            </button>
+            <div className="library-container-grid">
+              <button
+                type="button"
+                draggable
+                onDragStart={(e) => {
+                  e.dataTransfer.setData('application/reactflow', JSON.stringify({ __isText: true }));
+                  e.dataTransfer.effectAllowed = 'move';
+                  dragGhost('Texto', e);
+                }}
+                onClick={() => onClickItem({ __isText: true })}
+                className="library-card-item"
+                style={{ gridColumn: '1 / -1' }}
+              >
+                <div className="library-card-item__icon" style={{ background: '#f8fafc', color: '#64748b' }}>
+                  <TypeIcon size="100%" />
+                </div>
+                <span className="library-card-item__label">Texto libre</span>
+              </button>
+            </div>
           </div>
         )}
 

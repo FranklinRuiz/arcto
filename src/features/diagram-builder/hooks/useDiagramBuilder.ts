@@ -6,8 +6,10 @@ import { SoftwareNodeComponent } from '../components/SoftwareNode';
 import { TextNodeComponent } from '../components/TextNode';
 import { IconNodeComponent } from '../components/IconNode';
 import { GroupNodeComponent } from '../components/GroupNode';
-import { NODE_KINDS, type EdgeFormData, type GroupFormData, type NodeFormData, type PaletteItem, type SoftwareEdge, type SoftwareNode, type TextNodeData } from '../types/diagram.types';
-import { createAnimatedEdge, createGroupNode, createIconNode, createNode, normalizeNodeData } from '../utils/diagramFactory';
+import { CircleGroupNodeComponent } from '../components/CircleGroupNode';
+import { LabelNodeComponent } from '../components/LabelNode';
+import { NODE_KINDS, type EdgeFormData, type GroupFormData, type LabelFormData, type NodeFormData, type PaletteItem, type SoftwareEdge, type SoftwareNode, type TextNodeData } from '../types/diagram.types';
+import { createAnimatedEdge, createCircleGroupNode, createGroupNode, createIconNode, createLabelNode, createNode, normalizeNodeData } from '../utils/diagramFactory';
 import { isValidDiagramPayload } from '../utils/diagramValidation';
 
 const STORAGE_KEY = 'arcto-diagram';
@@ -47,6 +49,8 @@ export function useDiagramBuilder() {
     textNode: TextNodeComponent,
     iconNode: IconNodeComponent,
     groupNode: GroupNodeComponent,
+    circleGroupNode: CircleGroupNodeComponent,
+    labelNode: LabelNodeComponent,
   }), []);
 
   // ── Historial para deshacer ──
@@ -201,6 +205,14 @@ export function useDiagramBuilder() {
           const newGroup = createGroupNode({ position: { x: position.x - 200, y: position.y - 140 } });
           setNodes((current) => [newGroup as unknown as SoftwareNode, ...current]);
           setSelectedNodeId(newGroup.id);
+        } else if (payload.__isCircleGroup) {
+          const newGroup = createCircleGroupNode({ position: { x: position.x - 130, y: position.y - 130 } });
+          setNodes((current) => [newGroup as unknown as SoftwareNode, ...current]);
+          setSelectedNodeId(newGroup.id);
+        } else if (payload.__isLabel) {
+          const newNode = createLabelNode({ position });
+          setNodes((current) => current.concat(newNode as unknown as SoftwareNode));
+          setSelectedNodeId(newNode.id);
         } else if (payload.__isIcon) {
           const item = payload as unknown as PaletteItem;
           const newNode = createIconNode({ item, position });
@@ -258,6 +270,17 @@ export function useDiagramBuilder() {
 
   const liveUpdateGroup = useCallback(
     (nodeId: string, patch: Partial<GroupFormData>) => {
+      setNodes((current) =>
+        current.map((node) =>
+          node.id === nodeId ? { ...node, data: { ...node.data, ...patch } } : node,
+        ),
+      );
+    },
+    [setNodes],
+  );
+
+  const liveUpdateLabel = useCallback(
+    (nodeId: string, patch: Partial<LabelFormData>) => {
       setNodes((current) =>
         current.map((node) =>
           node.id === nodeId ? { ...node, data: { ...node.data, ...patch } } : node,
@@ -374,7 +397,7 @@ export function useDiagramBuilder() {
   }, [setNodes, setEdges]);
 
   const placeItem = useCallback(
-    (payload: PaletteItem | { __isGroup: boolean } | { __isText: boolean }) => {
+    (payload: PaletteItem | { __isGroup: boolean } | { __isText: boolean } | { __isCircleGroup: boolean } | { __isLabel: boolean }) => {
       if (!rfInstance) return;
       const container = document.querySelector('.canvas-shell');
       const rect = container?.getBoundingClientRect();
@@ -397,6 +420,14 @@ export function useDiagramBuilder() {
         const newGroup = createGroupNode({ position: { x: position.x - 200, y: position.y - 140 } });
         setNodes((current) => [newGroup as unknown as SoftwareNode, ...current]);
         setSelectedNodeId(newGroup.id);
+      } else if ('__isCircleGroup' in payload) {
+        const newGroup = createCircleGroupNode({ position: { x: position.x - 130, y: position.y - 130 } });
+        setNodes((current) => [newGroup as unknown as SoftwareNode, ...current]);
+        setSelectedNodeId(newGroup.id);
+      } else if ('__isLabel' in payload) {
+        const newNode = createLabelNode({ position });
+        setNodes((current) => current.concat(newNode as unknown as SoftwareNode));
+        setSelectedNodeId(newNode.id);
       } else {
         const item = payload as PaletteItem;
         const newNode = createNode({ item, position });
@@ -435,7 +466,7 @@ export function useDiagramBuilder() {
           }
 
           setNodes(parsed.nodes.map((node) => {
-            if (node.type === 'textNode' || node.type === 'groupNode') return node as unknown as SoftwareNode;
+            if (node.type === 'textNode' || node.type === 'groupNode' || node.type === 'circleGroupNode' || node.type === 'labelNode') return node as unknown as SoftwareNode;
             return { ...node, data: normalizeNodeData(node.data) };
           }) as SoftwareNode[]);
           setEdges(parsed.edges);
@@ -484,6 +515,7 @@ export function useDiagramBuilder() {
     clearSelection,
     liveUpdateEdge,
     liveUpdateGroup,
+    liveUpdateLabel,
     liveUpdateNode,
     updateTextNodeData,
     placeItem,

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { PALETTE } from '../constants/diagram.constants';
-import { NODE_KINDS, type GroupFormData, type NodeFormData, type NodeKind, type SoftwareEdge, type SoftwareNode } from '../types/diagram.types';
+import { NODE_KINDS, type GroupFormData, type LabelFormData, type NodeFormData, type NodeKind, type SoftwareEdge, type SoftwareNode } from '../types/diagram.types';
 import { buildNodeFormFromNode } from '../utils/diagramFactory';
 import { iconMap } from './icons/DiagramIcons';
 
@@ -10,6 +10,7 @@ interface PalettePanelProps {
   toggleEdgeAsync: (edgeId: string) => void;
   liveUpdateNode: (nodeId: string, patch: Partial<NodeFormData>) => void;
   liveUpdateGroup: (nodeId: string, patch: Partial<GroupFormData>) => void;
+  liveUpdateLabel: (nodeId: string, patch: Partial<LabelFormData>) => void;
   liveUpdateEdge: (edgeId: string, patch: { label?: string; color?: string; strokeWidth?: number }) => void;
 }
 
@@ -175,6 +176,106 @@ function EdgePropertiesPanel({ edge, onToggleAsync, onLiveUpdate }: {
 }
 
 
+function CircleGroupPropertiesPanel({
+  node,
+  onLiveUpdate,
+}: {
+  node: SoftwareNode;
+  onLiveUpdate: (nodeId: string, patch: Partial<GroupFormData>) => void;
+}) {
+  const data = node.data as unknown as { label: string; color: string; dashed?: boolean };
+  const [color, setColor] = useState(data.color);
+  const [dashed, setDashed] = useState(data.dashed !== false);
+  const prevNodeIdRef = useRef(node.id);
+
+  useEffect(() => {
+    if (node.id === prevNodeIdRef.current) return;
+    prevNodeIdRef.current = node.id;
+    const d = node.data as unknown as { color: string; dashed?: boolean };
+    setColor(d.color);
+    setDashed(d.dashed !== false);
+  }, [node]);
+
+  const updateColor = (value: string) => {
+    setColor(value);
+    onLiveUpdate(node.id, { color: value });
+  };
+
+  const updateDashed = (value: boolean) => {
+    setDashed(value);
+    onLiveUpdate(node.id, { dashed: value });
+  };
+
+  return (
+    <div className="node-props-panel">
+      <div className="props-header">
+        <div className="props-header__icon" style={{ background: color + '22', color }}>
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" strokeWidth="1.5" strokeDasharray={dashed ? '3 2' : undefined} />
+          </svg>
+        </div>
+        <div className="props-header__text">
+          <div className="props-header__title">Contenedor circular</div>
+          <div className="props-header__subtitle">Agrupa elementos</div>
+        </div>
+      </div>
+      <div className="props-body">
+        <div className="form-grid">
+          <div className="form-field">
+            <span>Color</span>
+            <div className="group-color-grid">
+              {PRESET_COLORS.map((c) => (
+                <button
+                  key={c.value}
+                  type="button"
+                  className={`group-color-swatch${color === c.value ? ' group-color-swatch--active' : ''}`}
+                  style={{ background: c.value }}
+                  title={c.label}
+                  onClick={() => updateColor(c.value)}
+                />
+              ))}
+              <input
+                type="color"
+                className="group-color-custom"
+                value={color}
+                onChange={(e) => updateColor(e.target.value)}
+                title="Color personalizado"
+              />
+            </div>
+          </div>
+          <div className="form-field">
+            <span>Estilo</span>
+            <div className="style-grid">
+              <button
+                type="button"
+                className={`style-btn${!dashed ? ' style-btn--active' : ''}`}
+                onClick={() => updateDashed(false)}
+                title="Borde sólido"
+              >
+                <svg width="32" height="18" viewBox="0 0 32 18" fill="none">
+                  <circle cx="16" cy="9" r="7" stroke="currentColor" strokeWidth="2" />
+                </svg>
+                <span>Sólido</span>
+              </button>
+              <button
+                type="button"
+                className={`style-btn${dashed ? ' style-btn--active' : ''}`}
+                onClick={() => updateDashed(true)}
+                title="Borde entrecortado"
+              >
+                <svg width="32" height="18" viewBox="0 0 32 18" fill="none">
+                  <circle cx="16" cy="9" r="7" stroke="currentColor" strokeWidth="2" strokeDasharray="4 3" />
+                </svg>
+                <span>Entrecortado</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function GroupPropertiesPanel({
   node,
   onLiveUpdate,
@@ -182,16 +283,21 @@ function GroupPropertiesPanel({
   node: SoftwareNode;
   onLiveUpdate: (nodeId: string, patch: Partial<GroupFormData>) => void;
 }) {
-  const data = node.data as unknown as { label: string; color: string };
-  const [form, setForm] = useState<GroupFormData>({ label: data.label, color: data.color });
+  const data = node.data as unknown as { label: string; color: string; dashed?: boolean; rounded?: boolean };
+  const [form, setForm] = useState<GroupFormData>({
+    label: data.label,
+    color: data.color,
+    dashed: data.dashed !== false,
+    rounded: data.rounded !== false,
+  });
   const labelRef = useRef<HTMLInputElement>(null);
   const prevNodeIdRef = useRef(node.id);
 
   useEffect(() => {
     if (node.id === prevNodeIdRef.current) return;
     prevNodeIdRef.current = node.id;
-    const d = node.data as unknown as { label: string; color: string };
-    setForm({ label: d.label, color: d.color });
+    const d = node.data as unknown as { label: string; color: string; dashed?: boolean; rounded?: boolean };
+    setForm({ label: d.label, color: d.color, dashed: d.dashed !== false, rounded: d.rounded !== false });
   }, [node]);
 
   const update = <K extends keyof GroupFormData>(field: K, value: GroupFormData[K]) => {
@@ -204,19 +310,18 @@ function GroupPropertiesPanel({
       <div className="props-header">
         <div className="props-header__icon" style={{ background: form.color + '22', color: form.color }}>
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <rect x="1" y="1" width="11" height="11" rx="2.5" stroke="currentColor" strokeWidth="1.5" />
-            <rect x="3.5" y="3.5" width="3" height="3" rx="1" fill="currentColor" opacity="0.6" />
+            <rect x="1" y="1" width="11" height="11" rx={form.rounded !== false ? '2.5' : '0.5'} stroke="currentColor" strokeWidth="1.5" strokeDasharray={form.dashed !== false ? '3 2' : undefined} />
           </svg>
         </div>
         <div className="props-header__text">
-          <div className="props-header__title">{form.label || 'Grupo'}</div>
+          <div className="props-header__title">{form.label || 'Sin título'}</div>
           <div className="props-header__subtitle">Contenedor</div>
         </div>
       </div>
       <div className="props-body">
         <div className="form-grid">
           <label className="form-field">
-            <span>Nombre</span>
+            <span>Título</span>
             <input
               ref={labelRef}
               value={form.label}
@@ -247,13 +352,54 @@ function GroupPropertiesPanel({
                 title="Color personalizado"
               />
             </div>
-            <div
-              className="group-color-preview"
-              style={{ borderColor: form.color, background: form.color + '18' }}
-            >
-              <span className="group-color-preview__label" style={{ background: form.color }}>
-                {form.label || 'Grupo'}
-              </span>
+          </div>
+          <div className="form-field">
+            <span>Estilo</span>
+            <div className="style-grid">
+              <button
+                type="button"
+                className={`style-btn${form.dashed === false ? ' style-btn--active' : ''}`}
+                onClick={() => update('dashed', false)}
+                title="Borde sólido"
+              >
+                <svg width="32" height="18" viewBox="0 0 32 18" fill="none">
+                  <rect x="1.5" y="1.5" width="29" height="15" rx="4" stroke="currentColor" strokeWidth="2" />
+                </svg>
+                <span>Sólido</span>
+              </button>
+              <button
+                type="button"
+                className={`style-btn${form.dashed !== false ? ' style-btn--active' : ''}`}
+                onClick={() => update('dashed', true)}
+                title="Borde entrecortado"
+              >
+                <svg width="32" height="18" viewBox="0 0 32 18" fill="none">
+                  <rect x="1.5" y="1.5" width="29" height="15" rx="4" stroke="currentColor" strokeWidth="2" strokeDasharray="5 3" />
+                </svg>
+                <span>Entrecortado</span>
+              </button>
+              <button
+                type="button"
+                className={`style-btn${form.rounded !== false ? ' style-btn--active' : ''}`}
+                onClick={() => update('rounded', true)}
+                title="Esquinas ovaladas"
+              >
+                <svg width="32" height="18" viewBox="0 0 32 18" fill="none">
+                  <rect x="1.5" y="1.5" width="29" height="15" rx="7" stroke="currentColor" strokeWidth="2" />
+                </svg>
+                <span>Ovaladas</span>
+              </button>
+              <button
+                type="button"
+                className={`style-btn${form.rounded === false ? ' style-btn--active' : ''}`}
+                onClick={() => update('rounded', false)}
+                title="Esquinas rectas"
+              >
+                <svg width="32" height="18" viewBox="0 0 32 18" fill="none">
+                  <rect x="1.5" y="1.5" width="29" height="15" rx="1" stroke="currentColor" strokeWidth="2" />
+                </svg>
+                <span>Rectas</span>
+              </button>
             </div>
           </div>
         </div>
@@ -356,10 +502,148 @@ function NodePropertiesPanel({
   );
 }
 
-export function PalettePanel({ selectedNode, selectedEdge, toggleEdgeAsync, liveUpdateNode, liveUpdateGroup, liveUpdateEdge }: PalettePanelProps) {
+function LabelPropertiesPanel({
+  node,
+  onLiveUpdate,
+}: {
+  node: SoftwareNode;
+  onLiveUpdate: (nodeId: string, patch: Partial<LabelFormData>) => void;
+}) {
+  const data = node.data as unknown as { text: string; color: string; rotation: number; bold?: boolean };
+  const [form, setForm] = useState<LabelFormData>({ text: data.text, color: data.color, rotation: data.rotation ?? 0, bold: data.bold ?? false });
+  const prevNodeIdRef = useRef(node.id);
+
+  useEffect(() => {
+    if (node.id === prevNodeIdRef.current) return;
+    prevNodeIdRef.current = node.id;
+    const d = node.data as unknown as { text: string; color: string; rotation: number; bold?: boolean };
+    setForm({ text: d.text, color: d.color, rotation: d.rotation ?? 0, bold: d.bold ?? false });
+  }, [node]);
+
+  const update = <K extends keyof LabelFormData>(field: K, value: LabelFormData[K]) => {
+    setForm((p) => ({ ...p, [field]: value }));
+    onLiveUpdate(node.id, { [field]: value } as Partial<LabelFormData>);
+  };
+
+  return (
+    <div className="node-props-panel">
+      <div className="props-header">
+        <div className="props-header__icon" style={{ background: form.color + '22', color: form.color }}>
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <rect x="1" y="3" width="11" height="7" rx="2" stroke="currentColor" strokeWidth="1.5" />
+          </svg>
+        </div>
+        <div className="props-header__text">
+          <div className="props-header__title">{form.text || 'Etiqueta'}</div>
+          <div className="props-header__subtitle">Caja de texto</div>
+        </div>
+      </div>
+      <div className="props-body">
+        <div className="form-grid">
+          <label className="form-field">
+            <span>Texto</span>
+            <div className="label-text-row">
+              <input
+                value={form.text}
+                onChange={(e) => update('text', e.target.value)}
+                className="form-control"
+                placeholder="Ej: Validar usuario…"
+                maxLength={40}
+              />
+              <button
+                type="button"
+                className={`label-bold-btn${form.bold ? ' label-bold-btn--active' : ''}`}
+                onClick={() => update('bold', !form.bold)}
+                title="Negrita"
+              >
+                <b>B</b>
+              </button>
+            </div>
+          </label>
+          <div className="form-field">
+            <span>Color</span>
+            <div className="group-color-grid">
+              {PRESET_COLORS.map((c) => (
+                <button
+                  key={c.value}
+                  type="button"
+                  className={`group-color-swatch${form.color === c.value ? ' group-color-swatch--active' : ''}`}
+                  style={{ background: c.value }}
+                  title={c.label}
+                  onClick={() => update('color', c.value)}
+                />
+              ))}
+              <input
+                type="color"
+                className="group-color-custom"
+                value={form.color}
+                onChange={(e) => update('color', e.target.value)}
+                title="Color personalizado"
+              />
+            </div>
+          </div>
+          <div className="form-field">
+            <span>Rotación</span>
+            <div className="rotation-presets">
+              {[-90, -45, 0, 45, 90].map((angle) => (
+                <button
+                  key={angle}
+                  type="button"
+                  className={`rotation-preset-btn${form.rotation === angle ? ' rotation-preset-btn--active' : ''}`}
+                  onClick={() => update('rotation', angle)}
+                >
+                  {angle}°
+                </button>
+              ))}
+            </div>
+            <div className="rotation-slider-row">
+              <input
+                type="range"
+                min="-180"
+                max="180"
+                step="1"
+                value={form.rotation}
+                onChange={(e) => update('rotation', Number(e.target.value))}
+                className="rotation-slider"
+              />
+              <input
+                type="number"
+                min="-180"
+                max="180"
+                value={form.rotation}
+                onChange={(e) => update('rotation', Math.min(180, Math.max(-180, Number(e.target.value))))}
+                className="rotation-input"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function PalettePanel({ selectedNode, selectedEdge, toggleEdgeAsync, liveUpdateNode, liveUpdateGroup, liveUpdateLabel, liveUpdateEdge }: PalettePanelProps) {
   const nodeType = selectedNode?.type as string | undefined;
   const isSoftwareSelected = nodeType === 'softwareNode' || nodeType === 'iconNode';
   const isGroupSelected = nodeType === 'groupNode';
+  const isCircleGroupSelected = nodeType === 'circleGroupNode';
+  const isLabelSelected = nodeType === 'labelNode';
+
+  if (isLabelSelected && selectedNode) {
+    return (
+      <section className="palette-section">
+        <LabelPropertiesPanel node={selectedNode} onLiveUpdate={liveUpdateLabel} />
+      </section>
+    );
+  }
+
+  if (isCircleGroupSelected && selectedNode) {
+    return (
+      <section className="palette-section">
+        <CircleGroupPropertiesPanel node={selectedNode} onLiveUpdate={liveUpdateGroup} />
+      </section>
+    );
+  }
 
   if (isGroupSelected && selectedNode) {
     return (
