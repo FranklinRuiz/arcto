@@ -8,8 +8,9 @@ import { IconNodeComponent } from '../components/IconNode';
 import { GroupNodeComponent } from '../components/GroupNode';
 import { CircleGroupNodeComponent } from '../components/CircleGroupNode';
 import { LabelNodeComponent } from '../components/LabelNode';
+import { AnnotationNodeComponent } from '../components/AnnotationNode';
 import { NODE_KINDS, type EdgeFormData, type GroupFormData, type LabelFormData, type NodeFormData, type PaletteItem, type SoftwareEdge, type SoftwareNode, type TextNodeData } from '../types/diagram.types';
-import { createAnimatedEdge, createCircleGroupNode, createGroupNode, createIconNode, createLabelNode, createNode, normalizeNodeData } from '../utils/diagramFactory';
+import { createAnimatedEdge, createAnnotationNode, createCircleGroupNode, createGroupNode, createIconNode, createLabelNode, createNode, normalizeNodeData } from '../utils/diagramFactory';
 import { isValidDiagramPayload } from '../utils/diagramValidation';
 
 const STORAGE_KEY = 'arcto-diagram';
@@ -51,6 +52,7 @@ export function useDiagramBuilder() {
     groupNode: GroupNodeComponent,
     circleGroupNode: CircleGroupNodeComponent,
     labelNode: LabelNodeComponent,
+    annotationNode: AnnotationNodeComponent,
   }), []);
 
   // ── Historial para deshacer ──
@@ -211,6 +213,16 @@ export function useDiagramBuilder() {
           setSelectedNodeId(newGroup.id);
         } else if (payload.__isLabel) {
           const newNode = createLabelNode({ position });
+          setNodes((current) => current.concat(newNode as unknown as SoftwareNode));
+          setSelectedNodeId(newNode.id);
+        } else if (payload.__isAnnotation) {
+          const newNode = createAnnotationNode({
+            position,
+            icon: payload.icon as string,
+            label: payload.label as string,
+            color: payload.color as string,
+            bg: payload.bg as string,
+          });
           setNodes((current) => current.concat(newNode as unknown as SoftwareNode));
           setSelectedNodeId(newNode.id);
         } else if (payload.__isIcon) {
@@ -397,7 +409,7 @@ export function useDiagramBuilder() {
   }, [setNodes, setEdges]);
 
   const placeItem = useCallback(
-    (payload: PaletteItem | { __isGroup: boolean } | { __isText: boolean } | { __isCircleGroup: boolean } | { __isLabel: boolean }) => {
+    (payload: PaletteItem | { __isGroup: boolean } | { __isText: boolean } | { __isCircleGroup: boolean } | { __isLabel: boolean } | { __isAnnotation: boolean; icon: string; label: string; color: string; bg: string }) => {
       if (!rfInstance) return;
       const container = document.querySelector('.canvas-shell');
       const rect = container?.getBoundingClientRect();
@@ -426,6 +438,11 @@ export function useDiagramBuilder() {
         setSelectedNodeId(newGroup.id);
       } else if ('__isLabel' in payload) {
         const newNode = createLabelNode({ position });
+        setNodes((current) => current.concat(newNode as unknown as SoftwareNode));
+        setSelectedNodeId(newNode.id);
+      } else if ('__isAnnotation' in payload) {
+        const p = payload as { __isAnnotation: boolean; icon: string; label: string; color: string; bg: string };
+        const newNode = createAnnotationNode({ position, icon: p.icon, label: p.label, color: p.color, bg: p.bg });
         setNodes((current) => current.concat(newNode as unknown as SoftwareNode));
         setSelectedNodeId(newNode.id);
       } else {
@@ -466,7 +483,7 @@ export function useDiagramBuilder() {
           }
 
           setNodes(parsed.nodes.map((node) => {
-            if (node.type === 'textNode' || node.type === 'groupNode' || node.type === 'circleGroupNode' || node.type === 'labelNode') return node as unknown as SoftwareNode;
+            if (node.type === 'textNode' || node.type === 'groupNode' || node.type === 'circleGroupNode' || node.type === 'labelNode' || node.type === 'annotationNode') return node as unknown as SoftwareNode;
             return { ...node, data: normalizeNodeData(node.data) };
           }) as SoftwareNode[]);
           setEdges(parsed.edges);

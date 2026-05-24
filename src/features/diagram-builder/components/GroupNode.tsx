@@ -24,11 +24,11 @@ export function GroupNodeComponent({ data, selected }: NodeProps<GroupNode>) {
           borderColor: data.color,
           borderStyle: isDashed ? 'dashed' : 'solid',
           borderRadius,
-          background: data.color + '18',
+          background: data.color + '0a',
         }}
       >
         {data.label && (
-          <div className="group-node__label" style={{ background: data.color }}>
+          <div className="group-node__label" style={{ background: `color-mix(in srgb, ${data.color} 12%, white)`, color: data.color, border: `0.5px solid color-mix(in srgb, ${data.color} 35%, transparent)` }}>
             {data.label}
           </div>
         )}

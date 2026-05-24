@@ -2,16 +2,43 @@ import { useState, type DragEvent } from 'react';
 import { PALETTE, PALETTE_GROUPS, getKindStyle } from '../constants/diagram.constants';
 import { NODE_KINDS, type PaletteItem } from '../types/diagram.types';
 import { iconMap, ServerIcon, TypeIcon } from './icons/DiagramIcons';
+import { ANNOTATION_ICON_MAP } from './AnnotationNode';
+import { Shapes } from 'lucide-react';
 
 interface LibraryPanelProps {
   isOpen: boolean;
   onClose: () => void;
   onDragStart: (event: DragEvent<HTMLButtonElement>, item: PaletteItem) => void;
-  onClickItem: (payload: PaletteItem | { __isGroup: boolean } | { __isText: boolean } | { __isCircleGroup: boolean } | { __isLabel: boolean }) => void;
+  onClickItem: (payload: PaletteItem | { __isGroup: boolean } | { __isText: boolean } | { __isCircleGroup: boolean } | { __isLabel: boolean } | { __isAnnotation: boolean; icon: string; label: string; color: string; bg: string }) => void;
 }
 
 type FilterKey = 'all' | 'ai' | 'services' | 'data';
 type CSSVarProps = React.CSSProperties & { '--hover-border'?: string };
+
+interface AnnotationGroup {
+  label: string;
+  bg: string;
+  color: string;
+  icons: string[];
+  HeaderIcon: React.ComponentType<{ size?: number | string }>;
+}
+
+const ANNOTATION_GROUPS: AnnotationGroup[] = [
+  {
+    label: 'Formas',
+    bg: '#F1F5F9',
+    color: '#475569',
+    icons: [
+      'Lock', 'Key', 'Shield', 'ShieldCheck', 'Fingerprint',
+      'AlertTriangle', 'Ban', 'Bell', 'Mail',
+      'File', 'FileText', 'Folder', 'Download', 'Upload', 'Archive',
+      'Check', 'X',
+      'Code', 'Terminal', 'Bug', 'GitMerge', 'Package', 'Layers',
+      'CreditCard', 'DollarSign', 'BarChart', 'TrendingUp',
+    ],
+    HeaderIcon: Shapes,
+  },
+];
 
 const FILTERS: { key: FilterKey; label: string }[] = [
   { key: 'all', label: 'Todo' },
@@ -56,6 +83,7 @@ function dragGhost(label: string, e: DragEvent<HTMLButtonElement>) {
 export function LibraryPanel({ isOpen, onClose, onDragStart, onClickItem }: LibraryPanelProps) {
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState<FilterKey>('all');
+  const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
   const q = search.trim().toLowerCase();
 
   const HeroIcon = iconMap[heroItem.type] ?? ServerIcon;
@@ -64,6 +92,13 @@ export function LibraryPanel({ isOpen, onClose, onDragStart, onClickItem }: Libr
   const showGroup = !q || 'contenedor'.includes(q) || 'zona'.includes(q) || 'dominio'.includes(q) || 'circular'.includes(q) || 'clúster'.includes(q) || 'cluster'.includes(q);
   const showText  = !q || 'texto'.includes(q) || 'anotación'.includes(q) || 'texto libre'.includes(q);
   const showLabel = !q || 'etiqueta'.includes(q) || 'caja'.includes(q) || 'label'.includes(q);
+
+  const filteredAnnotationGroups = ANNOTATION_GROUPS.map((group) => ({
+    ...group,
+    icons: q
+      ? group.icons.filter((name) => name.toLowerCase().includes(q) || group.label.toLowerCase().includes(q))
+      : group.icons,
+  })).filter((group) => group.icons.length > 0);
 
   const filteredGroups = PALETTE_GROUPS
     .map((group) => ({
@@ -74,8 +109,17 @@ export function LibraryPanel({ isOpen, onClose, onDragStart, onClickItem }: Libr
     }))
     .filter((group) => group.items.length > 0 && groupMatchesFilter(group.label, activeFilter));
 
+  const showAnnotationAccordions = !q || filteredAnnotationGroups.length > 0;
   const showUtilSections = q || activeFilter === 'all';
-  const hasResults = (showUtilSections && (showHero || showGroup || showText || showLabel)) || filteredGroups.length > 0;
+  const hasResults = (showUtilSections && (showHero || showAnnotationAccordions || showGroup || showText || showLabel)) || filteredGroups.length > 0;
+
+  function toggleGroup(label: string) {
+    setOpenGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(label)) next.delete(label); else next.add(label);
+      return next;
+    });
+  }
 
   return (
     <div className={`library-panel${isOpen ? '' : ' library-panel--collapsed'}`}>
@@ -124,13 +168,13 @@ export function LibraryPanel({ isOpen, onClose, onDragStart, onClickItem }: Libr
           <div className="library-empty">Sin resultados para "{search}"</div>
         )}
 
-        {showUtilSections && showHero && (
+        {showUtilSections && (showHero || showAnnotationAccordions) && (
           <div className="library-section">
             <div className="library-section__title">
-              Elementos <span className="library-section__count">1</span>
+              Elementos <span className="library-section__count">{[showHero, ...filteredAnnotationGroups.map(() => true)].filter(Boolean).length}</span>
             </div>
             <div className="library-grid">
-              {(() => {
+              {showHero && (() => {
                 const heroStyle = getKindStyle(heroItem.type);
                 return (
                 <button
@@ -152,6 +196,62 @@ export function LibraryPanel({ isOpen, onClose, onDragStart, onClickItem }: Libr
                 </button>
                 );
               })()}
+              {filteredAnnotationGroups.map((group) => {
+                const isOpen = openGroups.has(group.label) || !!q;
+                const { HeaderIcon } = group;
+                return (
+                  <div key={group.label} className="annotation-accordion">
+                    <button
+                      type="button"
+                      className={`library-item annotation-accordion__header${isOpen ? ' annotation-accordion__header--open' : ''}`}
+                      style={{ '--hover-border': group.color } as CSSVarProps}
+                      onClick={() => toggleGroup(group.label)}
+                    >
+                      <div className="library-item__icon" style={{ background: group.bg, color: group.color }}>
+                        <HeaderIcon size="100%" />
+                      </div>
+                      <div className="library-item__info">
+                        <div className="library-item__label">{group.label}</div>
+                        <div className="library-item__subtitle">Íconos de anotación</div>
+                      </div>
+                      <div className="annotation-accordion__chevron">
+                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                          <path d="M2 3.5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </div>
+                    </button>
+                    {isOpen && (
+                      <div className="annotation-accordion__body">
+                        <div className="annotation-icon-grid">
+                          {group.icons.map((iconName) => {
+                            const Icon = ANNOTATION_ICON_MAP[iconName];
+                            if (!Icon) return null;
+                            const payload = { __isAnnotation: true as const, icon: iconName, label: iconName, color: group.color, bg: group.bg };
+                            return (
+                              <button
+                                key={iconName}
+                                type="button"
+                                draggable
+                                title={iconName}
+                                onDragStart={(e) => {
+                                  e.dataTransfer.setData('application/reactflow', JSON.stringify(payload));
+                                  e.dataTransfer.effectAllowed = 'move';
+                                  dragGhost(iconName, e);
+                                }}
+                                onClick={() => onClickItem(payload)}
+                                className="annotation-icon-card"
+                              >
+                                <Icon size={20} strokeWidth={3} />
+                                <span className="annotation-icon-card__label">{iconName}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

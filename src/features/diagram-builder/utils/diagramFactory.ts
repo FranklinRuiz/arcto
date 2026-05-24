@@ -1,5 +1,5 @@
 import { MarkerType, type XYPosition } from '@xyflow/react';
-import { NODE_KINDS, type CircleGroupNode, type EdgeFormData, type GroupNode, type IconNode, type LabelNode, type NodeFormData, type NodeKind, type PaletteItem, type SoftwareEdge, type SoftwareNode, type SoftwareNodeData } from '../types/diagram.types';
+import { NODE_KINDS, type AnnotationNode, type CircleGroupNode, type EdgeFormData, type GroupNode, type IconNode, type LabelNode, type NodeFormData, type NodeKind, type PaletteItem, type SoftwareEdge, type SoftwareNode, type SoftwareNodeData } from '../types/diagram.types';
 
 function isNodeKind(value: unknown): value is NodeKind {
   return Object.values(NODE_KINDS).includes(value as NodeKind);
@@ -87,7 +87,7 @@ export function createGroupNode(params: { position: XYPosition }): GroupNode {
     position: params.position,
     style: { width: 400, height: 280 },
     zIndex: -1,
-    data: { label: 'Zona / Dominio', color: '#0d9488', dashed: true, rounded: true },
+    data: { label: 'Zona / Dominio', color: '#0F6E56', dashed: true, rounded: true },
   };
 }
 
@@ -98,7 +98,7 @@ export function createCircleGroupNode(params: { position: XYPosition }): CircleG
     position: params.position,
     style: { width: 260, height: 260 },
     zIndex: -1,
-    data: { label: '', color: '#0d9488', dashed: true },
+    data: { label: 'Nombre del grupo', color: '#0F6E56', dashed: true },
   };
 }
 
@@ -108,6 +108,21 @@ export function createLabelNode(params: { position: XYPosition }): LabelNode {
     type: 'labelNode',
     position: params.position,
     data: { text: 'Etiqueta', color: '#f97316', rotation: 0, bold: false },
+  };
+}
+
+export function createAnnotationNode(params: {
+  position: XYPosition;
+  icon: string;
+  label: string;
+  color: string;
+  bg: string;
+}): AnnotationNode {
+  return {
+    id: `annotation-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    type: 'annotationNode',
+    position: params.position,
+    data: { icon: params.icon, label: params.label, color: params.color, bg: params.bg },
   };
 }
 

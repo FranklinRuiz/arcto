@@ -94,7 +94,15 @@ export interface LabelFormData {
 }
 export type LabelNode = Node<LabelNodeData, 'labelNode'>;
 
-export type DiagramNode = SoftwareNode | TextNode | IconNode | GroupNode | CircleGroupNode | LabelNode;
+export interface AnnotationNodeData extends Record<string, unknown> {
+  icon: string;
+  label: string;
+  color: string;
+  bg: string;
+}
+export type AnnotationNode = Node<AnnotationNodeData, 'annotationNode'>;
+
+export type DiagramNode = SoftwareNode | TextNode | IconNode | GroupNode | CircleGroupNode | LabelNode | AnnotationNode;
 
 export interface DiagramPayload {
   title?: string;

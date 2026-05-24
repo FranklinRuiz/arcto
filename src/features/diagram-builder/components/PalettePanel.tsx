@@ -37,14 +37,15 @@ const KIND_COLORS: Record<NodeKind, { color: string; bg: string }> = {
 };
 
 const PRESET_COLORS = [
-  { value: '#0d9488', label: 'Verde azulado' },
-  { value: '#2563eb', label: 'Azul' },
-  { value: '#16a34a', label: 'Verde' },
-  { value: '#ea580c', label: 'Naranja' },
-  { value: '#7c3aed', label: 'Violeta' },
-  { value: '#db2777', label: 'Rosa' },
-  { value: '#475569', label: 'Gris' },
-  { value: '#b45309', label: 'Ámbar' },
+  { value: '#0F6E56', label: 'Teal' },
+  { value: '#185FA5', label: 'Azul' },
+  { value: '#3A7D44', label: 'Verde' },
+  { value: '#993C1D', label: 'Coral' },
+  { value: '#3C3489', label: 'Púrpura' },
+  { value: '#993556', label: 'Rosa' },
+  { value: '#4A4845', label: 'Gris' },
+  { value: '#6B4FA0', label: 'Violeta' },
+  { value: '#888780', label: 'Neutro' },
 ];
 
 function SyncPreview() {
@@ -184,17 +185,25 @@ function CircleGroupPropertiesPanel({
   onLiveUpdate: (nodeId: string, patch: Partial<GroupFormData>) => void;
 }) {
   const data = node.data as unknown as { label: string; color: string; dashed?: boolean };
+  const [label, setLabel] = useState(data.label);
   const [color, setColor] = useState(data.color);
   const [dashed, setDashed] = useState(data.dashed !== false);
+  const labelRef = useRef<HTMLInputElement>(null);
   const prevNodeIdRef = useRef(node.id);
 
   useEffect(() => {
     if (node.id === prevNodeIdRef.current) return;
     prevNodeIdRef.current = node.id;
-    const d = node.data as unknown as { color: string; dashed?: boolean };
+    const d = node.data as unknown as { label: string; color: string; dashed?: boolean };
+    setLabel(d.label);
     setColor(d.color);
     setDashed(d.dashed !== false);
   }, [node]);
+
+  const updateLabel = (value: string) => {
+    setLabel(value);
+    onLiveUpdate(node.id, { label: value });
+  };
 
   const updateColor = (value: string) => {
     setColor(value);
@@ -215,12 +224,23 @@ function CircleGroupPropertiesPanel({
           </svg>
         </div>
         <div className="props-header__text">
-          <div className="props-header__title">Contenedor circular</div>
+          <div className="props-header__title">{label || 'Contenedor circular'}</div>
           <div className="props-header__subtitle">Agrupa elementos</div>
         </div>
       </div>
       <div className="props-body">
         <div className="form-grid">
+          <label className="form-field">
+            <span>Título</span>
+            <input
+              ref={labelRef}
+              value={label}
+              onChange={(e) => updateLabel(e.target.value)}
+              className="form-control"
+              placeholder="Ej: Microservicios…"
+              maxLength={28}
+            />
+          </label>
           <div className="form-field">
             <span>Color</span>
             <div className="group-color-grid">

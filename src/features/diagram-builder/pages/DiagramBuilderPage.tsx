@@ -7,12 +7,19 @@ import { Sidebar } from '../components/Sidebar';
 import { useDiagramBuilder } from '../hooks/useDiagramBuilder';
 
 const LIBRARY_PANEL_WIDTH = 272;
+const TITLE_STORAGE_KEY = 'arcto-diagram-title';
 
 export function DiagramBuilderPage() {
   const builder = useDiagramBuilder();
   const [isPropertiesOpen, setIsPropertiesOpen] = useState(false);
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
-  const [diagramTitle, setDiagramTitle] = useState('Arquitectura sin título');
+  const [diagramTitle, setDiagramTitle] = useState(() => {
+    try { return localStorage.getItem(TITLE_STORAGE_KEY) || 'Arquitectura sin título'; } catch { return 'Arquitectura sin título'; }
+  });
+
+  useEffect(() => {
+    try { localStorage.setItem(TITLE_STORAGE_KEY, diagramTitle); } catch { /* storage unavailable */ }
+  }, [diagramTitle]);
 
   useEffect(() => {
     const nodeType = builder.selectedNode?.type as string | undefined;

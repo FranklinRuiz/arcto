@@ -1,12 +1,13 @@
 import { MarkerType } from '@xyflow/react';
 import { NODE_KINDS, type NodeKind, type PaletteItem, type SoftwareEdge, type SoftwareNode } from '../types/diagram.types';
 
-export type NodeCategory = 'ai' | 'data' | 'services' | 'presentation' | 'actors';
+export type NodeCategory = 'ai' | 'data' | 'cache' | 'services' | 'presentation' | 'actors';
 
 export const CATEGORY_STYLES: Record<NodeCategory, { bg: string; color: string; border: string }> = {
   ai:           { bg: '#EEEDFE', color: '#534AB7', border: '#AFA9EC' },
   data:         { bg: '#E1F5EE', color: '#0F6E56', border: '#5DCAA5' },
-  services:     { bg: '#FAECE7', color: '#993C1D', border: '#F0997B' },
+  cache:        { bg: '#EEF4EE', color: '#3A7D44', border: 'rgba(58, 125, 68, 0.35)' },
+  services:     { bg: '#FAECE7', color: '#993C1D', border: 'rgba(240, 153, 123, 0.35)' },
   presentation: { bg: '#E6F1FB', color: '#185FA5', border: '#85B7EB' },
   actors:       { bg: '#F1EFE8', color: '#5F5E5A', border: '#B4B2A9' },
 };
@@ -16,7 +17,7 @@ export const KIND_CATEGORY: Record<NodeKind, NodeCategory> = {
   [NODE_KINDS.AI_AGENT]:  'ai',
   [NODE_KINDS.VECTOR_DB]: 'data',
   [NODE_KINDS.DATABASE]:  'data',
-  [NODE_KINDS.CACHE]:     'data',
+  [NODE_KINDS.CACHE]:     'cache',
   [NODE_KINDS.GATEWAY]:   'services',
   [NODE_KINDS.BACKEND]:   'services',
   [NODE_KINDS.WORKER]:    'services',

@@ -87,7 +87,7 @@ export const InlineEditableEdge = memo((props: EdgeProps) => {
             className="edge-label-display"
             style={{
               position: 'absolute',
-              transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
+              transform: `translate(-50%, calc(-50% - 10px)) translate(${labelX}px, ${labelY}px)`,
               pointerEvents: 'none',
             }}
           >
