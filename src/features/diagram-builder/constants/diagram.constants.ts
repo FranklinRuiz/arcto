@@ -1,26 +1,40 @@
 import { MarkerType } from '@xyflow/react';
 import { NODE_KINDS, type NodeKind, type PaletteItem, type SoftwareEdge, type SoftwareNode } from '../types/diagram.types';
 
-export const KIND_ICON_COLORS: Record<NodeKind, { background: string; color: string }> = {
-  [NODE_KINDS.DEFAULT]:   { background: '#f1f5f9', color: '#64748b' },
-  [NODE_KINDS.USER]:      { background: '#f0f9ff', color: '#0284c7' },
-  [NODE_KINDS.FRONTEND]:  { background: '#e0f2fe', color: '#0369a1' },
-  [NODE_KINDS.MOBILE]:    { background: '#cffafe', color: '#0e7490' },
-  [NODE_KINDS.GATEWAY]:   { background: '#ffedd5', color: '#c2410c' },
-  [NODE_KINDS.BACKEND]:   { background: '#ede9fe', color: '#6d28d9' },
-  [NODE_KINDS.DATABASE]:  { background: '#d1fae5', color: '#065f46' },
-  [NODE_KINDS.CACHE]:     { background: '#dcfce7', color: '#166534' },
-  [NODE_KINDS.QUEUE]:     { background: '#fce7f3', color: '#9d174d' },
-  [NODE_KINDS.SECURITY]:  { background: '#fef3c7', color: '#92400e' },
-  [NODE_KINDS.CLOUD]:     { background: '#e0e7ff', color: '#3730a3' },
-  [NODE_KINDS.EXTERNAL]:  { background: '#f1f5f9', color: '#475569' },
-  [NODE_KINDS.WORKER]:    { background: '#ffe4e6', color: '#be123c' },
-  [NODE_KINDS.ONPREMISE]: { background: '#dbeafe', color: '#1e3a8a' },
-  [NODE_KINDS.MAINFRAME]: { background: '#e7e5e4', color: '#1c1917' },
-  [NODE_KINDS.AI_MODEL]:  { background: '#f5f3ff', color: '#7c3aed' },
-  [NODE_KINDS.VECTOR_DB]: { background: '#ecfdf5', color: '#059669' },
-  [NODE_KINDS.AI_AGENT]:  { background: '#fdf4ff', color: '#a21caf' },
+export type NodeCategory = 'ai' | 'data' | 'services' | 'presentation' | 'actors';
+
+export const CATEGORY_STYLES: Record<NodeCategory, { bg: string; color: string; border: string }> = {
+  ai:           { bg: '#EEEDFE', color: '#534AB7', border: '#AFA9EC' },
+  data:         { bg: '#E1F5EE', color: '#0F6E56', border: '#5DCAA5' },
+  services:     { bg: '#FAECE7', color: '#993C1D', border: '#F0997B' },
+  presentation: { bg: '#E6F1FB', color: '#185FA5', border: '#85B7EB' },
+  actors:       { bg: '#F1EFE8', color: '#5F5E5A', border: '#B4B2A9' },
 };
+
+export const KIND_CATEGORY: Record<NodeKind, NodeCategory> = {
+  [NODE_KINDS.AI_MODEL]:  'ai',
+  [NODE_KINDS.AI_AGENT]:  'ai',
+  [NODE_KINDS.VECTOR_DB]: 'data',
+  [NODE_KINDS.DATABASE]:  'data',
+  [NODE_KINDS.CACHE]:     'data',
+  [NODE_KINDS.GATEWAY]:   'services',
+  [NODE_KINDS.BACKEND]:   'services',
+  [NODE_KINDS.WORKER]:    'services',
+  [NODE_KINDS.QUEUE]:     'services',
+  [NODE_KINDS.MAINFRAME]: 'services',
+  [NODE_KINDS.ONPREMISE]: 'services',
+  [NODE_KINDS.CLOUD]:     'services',
+  [NODE_KINDS.SECURITY]:  'services',
+  [NODE_KINDS.FRONTEND]:  'presentation',
+  [NODE_KINDS.MOBILE]:    'presentation',
+  [NODE_KINDS.USER]:      'actors',
+  [NODE_KINDS.EXTERNAL]:  'actors',
+  [NODE_KINDS.DEFAULT]:   'actors',
+};
+
+export function getKindStyle(kind: NodeKind): { bg: string; color: string; border: string } {
+  return CATEGORY_STYLES[KIND_CATEGORY[kind] ?? 'actors'];
+}
 
 interface PaletteGroup {
   label: string;

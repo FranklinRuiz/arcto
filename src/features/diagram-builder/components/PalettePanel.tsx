@@ -486,16 +486,6 @@ function NodePropertiesPanel({
               </div>
             </div>
           </div>
-          <label className="form-field">
-            <span>Descripción</span>
-            <textarea
-              value={form.description}
-              onChange={(e) => update('description', e.target.value)}
-              rows={3}
-              className="form-control"
-              placeholder="Responsabilidad técnica del componente…"
-            />
-          </label>
         </div>
       </div>
     </div>

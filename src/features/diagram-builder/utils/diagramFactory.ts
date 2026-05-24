@@ -87,7 +87,7 @@ export function createGroupNode(params: { position: XYPosition }): GroupNode {
     position: params.position,
     style: { width: 400, height: 280 },
     zIndex: -1,
-    data: { label: '', color: '#0d9488', dashed: true, rounded: true },
+    data: { label: 'Zona / Dominio', color: '#0d9488', dashed: true, rounded: true },
   };
 }
 
@@ -98,7 +98,7 @@ export function createCircleGroupNode(params: { position: XYPosition }): CircleG
     position: params.position,
     style: { width: 260, height: 260 },
     zIndex: -1,
-    data: { label: 'Grupo', color: '#0d9488', dashed: true },
+    data: { label: '', color: '#0d9488', dashed: true },
   };
 }
 
