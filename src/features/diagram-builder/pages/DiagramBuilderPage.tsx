@@ -9,8 +9,20 @@ import { useDiagramBuilder } from '../hooks/useDiagramBuilder';
 const LIBRARY_PANEL_WIDTH = 272;
 const TITLE_STORAGE_KEY = 'arcto-diagram-title';
 
+function useIsWide(breakpoint = 900) {
+  const [wide, setWide] = useState(() => typeof window !== 'undefined' && window.innerWidth > breakpoint);
+  useEffect(() => {
+    const mq = window.matchMedia(`(min-width: ${breakpoint + 1}px)`);
+    const handler = (e: MediaQueryListEvent) => setWide(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, [breakpoint]);
+  return wide;
+}
+
 export function DiagramBuilderPage() {
   const builder = useDiagramBuilder();
+  const isWide = useIsWide();
   const [isPropertiesOpen, setIsPropertiesOpen] = useState(false);
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
   const [diagramTitle, setDiagramTitle] = useState(() => {
@@ -50,6 +62,7 @@ export function DiagramBuilderPage() {
       <AppToolbar
         isLibraryOpen={isLibraryOpen}
         hasSelection={builder.hasSelection}
+        selectedNodesCount={builder.selectedNodesCount}
         canUndo={builder.canUndo}
         saveStatus={builder.saveStatus}
         diagramTitle={diagramTitle}
@@ -57,11 +70,21 @@ export function DiagramBuilderPage() {
         onToggleLibrary={toggleLibrary}
         undo={builder.undo}
         deleteSelected={builder.deleteSelected}
+        alignNodes={builder.alignNodes}
         clearDiagram={builder.clearDiagram}
         exportJson={builder.exportJson}
         importJson={handleImport}
       />
       <div className="diagram-layout">
+        {/* Mobile backdrop — closes whichever panel is open */}
+        {(isPropertiesOpen || isLibraryOpen) && (
+          <div
+            className="panel-backdrop"
+            onClick={handleClearSelection}
+            aria-hidden
+          />
+        )}
+
         <Sidebar
           isOpen={isPropertiesOpen}
           selectedNode={builder.selectedNode}
@@ -79,11 +102,11 @@ export function DiagramBuilderPage() {
           onClickItem={builder.placeItem}
         />
 
-        {/* Side tab — always visible, slides with the panel */}
+        {/* Side tab — desktop only, hidden via CSS on mobile */}
         <button
           type="button"
           className={`library-tab${isLibraryOpen ? ' library-tab--open' : ''}`}
-          style={{ right: isLibraryOpen ? LIBRARY_PANEL_WIDTH : 0 }}
+          style={{ right: isLibraryOpen ? LIBRARY_PANEL_WIDTH : 0, display: isWide ? undefined : 'none' }}
           onClick={toggleLibrary}
           title={isLibraryOpen ? 'Cerrar elementos' : 'Abrir elementos'}
         >

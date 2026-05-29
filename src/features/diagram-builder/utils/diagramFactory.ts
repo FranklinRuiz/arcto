@@ -57,7 +57,7 @@ export function createAnimatedEdge(params: {
     label: params.label?.trim() || 'conexión',
     markerEnd: { type: MarkerType.ArrowClosed },
     style: { strokeWidth: 3 },
-    data: { dashed: false },
+    data: { dashed: false, shape: 'smooth' as const },
   };
 }
 

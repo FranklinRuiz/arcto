@@ -4,6 +4,8 @@ import type { useDiagramBuilder } from '../hooks/useDiagramBuilder';
 import { EdgeEditContext } from './EdgeEditContext';
 import { InlineEditableEdge } from './InlineEditableEdge';
 
+const isTouch = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
+
 const EDGE_TYPES = { smoothstep: InlineEditableEdge };
 
 type DiagramBuilderState = ReturnType<typeof useDiagramBuilder>;
@@ -52,8 +54,8 @@ export function DiagramCanvas({ builder }: DiagramCanvasProps) {
           onPaneContextMenu={(e) => e.preventDefault()}
           fitView
           connectionMode={ConnectionMode.Loose}
-          panOnDrag={[2]}
-          selectionOnDrag
+          panOnDrag={isTouch ? true : [2]}
+          selectionOnDrag={!isTouch}
           connectionLineStyle={{ strokeWidth: 3 }}
           defaultEdgeOptions={{ animated: true, type: 'smoothstep' }}
           proOptions={{ hideAttribution: true }}

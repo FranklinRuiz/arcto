@@ -229,6 +229,24 @@ textarea {
   color: #ef4444;
 }
 
+/* ── Align group ── */
+
+.align-group {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 2px;
+}
+
+.align-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+}
+
 /* ── Header labeled buttons ── */
 
 .header-btn-label {
@@ -2602,6 +2620,42 @@ textarea.form-control {
   color: #4338ca;
 }
 
+/* ── Edge shape row ── */
+
+.edge-shape-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.edge-shape-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px 6px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 130ms ease;
+}
+
+.edge-shape-btn:hover {
+  border-color: #94a3b8;
+  background: #f8fafc;
+  color: #334155;
+}
+
+.edge-shape-btn--active {
+  border-color: #6366f1;
+  background: #eef2ff;
+  color: #4338ca;
+}
+
 /* ── Palette icon group extras ── */
 
 .palette__hero--group {
@@ -2622,7 +2676,15 @@ textarea.form-control {
 }
 
 
-@media (max-width: 900px) {
+/* ── Panel backdrop (mobile only — hidden on desktop) ── */
+
+.panel-backdrop {
+  display: none;
+}
+
+/* ── Responsive: tablet + mobile (≤ 899px) ── */
+
+@media (max-width: 899px) {
   .app-header {
     padding: 0 8px;
     gap: 0;
@@ -2646,31 +2708,68 @@ textarea.form-control {
     padding: 0 9px;
   }
 
+  /* Vertical tab is redundant on touch — header button handles toggle */
+  .library-tab {
+    display: none;
+  }
+
+  /* Backdrop: dims canvas when a panel is open */
+  .panel-backdrop {
+    display: block;
+    position: fixed;
+    inset: 44px 0 0 0;
+    background: rgb(2 6 23 / 0.3);
+    z-index: 25;
+  }
+
+  /* Sidebar: left-side drawer, no overlap with library panel */
   .sidebar {
-    top: 8px;
-    left: 8px;
-    right: 8px;
-    width: auto;
-    bottom: auto;
-    max-height: 45vh;
-    border-radius: 12px;
+    position: fixed;
+    top: 44px;
+    left: 0;
+    bottom: 0;
+    width: min(290px, 85vw);
+    max-height: none;
+    border-radius: 0 14px 14px 0;
+    border-left: none;
+    z-index: 30;
   }
 
   .sidebar--collapsed {
-    transform: translateY(calc(-100% - 24px));
+    transform: translateX(calc(-100% - 2px));
   }
 
+  /* Library panel: right-side drawer */
   .library-panel {
-    top: 8px;
-    left: 8px;
-    right: 8px;
-    width: auto;
-    bottom: auto;
-    max-height: 55vh;
-    border-radius: 12px;
+    position: fixed;
+    top: 44px;
+    right: 0;
+    left: auto;
+    bottom: 0;
+    width: min(290px, 85vw);
+    border-radius: 14px 0 0 14px;
+    border-left: 1px solid #e8edf3;
   }
 
   .library-panel--collapsed {
-    transform: translateY(calc(-100% - 24px));
+    transform: translateX(100%);
+  }
+}
+
+/* ── Mobile: extra header compression (≤ 600px) ── */
+
+@media (max-width: 600px) {
+  .app-header__brand-name,
+  .app-header__chevron {
+    display: none;
+  }
+
+  .app-header__title-btn {
+    max-width: 130px;
+    font-size: 12px;
+  }
+
+  .app-header__title-input {
+    width: 110px;
   }
 }

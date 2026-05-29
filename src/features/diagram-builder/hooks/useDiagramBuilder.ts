@@ -9,7 +9,7 @@ import { GroupNodeComponent } from '../components/GroupNode';
 import { CircleGroupNodeComponent } from '../components/CircleGroupNode';
 import { LabelNodeComponent } from '../components/LabelNode';
 import { AnnotationNodeComponent } from '../components/AnnotationNode';
-import { NODE_KINDS, type EdgeFormData, type GroupFormData, type LabelFormData, type NodeFormData, type PaletteItem, type SoftwareEdge, type SoftwareNode, type TextNodeData } from '../types/diagram.types';
+import { NODE_KINDS, type AlignAxis, type EdgeFormData, type GroupFormData, type LabelFormData, type NodeFormData, type PaletteItem, type SoftwareEdge, type SoftwareNode, type TextNodeData } from '../types/diagram.types';
 import { createAnimatedEdge, createAnnotationNode, createCircleGroupNode, createGroupNode, createIconNode, createLabelNode, createNode, normalizeNodeData } from '../utils/diagramFactory';
 import { isValidDiagramPayload } from '../utils/diagramValidation';
 
@@ -43,6 +43,11 @@ export function useDiagramBuilder() {
   const hasSelection = useMemo(
     () => nodes.some((n) => n.selected) || edges.some((e) => e.selected) || !!selectedNodeId || !!selectedEdgeId,
     [nodes, edges, selectedNodeId, selectedEdgeId],
+  );
+
+  const selectedNodesCount = useMemo(
+    () => nodes.filter((n) => n.selected).length,
+    [nodes],
   );
 
   const nodeTypes = useMemo(() => ({
@@ -256,7 +261,7 @@ export function useDiagramBuilder() {
   );
 
   const liveUpdateEdge = useCallback(
-    (edgeId: string, patch: { label?: string; color?: string; strokeWidth?: number }) => {
+    (edgeId: string, patch: { label?: string; color?: string; strokeWidth?: number; shape?: 'smooth' | 'straight' }) => {
       setEdges((current) =>
         current.map((edge) => {
           if (edge.id !== edgeId) return edge;
@@ -272,6 +277,9 @@ export function useDiagramBuilder() {
           if (patch.color !== undefined) {
             const prevMarker = typeof edge.markerEnd === 'object' && edge.markerEnd !== null ? edge.markerEnd : { type: MarkerType.ArrowClosed };
             next.markerEnd = { ...prevMarker, color: patch.color };
+          }
+          if (patch.shape !== undefined) {
+            next.data = { ...next.data, shape: patch.shape };
           }
           return next;
         }),
@@ -341,6 +349,32 @@ export function useDiagramBuilder() {
     },
     [setEdges],
   );
+
+  const alignNodes = useCallback((axis: AlignAxis) => {
+    const selected = nodes.filter((n) => n.selected);
+    if (selected.length < 2) return;
+
+    const getW = (n: SoftwareNode) => (n as { measured?: { width?: number } }).measured?.width ?? 180;
+    const getH = (n: SoftwareNode) => (n as { measured?: { height?: number } }).measured?.height ?? 80;
+
+    const minX = Math.min(...selected.map((n) => n.position.x));
+    const maxX = Math.max(...selected.map((n) => n.position.x + getW(n)));
+    const minY = Math.min(...selected.map((n) => n.position.y));
+    const maxY = Math.max(...selected.map((n) => n.position.y + getH(n)));
+    const midX = (minX + maxX) / 2;
+    const midY = (minY + maxY) / 2;
+
+    const idSet = new Set(selected.map((n) => n.id));
+    setNodes((current) =>
+      current.map((n) => {
+        if (!idSet.has(n.id)) return n;
+        const w = getW(n), h = getH(n);
+        const x = axis === 'center-h' ? midX - w / 2 : n.position.x;
+        const y = axis === 'center-v' ? midY - h / 2 : n.position.y;
+        return { ...n, position: { x, y } };
+      }),
+    );
+  }, [nodes, setNodes]);
 
   const deleteSelected = useCallback(() => {
     const multiNodes = nodes.filter((n) => n.selected);
@@ -507,6 +541,7 @@ export function useDiagramBuilder() {
     selectedNode,
     selectedEdge,
     hasSelection,
+    selectedNodesCount,
     editingEdge,
     setRfInstance,
     onNodesChange,
@@ -523,6 +558,7 @@ export function useDiagramBuilder() {
     undo,
     canUndo,
     saveStatus,
+    alignNodes,
     deleteSelected,
     clearDiagram,
     exportJson,

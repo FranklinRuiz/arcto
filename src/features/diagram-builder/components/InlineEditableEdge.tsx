@@ -1,5 +1,5 @@
 import { memo, useContext, useEffect, useRef, useState } from 'react';
-import { BaseEdge, EdgeLabelRenderer, getSmoothStepPath, Position, type EdgeProps } from '@xyflow/react';
+import { BaseEdge, EdgeLabelRenderer, getSmoothStepPath, getStraightPath, Position, type EdgeProps } from '@xyflow/react';
 import { EdgeEditContext } from './EdgeEditContext';
 
 const INSET = 4;
@@ -31,11 +31,15 @@ export const InlineEditableEdge = memo((props: EdgeProps) => {
            : targetPosition === Position.Bottom ? targetY - INSET
            : targetY;
 
-  const [edgePath, labelX, labelY] = getSmoothStepPath({
-    sourceX: sX, sourceY: sY,
-    targetX: tX, targetY: tY,
-    sourcePosition, targetPosition,
-  });
+  const shape = (data as Record<string, unknown>)?.shape as string | undefined;
+  const [edgePath, labelX, labelY] = shape === 'straight'
+    ? getStraightPath({ sourceX: sX, sourceY: sY, targetX: tX, targetY: tY })
+    : getSmoothStepPath({
+        sourceX: sX, sourceY: sY,
+        targetX: tX, targetY: tY,
+        sourcePosition, targetPosition,
+        borderRadius: shape === 'step' ? 0 : 8,
+      });
 
   // Sync value and focus when editing begins
   useEffect(() => {

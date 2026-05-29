@@ -4,10 +4,35 @@ import {
   Download, Layers, LayoutGrid, Loader2,
   MoreHorizontal, Trash2, Undo2, Upload,
 } from 'lucide-react';
+import type { AlignAxis } from '../types/diagram.types';
+
+const ALIGN_ACTIONS: { axis: AlignAxis; title: string; icon: React.ReactNode }[] = [
+  {
+    axis: 'center-h', title: 'Centrar horizontalmente',
+    icon: (
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+        <line x1="7.5" y1="1" x2="7.5" y2="14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        <rect x="2" y="3" width="11" height="3" rx="1" fill="currentColor" />
+        <rect x="4" y="9" width="7" height="3" rx="1" fill="currentColor" />
+      </svg>
+    ),
+  },
+  {
+    axis: 'center-v', title: 'Centrar verticalmente',
+    icon: (
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+        <line x1="1" y1="7.5" x2="14" y2="7.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        <rect x="2" y="2" width="3" height="11" rx="1" fill="currentColor" />
+        <rect x="9" y="4" width="3" height="7" rx="1" fill="currentColor" />
+      </svg>
+    ),
+  },
+];
 
 interface AppToolbarProps {
   isLibraryOpen: boolean;
   hasSelection: boolean;
+  selectedNodesCount: number;
   canUndo: boolean;
   saveStatus: 'saved' | 'saving';
   diagramTitle: string;
@@ -15,6 +40,7 @@ interface AppToolbarProps {
   onToggleLibrary: () => void;
   undo: () => void;
   deleteSelected: () => void;
+  alignNodes: (axis: AlignAxis) => void;
   clearDiagram: () => void;
   exportJson: (title?: string) => void;
   importJson: (event: ChangeEvent<HTMLInputElement>) => void;
@@ -23,6 +49,7 @@ interface AppToolbarProps {
 export function AppToolbar({
   isLibraryOpen,
   hasSelection,
+  selectedNodesCount,
   canUndo,
   saveStatus,
   diagramTitle,
@@ -30,6 +57,7 @@ export function AppToolbar({
   onToggleLibrary,
   undo,
   deleteSelected,
+  alignNodes,
   clearDiagram,
   exportJson,
   importJson,
@@ -156,6 +184,25 @@ export function AppToolbar({
         >
           <Trash2 size={15} />
         </button>
+
+        {selectedNodesCount >= 2 && (
+          <>
+            <div className="app-header__div" />
+            <div className="align-group" title="Alinear nodos seleccionados">
+              {ALIGN_ACTIONS.map(({ axis, title, icon }) => (
+                <button
+                  key={axis}
+                  type="button"
+                  className="header-btn align-btn"
+                  title={title}
+                  onClick={() => alignNodes(axis)}
+                >
+                  {icon}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
 
         <div className="app-header__div" />
 

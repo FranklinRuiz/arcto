@@ -11,7 +11,7 @@ interface PalettePanelProps {
   liveUpdateNode: (nodeId: string, patch: Partial<NodeFormData>) => void;
   liveUpdateGroup: (nodeId: string, patch: Partial<GroupFormData>) => void;
   liveUpdateLabel: (nodeId: string, patch: Partial<LabelFormData>) => void;
-  liveUpdateEdge: (edgeId: string, patch: { label?: string; color?: string; strokeWidth?: number }) => void;
+  liveUpdateEdge: (edgeId: string, patch: { label?: string; color?: string; strokeWidth?: number; shape?: 'smooth' | 'straight' }) => void;
 }
 
 
@@ -90,15 +90,33 @@ function WeightLine({ width }: { width: number }) {
   );
 }
 
+const EDGE_SHAPES = [
+  { value: 'smooth' as const, label: 'Suave',
+    icon: (
+      <svg width="44" height="16" viewBox="0 0 44 16" fill="none">
+        <path d="M2 14 C10 14 14 2 22 2 C30 2 34 14 42 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
+      </svg>
+    ),
+  },
+  { value: 'straight' as const, label: 'Recta',
+    icon: (
+      <svg width="44" height="16" viewBox="0 0 44 16" fill="none">
+        <line x1="2" y1="14" x2="42" y2="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+];
+
 function EdgePropertiesPanel({ edge, onToggleAsync, onLiveUpdate }: {
   edge: SoftwareEdge;
   onToggleAsync: () => void;
-  onLiveUpdate: (patch: { color?: string; strokeWidth?: number }) => void;
+  onLiveUpdate: (patch: { color?: string; strokeWidth?: number; shape?: 'smooth' | 'straight' }) => void;
 }) {
   const isAsync = Boolean(edge.data?.dashed) && (edge as { animated?: boolean }).animated;
   const edgeLabel = typeof edge.label === 'string' ? edge.label : '';
   const edgeColor = (edge.style as { stroke?: string } | undefined)?.stroke ?? '#94a3b8';
   const edgeWeight = (edge.style?.strokeWidth as number | undefined) ?? 3;
+  const edgeShape = edge.data?.shape ?? 'smooth';
 
   return (
     <div className="node-props-panel">
@@ -164,6 +182,24 @@ function EdgePropertiesPanel({ edge, onToggleAsync, onLiveUpdate }: {
                 >
                   <WeightLine width={w.value === 1.5 ? 1.5 : w.value === 3 ? 2.5 : 4} />
                   <span>{w.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="form-field">
+            <span>Forma</span>
+            <div className="edge-shape-row">
+              {EDGE_SHAPES.map((s) => (
+                <button
+                  key={s.value}
+                  type="button"
+                  className={`edge-shape-btn${edgeShape === s.value ? ' edge-shape-btn--active' : ''}`}
+                  onClick={() => onLiveUpdate({ shape: s.value })}
+                  title={s.label}
+                >
+                  {s.icon}
+                  <span>{s.label}</span>
                 </button>
               ))}
             </div>

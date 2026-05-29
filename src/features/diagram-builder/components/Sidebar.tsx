@@ -9,7 +9,7 @@ interface SidebarProps {
   liveUpdateNode: (nodeId: string, patch: Partial<NodeFormData>) => void;
   liveUpdateGroup: (nodeId: string, patch: Partial<GroupFormData>) => void;
   liveUpdateLabel: (nodeId: string, patch: Partial<LabelFormData>) => void;
-  liveUpdateEdge: (edgeId: string, patch: { label?: string; color?: string; strokeWidth?: number }) => void;
+  liveUpdateEdge: (edgeId: string, patch: { label?: string; color?: string; strokeWidth?: number; shape?: 'smooth' | 'straight' }) => void;
 }
 
 export function Sidebar({ isOpen, selectedNode, selectedEdge, toggleEdgeAsync, liveUpdateNode, liveUpdateGroup, liveUpdateLabel, liveUpdateEdge }: SidebarProps) {
