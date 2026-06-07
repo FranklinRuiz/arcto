@@ -1,36 +1,76 @@
 import { MarkerType } from '@xyflow/react';
 import { NODE_KINDS, type NodeKind, type PaletteItem, type SoftwareEdge, type SoftwareNode } from '../types/diagram.types';
 
-export type NodeCategory = 'ai' | 'data' | 'cache' | 'services' | 'presentation' | 'actors';
+export type NodeCategory =
+  | 'ai' | 'data' | 'cache' | 'services' | 'presentation' | 'actors'
+  | 'integration' | 'infra' | 'observability' | 'security_ext';
 
 export const CATEGORY_STYLES: Record<NodeCategory, { bg: string; color: string; border: string }> = {
-  ai:           { bg: '#EEEDFE', color: '#534AB7', border: '#AFA9EC' },
-  data:         { bg: '#E1F5EE', color: '#0F6E56', border: '#5DCAA5' },
-  cache:        { bg: '#EEF4EE', color: '#3A7D44', border: 'rgba(58, 125, 68, 0.35)' },
-  services:     { bg: '#FAECE7', color: '#993C1D', border: 'rgba(240, 153, 123, 0.35)' },
-  presentation: { bg: '#E6F1FB', color: '#185FA5', border: '#85B7EB' },
-  actors:       { bg: '#F1EFE8', color: '#5F5E5A', border: '#B4B2A9' },
+  ai:            { bg: '#EEEDFE', color: '#534AB7', border: '#AFA9EC' },
+  data:          { bg: '#E1F5EE', color: '#0F6E56', border: '#5DCAA5' },
+  cache:         { bg: '#EEF4EE', color: '#3A7D44', border: 'rgba(58, 125, 68, 0.35)' },
+  services:      { bg: '#FAECE7', color: '#993C1D', border: 'rgba(240, 153, 123, 0.35)' },
+  presentation:  { bg: '#E6F1FB', color: '#185FA5', border: '#85B7EB' },
+  actors:        { bg: '#F1EFE8', color: '#5F5E5A', border: '#B4B2A9' },
+  integration:   { bg: '#FFF7E6', color: '#92400E', border: '#FCD34D' },
+  infra:         { bg: '#F0F9FF', color: '#0369A1', border: '#7DD3FC' },
+  observability: { bg: '#F5F3FF', color: '#6D28D9', border: '#C4B5FD' },
+  security_ext:  { bg: '#FFF1F2', color: '#9F1239', border: '#FDA4AF' },
 };
 
 export const KIND_CATEGORY: Record<NodeKind, NodeCategory> = {
-  [NODE_KINDS.AI_MODEL]:  'ai',
-  [NODE_KINDS.AI_AGENT]:  'ai',
-  [NODE_KINDS.VECTOR_DB]: 'data',
-  [NODE_KINDS.DATABASE]:  'data',
-  [NODE_KINDS.CACHE]:     'cache',
-  [NODE_KINDS.GATEWAY]:   'services',
-  [NODE_KINDS.BACKEND]:   'services',
-  [NODE_KINDS.WORKER]:    'services',
-  [NODE_KINDS.QUEUE]:     'services',
-  [NODE_KINDS.MAINFRAME]: 'services',
-  [NODE_KINDS.ONPREMISE]: 'services',
-  [NODE_KINDS.CLOUD]:     'services',
-  [NODE_KINDS.SECURITY]:  'services',
-  [NODE_KINDS.FRONTEND]:  'presentation',
-  [NODE_KINDS.MOBILE]:    'presentation',
-  [NODE_KINDS.USER]:      'actors',
-  [NODE_KINDS.EXTERNAL]:  'actors',
-  [NODE_KINDS.DEFAULT]:   'actors',
+  // Core
+  [NODE_KINDS.AI_MODEL]:       'ai',
+  [NODE_KINDS.AI_AGENT]:       'ai',
+  [NODE_KINDS.VECTOR_DB]:      'data',
+  [NODE_KINDS.DATABASE]:       'data',
+  [NODE_KINDS.CACHE]:          'cache',
+  [NODE_KINDS.GATEWAY]:        'services',
+  [NODE_KINDS.BACKEND]:        'services',
+  [NODE_KINDS.WORKER]:         'services',
+  [NODE_KINDS.QUEUE]:          'services',
+  [NODE_KINDS.MAINFRAME]:      'services',
+  [NODE_KINDS.ONPREMISE]:      'services',
+  [NODE_KINDS.CLOUD]:          'services',
+  [NODE_KINDS.SECURITY]:       'services',
+  [NODE_KINDS.FRONTEND]:       'presentation',
+  [NODE_KINDS.MOBILE]:         'presentation',
+  [NODE_KINDS.USER]:           'actors',
+  [NODE_KINDS.EXTERNAL]:       'actors',
+  [NODE_KINDS.DEFAULT]:        'actors',
+  // Integration
+  [NODE_KINDS.EVENT_BUS]:      'integration',
+  [NODE_KINDS.PUBSUB]:         'integration',
+  [NODE_KINDS.WEBHOOK]:        'integration',
+  [NODE_KINDS.ETL]:            'integration',
+  [NODE_KINDS.SERVICE_MESH]:   'integration',
+  // Infrastructure
+  [NODE_KINDS.KUBERNETES]:     'infra',
+  [NODE_KINDS.CONTAINER]:      'infra',
+  [NODE_KINDS.LOAD_BALANCER]:  'infra',
+  [NODE_KINDS.CDN]:            'infra',
+  [NODE_KINDS.OBJECT_STORAGE]: 'infra',
+  [NODE_KINDS.FILE_STORAGE]:   'infra',
+  // Observability
+  [NODE_KINDS.LOGGING]:        'observability',
+  [NODE_KINDS.METRICS]:        'observability',
+  [NODE_KINDS.MONITORING]:     'observability',
+  [NODE_KINDS.TRACING]:        'observability',
+  [NODE_KINDS.ALERTING]:       'observability',
+  // Security ext
+  [NODE_KINDS.IAM]:            'security_ext',
+  [NODE_KINDS.OAUTH2]:         'security_ext',
+  [NODE_KINDS.KEY_VAULT]:      'security_ext',
+  [NODE_KINDS.SECRETS]:        'security_ext',
+  [NODE_KINDS.API_SECURITY]:   'security_ext',
+  // AI extended
+  [NODE_KINDS.MCP_SERVER]:       'ai',
+  [NODE_KINDS.AI_TOOL]:          'ai',
+  [NODE_KINDS.PROMPT_TEMPLATE]:  'ai',
+  [NODE_KINDS.KNOWLEDGE_BASE]:   'ai',
+  [NODE_KINDS.RAG_PIPELINE]:     'ai',
+  [NODE_KINDS.GUARDRAILS]:       'ai',
+  [NODE_KINDS.AI_WORKFLOW]:      'ai',
 };
 
 export function getKindStyle(kind: NodeKind): { bg: string; color: string; border: string } {
@@ -151,6 +191,179 @@ export const PALETTE: PaletteItem[] = [
     subtitle: 'LangChain · AutoGen',
     description: 'Agente o orquestador de IA que coordina herramientas, memoria y modelos para tareas autónomas.',
   },
+  // Integration
+  {
+    type: NODE_KINDS.EVENT_BUS,
+    label: 'Event Bus',
+    subtitle: 'EventBridge · SNS',
+    description: 'Bus de eventos central que desacopla productores y consumidores mediante publicación asíncrona.',
+  },
+  {
+    type: NODE_KINDS.PUBSUB,
+    label: 'Pub/Sub',
+    subtitle: 'Topic · Suscripción',
+    description: 'Mensajería publicar/suscribir con tópicos y múltiples suscriptores independientes.',
+  },
+  {
+    type: NODE_KINDS.WEBHOOK,
+    label: 'Webhook',
+    subtitle: 'HTTP Callback',
+    description: 'Notificación HTTP push desencadenada por un evento en un sistema origen.',
+  },
+  {
+    type: NODE_KINDS.ETL,
+    label: 'ETL / Pipeline',
+    subtitle: 'Extract · Transform · Load',
+    description: 'Pipeline de integración de datos: extracción, transformación y carga hacia el destino.',
+  },
+  {
+    type: NODE_KINDS.SERVICE_MESH,
+    label: 'Service Mesh',
+    subtitle: 'Istio · Linkerd',
+    description: 'Capa de infraestructura que gestiona la comunicación entre microservicios con sidecars proxy.',
+  },
+  // Infrastructure
+  {
+    type: NODE_KINDS.KUBERNETES,
+    label: 'Kubernetes',
+    subtitle: 'K8s · Orquestación',
+    description: 'Plataforma de orquestación de contenedores para despliegue, escalado y gestión automatizada.',
+  },
+  {
+    type: NODE_KINDS.CONTAINER,
+    label: 'Contenedor',
+    subtitle: 'Docker · OCI',
+    description: 'Unidad de despliegue aislada que empaqueta una aplicación con sus dependencias.',
+  },
+  {
+    type: NODE_KINDS.LOAD_BALANCER,
+    label: 'Load Balancer',
+    subtitle: 'Distribución de tráfico',
+    description: 'Distribuye el tráfico entrante entre múltiples instancias de servicio de forma equitativa.',
+  },
+  {
+    type: NODE_KINDS.CDN,
+    label: 'CDN',
+    subtitle: 'Edge · Caché global',
+    description: 'Red de distribución de contenido con nodos edge que aceleran la entrega a los usuarios finales.',
+  },
+  {
+    type: NODE_KINDS.OBJECT_STORAGE,
+    label: 'Object Storage',
+    subtitle: 'S3 · Blob · GCS',
+    description: 'Almacenamiento de objetos no estructurados: imágenes, documentos, backups y datos binarios.',
+  },
+  {
+    type: NODE_KINDS.FILE_STORAGE,
+    label: 'File Storage',
+    subtitle: 'NFS · SMB · EFS',
+    description: 'Sistema de archivos compartido accesible por múltiples servicios mediante protocolos de red.',
+  },
+  // Observability
+  {
+    type: NODE_KINDS.LOGGING,
+    label: 'Logging',
+    subtitle: 'ELK · Loki · Splunk',
+    description: 'Recolección, almacenamiento y análisis centralizado de registros de aplicaciones e infraestructura.',
+  },
+  {
+    type: NODE_KINDS.METRICS,
+    label: 'Métricas',
+    subtitle: 'Prometheus · Datadog',
+    description: 'Recolección y visualización de métricas de rendimiento: latencia, throughput, error rate.',
+  },
+  {
+    type: NODE_KINDS.MONITORING,
+    label: 'Monitoring',
+    subtitle: 'Grafana · CloudWatch',
+    description: 'Dashboard de monitoreo en tiempo real con alertas basadas en umbrales y anomalías.',
+  },
+  {
+    type: NODE_KINDS.TRACING,
+    label: 'Tracing',
+    subtitle: 'Jaeger · Zipkin · OTEL',
+    description: 'Rastreo distribuido de solicitudes a través de múltiples microservicios para diagnóstico de latencia.',
+  },
+  {
+    type: NODE_KINDS.ALERTING,
+    label: 'Alerting',
+    subtitle: 'PagerDuty · OpsGenie',
+    description: 'Sistema de notificaciones y escalación de incidentes basado en reglas y umbrales de métricas.',
+  },
+  // Security extended
+  {
+    type: NODE_KINDS.IAM,
+    label: 'IAM',
+    subtitle: 'Identidad y Acceso',
+    description: 'Gestión de identidades, roles y permisos para controlar el acceso a recursos del sistema.',
+  },
+  {
+    type: NODE_KINDS.OAUTH2,
+    label: 'OAuth2 / OIDC',
+    subtitle: 'Autorización · Tokens',
+    description: 'Protocolo de autorización delegada con tokens de acceso y flujos de autenticación estándar.',
+  },
+  {
+    type: NODE_KINDS.KEY_VAULT,
+    label: 'Key Vault',
+    subtitle: 'HSM · KMS',
+    description: 'Almacén seguro para claves criptográficas, certificados y secretos con control de acceso granular.',
+  },
+  {
+    type: NODE_KINDS.SECRETS,
+    label: 'Secrets Manager',
+    subtitle: 'HashiCorp Vault · AWS SM',
+    description: 'Gestión centralizada de credenciales, tokens y secretos con rotación automática.',
+  },
+  {
+    type: NODE_KINDS.API_SECURITY,
+    label: 'API Security',
+    subtitle: 'mTLS · JWT · RBAC',
+    description: 'Capa de seguridad para APIs: autenticación, autorización, validación y protección contra ataques.',
+  },
+  // AI extended
+  {
+    type: NODE_KINDS.MCP_SERVER,
+    label: 'MCP Server',
+    subtitle: 'Model Context Protocol',
+    description: 'Servidor MCP que expone herramientas, recursos y prompts a agentes de IA de forma estandarizada.',
+  },
+  {
+    type: NODE_KINDS.AI_TOOL,
+    label: 'Tool / Función',
+    subtitle: 'Function Calling',
+    description: 'Función o herramienta invocable por un agente de IA para ejecutar acciones externas.',
+  },
+  {
+    type: NODE_KINDS.PROMPT_TEMPLATE,
+    label: 'Prompt Template',
+    subtitle: 'System · Few-shot',
+    description: 'Plantilla de prompt reutilizable con variables de contexto, instrucciones y ejemplos few-shot.',
+  },
+  {
+    type: NODE_KINDS.KNOWLEDGE_BASE,
+    label: 'Knowledge Base',
+    subtitle: 'Documentos · Índice',
+    description: 'Base de conocimiento estructurada usada por agentes de IA para búsqueda y recuperación de información.',
+  },
+  {
+    type: NODE_KINDS.RAG_PIPELINE,
+    label: 'RAG Pipeline',
+    subtitle: 'Retrieval Augmented Gen.',
+    description: 'Pipeline de generación aumentada por recuperación: embeddings, búsqueda vectorial y generación LLM.',
+  },
+  {
+    type: NODE_KINDS.GUARDRAILS,
+    label: 'Guardrails',
+    subtitle: 'Safety · Moderation',
+    description: 'Capa de seguridad y moderación que filtra entradas/salidas de modelos de IA para cumplimiento.',
+  },
+  {
+    type: NODE_KINDS.AI_WORKFLOW,
+    label: 'AI Workflow',
+    subtitle: 'Orquestación · DAG',
+    description: 'Flujo de trabajo orquestado de pasos de IA: retrieval, razonamiento, generación y acciones.',
+  },
 ];
 
 const paletteMap = new Map(PALETTE.map((p) => [p.type, p]));
@@ -159,7 +372,7 @@ const pick = (kind: keyof typeof NODE_KINDS) => paletteMap.get(NODE_KINDS[kind])
 export const PALETTE_GROUPS: PaletteGroup[] = [
   {
     label: 'Actores',
-    items: [pick('USER')],
+    items: [pick('USER'), pick('EXTERNAL')],
   },
   {
     label: 'Presentación',
@@ -171,19 +384,27 @@ export const PALETTE_GROUPS: PaletteGroup[] = [
   },
   {
     label: 'Datos',
-    items: [pick('DATABASE'), pick('CACHE'), pick('QUEUE')],
+    items: [pick('DATABASE'), pick('CACHE'), pick('QUEUE'), pick('VECTOR_DB')],
   },
   {
     label: 'Infraestructura',
-    items: [pick('CLOUD'), pick('ONPREMISE'), pick('MAINFRAME')],
+    items: [pick('CLOUD'), pick('ONPREMISE'), pick('MAINFRAME'), pick('KUBERNETES'), pick('CONTAINER'), pick('LOAD_BALANCER'), pick('CDN'), pick('OBJECT_STORAGE'), pick('FILE_STORAGE')],
   },
   {
-    label: 'Seguridad y Ext.',
-    items: [pick('SECURITY'), pick('EXTERNAL')],
+    label: 'Integración',
+    items: [pick('EVENT_BUS'), pick('PUBSUB'), pick('WEBHOOK'), pick('ETL'), pick('SERVICE_MESH')],
+  },
+  {
+    label: 'Observabilidad',
+    items: [pick('LOGGING'), pick('METRICS'), pick('MONITORING'), pick('TRACING'), pick('ALERTING')],
+  },
+  {
+    label: 'Seguridad',
+    items: [pick('SECURITY'), pick('IAM'), pick('OAUTH2'), pick('KEY_VAULT'), pick('SECRETS'), pick('API_SECURITY')],
   },
   {
     label: 'Inteligencia Artificial',
-    items: [pick('AI_MODEL'), pick('VECTOR_DB'), pick('AI_AGENT')],
+    items: [pick('AI_MODEL'), pick('AI_AGENT'), pick('MCP_SERVER'), pick('AI_TOOL'), pick('PROMPT_TEMPLATE'), pick('KNOWLEDGE_BASE'), pick('RAG_PIPELINE'), pick('GUARDRAILS'), pick('AI_WORKFLOW')],
   },
 ];
 

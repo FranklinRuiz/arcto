@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useState, type ChangeEvent } from 'react';
 import { LayoutGrid } from 'lucide-react';
 import { AppToolbar } from '../components/AppToolbar';
-import { DiagramCanvas } from '../components/DiagramCanvas';
+import { DiagramCanvas, type SizeMode } from '../components/DiagramCanvas';
 import { LibraryPanel } from '../components/LibraryPanel';
 import { Sidebar } from '../components/Sidebar';
 import { useDiagramBuilder } from '../hooks/useDiagramBuilder';
 
 const LIBRARY_PANEL_WIDTH = 272;
 const TITLE_STORAGE_KEY = 'arcto-diagram-title';
+const SIZE_MODE_STORAGE_KEY = 'arcto-size-mode';
 
 function useIsWide(breakpoint = 900) {
   const [wide, setWide] = useState(() => typeof window !== 'undefined' && window.innerWidth > breakpoint);
@@ -28,10 +29,17 @@ export function DiagramBuilderPage() {
   const [diagramTitle, setDiagramTitle] = useState(() => {
     try { return localStorage.getItem(TITLE_STORAGE_KEY) || 'Arquitectura sin título'; } catch { return 'Arquitectura sin título'; }
   });
+  const [sizeMode, setSizeMode] = useState<SizeMode>(() => {
+    try { return (localStorage.getItem(SIZE_MODE_STORAGE_KEY) as SizeMode) || 'standard'; } catch { return 'standard'; }
+  });
 
   useEffect(() => {
     try { localStorage.setItem(TITLE_STORAGE_KEY, diagramTitle); } catch { /* storage unavailable */ }
   }, [diagramTitle]);
+
+  useEffect(() => {
+    try { localStorage.setItem(SIZE_MODE_STORAGE_KEY, sizeMode); } catch { /* storage unavailable */ }
+  }, [sizeMode]);
 
   useEffect(() => {
     const nodeType = builder.selectedNode?.type as string | undefined;
@@ -74,6 +82,8 @@ export function DiagramBuilderPage() {
         clearDiagram={builder.clearDiagram}
         exportJson={builder.exportJson}
         importJson={handleImport}
+        sizeMode={sizeMode}
+        onSizeModeChange={setSizeMode}
       />
       <div className="diagram-layout">
         {/* Mobile backdrop — closes whichever panel is open */}
@@ -114,7 +124,7 @@ export function DiagramBuilderPage() {
           <span className="library-tab__label">Elementos</span>
         </button>
 
-        <DiagramCanvas builder={builderWithOverride} />
+        <DiagramCanvas builder={builderWithOverride} sizeMode={sizeMode} />
       </div>
     </div>
   );

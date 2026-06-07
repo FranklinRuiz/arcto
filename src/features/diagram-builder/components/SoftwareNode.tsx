@@ -3,7 +3,7 @@ import type { SoftwareNode } from '../types/diagram.types';
 import { iconMap, ServerIcon } from './icons/DiagramIcons';
 import { getKindStyle } from '../constants/diagram.constants';
 
-type CSSVarProps = React.CSSProperties & { '--cat-border'?: string; '--cat-bg'?: string };
+type CSSVarProps = React.CSSProperties & { '--cat-border'?: string; '--cat-bg'?: string; '--icon-bg'?: string };
 
 export function SoftwareNodeComponent({ data, selected }: NodeProps<SoftwareNode>) {
   const Icon = iconMap[data.icon] ?? ServerIcon;
@@ -34,7 +34,7 @@ export function SoftwareNodeComponent({ data, selected }: NodeProps<SoftwareNode
       <Handle id="left-2" type="source" position={Position.Left} style={{ top: '50%' }} className="software-node__handle" />
       <Handle id="left-3" type="source" position={Position.Left} style={{ top: '75%' }} className="software-node__handle" />
       <div className="software-node__content">
-        <div className="software-node__icon" style={{ background: style.bg, color: style.color }}>
+        <div className="software-node__icon" style={{ '--icon-bg': style.bg, color: style.color } as CSSVarProps}>
           <Icon size="100%" />
         </div>
         <div className="software-node__text">

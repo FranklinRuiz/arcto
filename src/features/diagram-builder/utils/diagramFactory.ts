@@ -85,7 +85,7 @@ export function createGroupNode(params: { position: XYPosition }): GroupNode {
     id: `group-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
     type: 'groupNode',
     position: params.position,
-    style: { width: 400, height: 280 },
+    style: { width: 460, height: 320 },
     zIndex: -1,
     data: { label: 'Zona / Dominio', color: '#0F6E56', dashed: true, rounded: true },
   };
@@ -96,7 +96,7 @@ export function createCircleGroupNode(params: { position: XYPosition }): CircleG
     id: `circle-group-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
     type: 'circleGroupNode',
     position: params.position,
-    style: { width: 260, height: 260 },
+    style: { width: 320, height: 320 },
     zIndex: -1,
     data: { label: 'Nombre del grupo', color: '#0F6E56', dashed: true },
   };

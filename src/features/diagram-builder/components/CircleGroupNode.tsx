@@ -42,7 +42,7 @@ export function CircleGroupNodeComponent({ id, data, selected }: NodeProps<Circl
         style={{
           borderColor: data.color,
           borderStyle: data.dashed !== false ? 'dashed' : 'solid',
-          background: data.color + '0a',
+          background: data.filled ? data.color + '0a' : 'transparent',
         }}
       >
         {editing ? (

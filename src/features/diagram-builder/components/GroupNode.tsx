@@ -4,6 +4,7 @@ import type { GroupNode } from '../types/diagram.types';
 export function GroupNodeComponent({ data, selected }: NodeProps<GroupNode>) {
   const isDashed = data.dashed !== false;
   const borderRadius = data.rounded !== false ? 16 : 4;
+  const bg = data.filled ? data.color + '0a' : 'transparent';
 
   return (
     <div className="group-node-outer">
@@ -24,7 +25,7 @@ export function GroupNodeComponent({ data, selected }: NodeProps<GroupNode>) {
           borderColor: data.color,
           borderStyle: isDashed ? 'dashed' : 'solid',
           borderRadius,
-          background: data.color + '0a',
+          background: bg,
         }}
       >
         {data.label && (

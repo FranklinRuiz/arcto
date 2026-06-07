@@ -16,24 +16,58 @@ interface PalettePanelProps {
 
 
 const KIND_COLORS: Record<NodeKind, { color: string; bg: string }> = {
-  [NODE_KINDS.DEFAULT]:   { color: '#334155', bg: '#f1f5f9' },
-  [NODE_KINDS.USER]:      { color: '#0284c7', bg: '#f0f9ff' },
-  [NODE_KINDS.FRONTEND]:  { color: '#075985', bg: '#e0f2fe' },
-  [NODE_KINDS.MOBILE]:    { color: '#0e7490', bg: '#cffafe' },
-  [NODE_KINDS.GATEWAY]:   { color: '#c2410c', bg: '#ffedd5' },
-  [NODE_KINDS.BACKEND]:   { color: '#5b21b6', bg: '#ede9fe' },
-  [NODE_KINDS.DATABASE]:  { color: '#047857', bg: '#d1fae5' },
-  [NODE_KINDS.CACHE]:     { color: '#166534', bg: '#dcfce7' },
-  [NODE_KINDS.QUEUE]:     { color: '#9d174d', bg: '#fce7f3' },
-  [NODE_KINDS.SECURITY]:  { color: '#92400e', bg: '#fef3c7' },
-  [NODE_KINDS.CLOUD]:     { color: '#3730a3', bg: '#e0e7ff' },
-  [NODE_KINDS.EXTERNAL]:  { color: '#475569', bg: '#e2e8f0' },
-  [NODE_KINDS.WORKER]:    { color: '#be123c', bg: '#ffe4e6' },
-  [NODE_KINDS.ONPREMISE]: { color: '#1e3a8a', bg: '#dbeafe' },
-  [NODE_KINDS.MAINFRAME]: { color: '#1c1917', bg: '#e7e5e4' },
-  [NODE_KINDS.AI_MODEL]:  { color: '#7c3aed', bg: '#f5f3ff' },
-  [NODE_KINDS.VECTOR_DB]: { color: '#059669', bg: '#ecfdf5' },
-  [NODE_KINDS.AI_AGENT]:  { color: '#a21caf', bg: '#fdf4ff' },
+  // Core
+  [NODE_KINDS.DEFAULT]:        { color: '#334155', bg: '#f1f5f9' },
+  [NODE_KINDS.USER]:           { color: '#0284c7', bg: '#f0f9ff' },
+  [NODE_KINDS.FRONTEND]:       { color: '#075985', bg: '#e0f2fe' },
+  [NODE_KINDS.MOBILE]:         { color: '#0e7490', bg: '#cffafe' },
+  [NODE_KINDS.GATEWAY]:        { color: '#c2410c', bg: '#ffedd5' },
+  [NODE_KINDS.BACKEND]:        { color: '#5b21b6', bg: '#ede9fe' },
+  [NODE_KINDS.DATABASE]:       { color: '#047857', bg: '#d1fae5' },
+  [NODE_KINDS.CACHE]:          { color: '#166534', bg: '#dcfce7' },
+  [NODE_KINDS.QUEUE]:          { color: '#9d174d', bg: '#fce7f3' },
+  [NODE_KINDS.SECURITY]:       { color: '#92400e', bg: '#fef3c7' },
+  [NODE_KINDS.CLOUD]:          { color: '#3730a3', bg: '#e0e7ff' },
+  [NODE_KINDS.EXTERNAL]:       { color: '#475569', bg: '#e2e8f0' },
+  [NODE_KINDS.WORKER]:         { color: '#be123c', bg: '#ffe4e6' },
+  [NODE_KINDS.ONPREMISE]:      { color: '#1e3a8a', bg: '#dbeafe' },
+  [NODE_KINDS.MAINFRAME]:      { color: '#1c1917', bg: '#e7e5e4' },
+  [NODE_KINDS.AI_MODEL]:       { color: '#7c3aed', bg: '#f5f3ff' },
+  [NODE_KINDS.VECTOR_DB]:      { color: '#059669', bg: '#ecfdf5' },
+  [NODE_KINDS.AI_AGENT]:       { color: '#a21caf', bg: '#fdf4ff' },
+  // Integration
+  [NODE_KINDS.EVENT_BUS]:      { color: '#92400e', bg: '#fffbeb' },
+  [NODE_KINDS.PUBSUB]:         { color: '#92400e', bg: '#fffbeb' },
+  [NODE_KINDS.WEBHOOK]:        { color: '#92400e', bg: '#fffbeb' },
+  [NODE_KINDS.ETL]:            { color: '#92400e', bg: '#fffbeb' },
+  [NODE_KINDS.SERVICE_MESH]:   { color: '#92400e', bg: '#fffbeb' },
+  // Infrastructure
+  [NODE_KINDS.KUBERNETES]:     { color: '#0369a1', bg: '#f0f9ff' },
+  [NODE_KINDS.CONTAINER]:      { color: '#0369a1', bg: '#f0f9ff' },
+  [NODE_KINDS.LOAD_BALANCER]:  { color: '#0369a1', bg: '#f0f9ff' },
+  [NODE_KINDS.CDN]:            { color: '#0369a1', bg: '#f0f9ff' },
+  [NODE_KINDS.OBJECT_STORAGE]: { color: '#0369a1', bg: '#f0f9ff' },
+  [NODE_KINDS.FILE_STORAGE]:   { color: '#0369a1', bg: '#f0f9ff' },
+  // Observability
+  [NODE_KINDS.LOGGING]:        { color: '#6d28d9', bg: '#f5f3ff' },
+  [NODE_KINDS.METRICS]:        { color: '#6d28d9', bg: '#f5f3ff' },
+  [NODE_KINDS.MONITORING]:     { color: '#6d28d9', bg: '#f5f3ff' },
+  [NODE_KINDS.TRACING]:        { color: '#6d28d9', bg: '#f5f3ff' },
+  [NODE_KINDS.ALERTING]:       { color: '#6d28d9', bg: '#f5f3ff' },
+  // Security ext
+  [NODE_KINDS.IAM]:            { color: '#9f1239', bg: '#fff1f2' },
+  [NODE_KINDS.OAUTH2]:         { color: '#9f1239', bg: '#fff1f2' },
+  [NODE_KINDS.KEY_VAULT]:      { color: '#9f1239', bg: '#fff1f2' },
+  [NODE_KINDS.SECRETS]:        { color: '#9f1239', bg: '#fff1f2' },
+  [NODE_KINDS.API_SECURITY]:   { color: '#9f1239', bg: '#fff1f2' },
+  // AI extended
+  [NODE_KINDS.MCP_SERVER]:       { color: '#7c3aed', bg: '#f5f3ff' },
+  [NODE_KINDS.AI_TOOL]:          { color: '#7c3aed', bg: '#f5f3ff' },
+  [NODE_KINDS.PROMPT_TEMPLATE]:  { color: '#7c3aed', bg: '#f5f3ff' },
+  [NODE_KINDS.KNOWLEDGE_BASE]:   { color: '#7c3aed', bg: '#f5f3ff' },
+  [NODE_KINDS.RAG_PIPELINE]:     { color: '#7c3aed', bg: '#f5f3ff' },
+  [NODE_KINDS.GUARDRAILS]:       { color: '#7c3aed', bg: '#f5f3ff' },
+  [NODE_KINDS.AI_WORKFLOW]:      { color: '#7c3aed', bg: '#f5f3ff' },
 };
 
 const PRESET_COLORS = [
@@ -220,20 +254,22 @@ function CircleGroupPropertiesPanel({
   node: SoftwareNode;
   onLiveUpdate: (nodeId: string, patch: Partial<GroupFormData>) => void;
 }) {
-  const data = node.data as unknown as { label: string; color: string; dashed?: boolean };
+  const data = node.data as unknown as { label: string; color: string; dashed?: boolean; filled?: boolean };
   const [label, setLabel] = useState(data.label);
   const [color, setColor] = useState(data.color);
   const [dashed, setDashed] = useState(data.dashed !== false);
+  const [filled, setFilled] = useState(data.filled === true);
   const labelRef = useRef<HTMLInputElement>(null);
   const prevNodeIdRef = useRef(node.id);
 
   useEffect(() => {
     if (node.id === prevNodeIdRef.current) return;
     prevNodeIdRef.current = node.id;
-    const d = node.data as unknown as { label: string; color: string; dashed?: boolean };
+    const d = node.data as unknown as { label: string; color: string; dashed?: boolean; filled?: boolean };
     setLabel(d.label);
     setColor(d.color);
     setDashed(d.dashed !== false);
+    setFilled(d.filled === true);
   }, [node]);
 
   const updateLabel = (value: string) => {
@@ -249,6 +285,11 @@ function CircleGroupPropertiesPanel({
   const updateDashed = (value: boolean) => {
     setDashed(value);
     onLiveUpdate(node.id, { dashed: value });
+  };
+
+  const updateFilled = (value: boolean) => {
+    setFilled(value);
+    onLiveUpdate(node.id, { filled: value });
   };
 
   return (
@@ -326,6 +367,34 @@ function CircleGroupPropertiesPanel({
               </button>
             </div>
           </div>
+          <div className="form-field">
+            <span>Fondo</span>
+            <div className="style-grid">
+              <button
+                type="button"
+                className={`style-btn${!filled ? ' style-btn--active' : ''}`}
+                onClick={() => updateFilled(false)}
+                title="Sin fondo"
+              >
+                <svg width="32" height="18" viewBox="0 0 32 18" fill="none">
+                  <circle cx="16" cy="9" r="7" stroke="currentColor" strokeWidth="2" />
+                  <line x1="10" y1="3" x2="22" y2="15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+                <span>Sin fondo</span>
+              </button>
+              <button
+                type="button"
+                className={`style-btn${filled ? ' style-btn--active' : ''}`}
+                onClick={() => updateFilled(true)}
+                title="Con fondo"
+              >
+                <svg width="32" height="18" viewBox="0 0 32 18" fill="none">
+                  <circle cx="16" cy="9" r="7" stroke="currentColor" strokeWidth="2" fill="currentColor" fillOpacity="0.15" />
+                </svg>
+                <span>Con fondo</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -339,12 +408,13 @@ function GroupPropertiesPanel({
   node: SoftwareNode;
   onLiveUpdate: (nodeId: string, patch: Partial<GroupFormData>) => void;
 }) {
-  const data = node.data as unknown as { label: string; color: string; dashed?: boolean; rounded?: boolean };
+  const data = node.data as unknown as { label: string; color: string; dashed?: boolean; rounded?: boolean; filled?: boolean };
   const [form, setForm] = useState<GroupFormData>({
     label: data.label,
     color: data.color,
     dashed: data.dashed !== false,
     rounded: data.rounded !== false,
+    filled: data.filled === true,
   });
   const labelRef = useRef<HTMLInputElement>(null);
   const prevNodeIdRef = useRef(node.id);
@@ -352,8 +422,8 @@ function GroupPropertiesPanel({
   useEffect(() => {
     if (node.id === prevNodeIdRef.current) return;
     prevNodeIdRef.current = node.id;
-    const d = node.data as unknown as { label: string; color: string; dashed?: boolean; rounded?: boolean };
-    setForm({ label: d.label, color: d.color, dashed: d.dashed !== false, rounded: d.rounded !== false });
+    const d = node.data as unknown as { label: string; color: string; dashed?: boolean; rounded?: boolean; filled?: boolean };
+    setForm({ label: d.label, color: d.color, dashed: d.dashed !== false, rounded: d.rounded !== false, filled: d.filled === true });
   }, [node]);
 
   const update = <K extends keyof GroupFormData>(field: K, value: GroupFormData[K]) => {
@@ -455,6 +525,34 @@ function GroupPropertiesPanel({
                   <rect x="1.5" y="1.5" width="29" height="15" rx="1" stroke="currentColor" strokeWidth="2" />
                 </svg>
                 <span>Rectas</span>
+              </button>
+            </div>
+          </div>
+          <div className="form-field">
+            <span>Fondo</span>
+            <div className="style-grid">
+              <button
+                type="button"
+                className={`style-btn${!form.filled ? ' style-btn--active' : ''}`}
+                onClick={() => update('filled', false)}
+                title="Sin fondo"
+              >
+                <svg width="32" height="18" viewBox="0 0 32 18" fill="none">
+                  <rect x="1.5" y="1.5" width="29" height="15" rx="4" stroke="currentColor" strokeWidth="2" />
+                  <line x1="5" y1="2" x2="27" y2="16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+                <span>Sin fondo</span>
+              </button>
+              <button
+                type="button"
+                className={`style-btn${form.filled ? ' style-btn--active' : ''}`}
+                onClick={() => update('filled', true)}
+                title="Con fondo"
+              >
+                <svg width="32" height="18" viewBox="0 0 32 18" fill="none">
+                  <rect x="1.5" y="1.5" width="29" height="15" rx="4" stroke="currentColor" strokeWidth="2" fill="currentColor" fillOpacity="0.15" />
+                </svg>
+                <span>Con fondo</span>
               </button>
             </div>
           </div>

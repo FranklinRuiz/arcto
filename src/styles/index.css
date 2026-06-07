@@ -375,6 +375,48 @@ textarea {
   min-height: 0;
 }
 
+/* ── Size mode segmented control ── */
+
+.size-mode-group {
+  display: flex;
+  align-items: center;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 2px;
+  gap: 1px;
+  flex-shrink: 0;
+}
+
+.size-mode-btn {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, box-shadow 120ms ease;
+  font-family: inherit;
+  line-height: 1;
+}
+
+.size-mode-btn:hover {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.size-mode-btn--active {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 1px 3px rgb(15 23 42 / 0.12);
+}
+
 /* ── Library side tab ── */
 
 .library-tab {
@@ -1047,6 +1089,64 @@ textarea.form-control {
   flex: 1;
   height: 100%;
   min-width: 0;
+  /* ── Node size tokens: Standard (default) ── */
+  --node-min-w: 220px;
+  --node-max-w: 280px;
+  --node-pad-v: 12px;
+  --node-pad-h: 14px;
+  --icon-box: 48px;
+  --icon-pad: 6px;
+  --icon-radius: 11px;
+  --title-sz: 14px;
+  --sub-sz: 11.5px;
+  --node-gap: 12px;
+}
+
+/* ── Compact: diagramas masivos (50-80 nodos) ── */
+.canvas-shell.canvas--size-compact {
+  --node-min-w: 170px;
+  --node-max-w: 210px;
+  --node-pad-v: 9px;
+  --node-pad-h: 11px;
+  --icon-box: 34px;
+  --icon-pad: 3px;
+  --icon-radius: 8px;
+  --title-sz: 12.5px;
+  --sub-sz: 10.5px;
+  --node-gap: 9px;
+}
+
+/* ── Presentation: exportación y reuniones ejecutivas ── */
+.canvas-shell.canvas--size-presentation {
+  --node-min-w: 270px;
+  --node-max-w: 320px;
+  --node-pad-v: 16px;
+  --node-pad-h: 18px;
+  --icon-box: 60px;
+  --icon-pad: 9px;
+  --icon-radius: 14px;
+  --title-sz: 15px;
+  --sub-sz: 12.5px;
+  --node-gap: 14px;
+}
+
+/* ── Level of Detail (LOD) por zoom ── */
+
+/* zoom < 0.70: ocultar subtítulo */
+.canvas--lod-medium .software-node__subtitle { display: none; }
+
+/* zoom < 0.40: ocultar título y subtítulo */
+.canvas--lod-low .software-node__subtitle,
+.canvas--lod-low .software-node__title { display: none; }
+
+/* zoom < 0.20: solo icono, nodo mínimo */
+.canvas--lod-minimal .software-node__text { display: none; }
+.canvas--lod-minimal .software-node__content { justify-content: center; }
+.canvas--lod-minimal .software-node__icon {
+  width: 28px;
+  height: 28px;
+  padding: 6px;
+  border-radius: 7px;
 }
 
 
@@ -1067,9 +1167,9 @@ textarea.form-control {
 }
 
 .software-node {
-  min-width: 195px;
-  max-width: 240px;
-  padding: 10px 12px;
+  min-width: var(--node-min-w);
+  max-width: var(--node-max-w);
+  padding: var(--node-pad-v) var(--node-pad-h);
   border: 0.5px solid var(--color-border-tertiary);
   border-radius: 14px;
   background: var(--color-background-primary);
@@ -1094,7 +1194,7 @@ textarea.form-control {
 
 .software-node__content {
   display: flex;
-  gap: 11px;
+  gap: var(--node-gap);
   align-items: center;
 }
 
@@ -1103,10 +1203,11 @@ textarea.form-control {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  padding: 10px;
-  border-radius: 10px;
+  width: var(--icon-box);
+  height: var(--icon-box);
+  padding: var(--icon-pad);
+  border-radius: var(--icon-radius);
+  background-color: color-mix(in srgb, var(--icon-bg) 88%, transparent);
 }
 
 .software-node__text {
@@ -1116,7 +1217,7 @@ textarea.form-control {
 
 .software-node__title {
   overflow: hidden;
-  font-size: 13.5px;
+  font-size: var(--title-sz);
   font-weight: 700;
   letter-spacing: 0;
   color: #0f172a;
@@ -1127,7 +1228,7 @@ textarea.form-control {
 
 .software-node__subtitle {
   overflow: hidden;
-  font-size: 11px;
+  font-size: var(--sub-sz);
   font-weight: 500;
   color: #64748b;
   text-overflow: ellipsis;

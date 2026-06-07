@@ -5,6 +5,7 @@ import {
   MoreHorizontal, Trash2, Undo2, Upload,
 } from 'lucide-react';
 import type { AlignAxis } from '../types/diagram.types';
+import type { SizeMode } from './DiagramCanvas';
 
 const ALIGN_ACTIONS: { axis: AlignAxis; title: string; icon: React.ReactNode }[] = [
   {
@@ -29,6 +30,12 @@ const ALIGN_ACTIONS: { axis: AlignAxis; title: string; icon: React.ReactNode }[]
   },
 ];
 
+const SIZE_MODES: { key: SizeMode; label: string; title: string }[] = [
+  { key: 'compact',      label: 'S', title: 'Vista compacta' },
+  { key: 'standard',     label: 'M', title: 'Vista estándar' },
+  { key: 'presentation', label: 'L', title: 'Vista presentación' },
+];
+
 interface AppToolbarProps {
   isLibraryOpen: boolean;
   hasSelection: boolean;
@@ -44,6 +51,8 @@ interface AppToolbarProps {
   clearDiagram: () => void;
   exportJson: (title?: string) => void;
   importJson: (event: ChangeEvent<HTMLInputElement>) => void;
+  sizeMode: SizeMode;
+  onSizeModeChange: (mode: SizeMode) => void;
 }
 
 export function AppToolbar({
@@ -61,6 +70,8 @@ export function AppToolbar({
   clearDiagram,
   exportJson,
   importJson,
+  sizeMode,
+  onSizeModeChange,
 }: AppToolbarProps) {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState(diagramTitle);
@@ -203,6 +214,23 @@ export function AppToolbar({
             </div>
           </>
         )}
+
+        <div className="app-header__div" />
+
+        {/* Size mode */}
+        <div className="size-mode-group" role="group" aria-label="Tamaño de vista">
+          {SIZE_MODES.map(({ key, label, title }) => (
+            <button
+              key={key}
+              type="button"
+              className={`size-mode-btn${sizeMode === key ? ' size-mode-btn--active' : ''}`}
+              title={title}
+              onClick={() => onSizeModeChange(key)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
 
         <div className="app-header__div" />
 

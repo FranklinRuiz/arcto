@@ -1,24 +1,58 @@
 import type { Edge, Node } from '@xyflow/react';
 
 export const NODE_KINDS = {
-  DEFAULT: 'default',
-  USER: 'user',
-  FRONTEND: 'frontend',
-  MOBILE: 'mobile',
-  GATEWAY: 'gateway',
-  BACKEND: 'backend',
-  DATABASE: 'database',
-  CACHE: 'cache',
-  QUEUE: 'queue',
-  SECURITY: 'security',
-  CLOUD: 'cloud',
-  EXTERNAL: 'external',
-  WORKER: 'worker',
-  ONPREMISE: 'onpremise',
-  MAINFRAME: 'mainframe',
-  AI_MODEL:  'ai_model',
-  VECTOR_DB: 'vector_db',
-  AI_AGENT:  'ai_agent',
+  // Core
+  DEFAULT:        'default',
+  USER:           'user',
+  FRONTEND:       'frontend',
+  MOBILE:         'mobile',
+  GATEWAY:        'gateway',
+  BACKEND:        'backend',
+  DATABASE:       'database',
+  CACHE:          'cache',
+  QUEUE:          'queue',
+  SECURITY:       'security',
+  CLOUD:          'cloud',
+  EXTERNAL:       'external',
+  WORKER:         'worker',
+  ONPREMISE:      'onpremise',
+  MAINFRAME:      'mainframe',
+  AI_MODEL:       'ai_model',
+  VECTOR_DB:      'vector_db',
+  AI_AGENT:       'ai_agent',
+  // Integration
+  EVENT_BUS:      'event_bus',
+  PUBSUB:         'pubsub',
+  WEBHOOK:        'webhook',
+  ETL:            'etl',
+  SERVICE_MESH:   'service_mesh',
+  // Infrastructure
+  KUBERNETES:     'kubernetes',
+  CONTAINER:      'container',
+  LOAD_BALANCER:  'load_balancer',
+  CDN:            'cdn',
+  OBJECT_STORAGE: 'object_storage',
+  FILE_STORAGE:   'file_storage',
+  // Observability
+  LOGGING:        'logging',
+  METRICS:        'metrics',
+  MONITORING:     'monitoring',
+  TRACING:        'tracing',
+  ALERTING:       'alerting',
+  // Security
+  IAM:            'iam',
+  OAUTH2:         'oauth2',
+  KEY_VAULT:      'key_vault',
+  SECRETS:        'secrets',
+  API_SECURITY:   'api_security',
+  // AI extended
+  MCP_SERVER:       'mcp_server',
+  AI_TOOL:          'ai_tool',
+  PROMPT_TEMPLATE:  'prompt_template',
+  KNOWLEDGE_BASE:   'knowledge_base',
+  RAG_PIPELINE:     'rag_pipeline',
+  GUARDRAILS:       'guardrails',
+  AI_WORKFLOW:      'ai_workflow',
 } as const;
 
 export type NodeKind = (typeof NODE_KINDS)[keyof typeof NODE_KINDS];
@@ -54,6 +88,7 @@ export interface GroupNodeData extends Record<string, unknown> {
   color: string;
   dashed?: boolean;
   rounded?: boolean;
+  filled?: boolean;
 }
 
 export interface GroupFormData {
@@ -61,6 +96,7 @@ export interface GroupFormData {
   color: string;
   dashed?: boolean;
   rounded?: boolean;
+  filled?: boolean;
 }
 
 export type SoftwareNode = Node<SoftwareNodeData, 'softwareNode'>;

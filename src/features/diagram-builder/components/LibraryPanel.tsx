@@ -12,7 +12,7 @@ interface LibraryPanelProps {
   onClickItem: (payload: PaletteItem | { __isGroup: boolean } | { __isText: boolean } | { __isCircleGroup: boolean } | { __isLabel: boolean } | { __isAnnotation: boolean; icon: string; label: string; color: string; bg: string }) => void;
 }
 
-type FilterKey = 'all' | 'ai' | 'services' | 'data';
+type FilterKey = 'all' | 'ai' | 'services' | 'data' | 'infra' | 'integration' | 'observability' | 'security';
 type CSSVarProps = React.CSSProperties & { '--hover-border'?: string };
 
 interface AnnotationGroup {
@@ -41,18 +41,30 @@ const ANNOTATION_GROUPS: AnnotationGroup[] = [
 ];
 
 const FILTERS: { key: FilterKey; label: string }[] = [
-  { key: 'all', label: 'Todo' },
-  { key: 'ai', label: 'IA' },
-  { key: 'services', label: 'Servicios' },
-  { key: 'data', label: 'Datos' },
+  { key: 'all',          label: 'Todo' },
+  { key: 'ai',          label: 'IA' },
+  { key: 'services',    label: 'Servicios' },
+  { key: 'data',        label: 'Datos' },
+  { key: 'infra',       label: 'Infra' },
+  { key: 'integration', label: 'Integración' },
+  { key: 'observability', label: 'Observabilidad' },
+  { key: 'security',    label: 'Seguridad' },
 ];
+
+const FILTER_GROUPS: Record<FilterKey, string[]> = {
+  all:          [],
+  ai:           ['Inteligencia Artificial'],
+  services:     ['Servicios', 'Actores', 'Presentación'],
+  data:         ['Datos'],
+  infra:        ['Infraestructura'],
+  integration:  ['Integración'],
+  observability: ['Observabilidad'],
+  security:     ['Seguridad'],
+};
 
 function groupMatchesFilter(groupLabel: string, filter: FilterKey): boolean {
   if (filter === 'all') return true;
-  if (filter === 'ai') return groupLabel === 'Inteligencia Artificial';
-  if (filter === 'services') return groupLabel === 'Servicios';
-  if (filter === 'data') return groupLabel === 'Datos';
-  return false;
+  return FILTER_GROUPS[filter].includes(groupLabel);
 }
 
 
