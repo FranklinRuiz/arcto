@@ -25,16 +25,13 @@ interface AnnotationGroup {
 
 const ANNOTATION_GROUPS: AnnotationGroup[] = [
   {
-    label: 'Formas',
+    label: 'Anotaciones',
     bg: '#F1F5F9',
     color: '#475569',
     icons: [
-      'Lock', 'Key', 'Shield', 'ShieldCheck', 'Fingerprint',
-      'AlertTriangle', 'Ban', 'Bell', 'Mail',
-      'File', 'FileText', 'Folder', 'Download', 'Upload', 'Archive',
-      'Check', 'X',
-      'Code', 'Terminal', 'Bug', 'GitMerge', 'Package', 'Layers',
-      'CreditCard', 'DollarSign', 'BarChart', 'TrendingUp',
+      'JWT', 'API Key', 'OAuth', 'Cookie',
+      'JSON', 'XML', 'CSV', 'Hash', 'Binario', 'QR',
+      'Webhook', 'Evento', 'Email', 'Timestamp', 'Certificado', 'Error',
     ],
     HeaderIcon: Shapes,
   },
@@ -224,7 +221,7 @@ export function LibraryPanel({ isOpen, onClose, onDragStart, onClickItem }: Libr
                       </div>
                       <div className="library-item__info">
                         <div className="library-item__label">{group.label}</div>
-                        <div className="library-item__subtitle">Íconos de anotación</div>
+                        <div className="library-item__subtitle">Indicadores de flujo (arrastra sobre líneas)</div>
                       </div>
                       <div className="annotation-accordion__chevron">
                         <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
@@ -244,7 +241,6 @@ export function LibraryPanel({ isOpen, onClose, onDragStart, onClickItem }: Libr
                                 key={iconName}
                                 type="button"
                                 draggable
-                                title={iconName}
                                 onDragStart={(e) => {
                                   e.dataTransfer.setData('application/reactflow', JSON.stringify(payload));
                                   e.dataTransfer.effectAllowed = 'move';
@@ -253,8 +249,7 @@ export function LibraryPanel({ isOpen, onClose, onDragStart, onClickItem }: Libr
                                 onClick={() => onClickItem(payload)}
                                 className="annotation-icon-card"
                               >
-                                <Icon size={20} strokeWidth={3} />
-                                <span className="annotation-icon-card__label">{iconName}</span>
+                                <Icon size={15} strokeWidth={2.25} />
                               </button>
                             );
                           })}

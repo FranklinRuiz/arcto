@@ -1,29 +1,35 @@
 import { useEffect, useRef, useState } from 'react';
 import { useReactFlow, type NodeProps } from '@xyflow/react';
 import {
-  Lock, Key, Shield, ShieldCheck, Fingerprint,
-  AlertTriangle, Ban, Bell,
-  ArrowRight, GitBranch, RefreshCw, Clock, Timer, Repeat,
-  Cloud, Server, Wifi, WifiOff, Globe, Building,
-  Mail,
-  File, FileText, Folder, Download, Upload, Archive,
-  Check, X,
-  Code, Terminal, Bug, GitMerge, Package, Layers,
-  CreditCard, DollarSign, BarChart, TrendingUp,
+  Fingerprint, KeyRound, Lock, Cookie,
+  FileJson, FileCode, FileSpreadsheet, Hash, Binary, QrCode,
+  Webhook, Zap, Mail, Clock, BadgeCheck, AlertCircle,
   type LucideIcon,
 } from 'lucide-react';
 import type { AnnotationNode } from '../types/diagram.types';
 
+/**
+ * Domain-specific flow artifacts (not architecture components): protocols,
+ * payload formats and signals that travel along connections. Kept deliberately
+ * small/secondary in the UI so they read as indicators, not as nodes.
+ */
 export const ANNOTATION_ICON_MAP: Record<string, LucideIcon> = {
-  Lock, Key, Shield, ShieldCheck, Fingerprint,
-  AlertTriangle, Ban, Bell,
-  ArrowRight, GitBranch, RefreshCw, Clock, Timer, Repeat,
-  Cloud, Server, Wifi, WifiOff, Globe, Building,
-  Mail,
-  File, FileText, Folder, Download, Upload, Archive,
-  Check, X,
-  Code, Terminal, Bug, GitMerge, Package, Layers,
-  CreditCard, DollarSign, BarChart, TrendingUp,
+  'JWT': Fingerprint,
+  'API Key': KeyRound,
+  'OAuth': Lock,
+  'Cookie': Cookie,
+  'JSON': FileJson,
+  'XML': FileCode,
+  'CSV': FileSpreadsheet,
+  'Hash': Hash,
+  'Binario': Binary,
+  'QR': QrCode,
+  'Webhook': Webhook,
+  'Evento': Zap,
+  'Email': Mail,
+  'Timestamp': Clock,
+  'Certificado': BadgeCheck,
+  'Error': AlertCircle,
 };
 
 export function AnnotationNodeComponent({ id, data, selected }: NodeProps<AnnotationNode>) {
@@ -51,7 +57,7 @@ export function AnnotationNodeComponent({ id, data, selected }: NodeProps<Annota
 
   return (
     <div className={`annotation-node${selected ? ' annotation-node--selected' : ''}`}>
-      {Icon && <Icon size={26} strokeWidth={2.5} />}
+      {Icon && <Icon size={15} strokeWidth={2.25} />}
       {editing ? (
         <input
           ref={inputRef}

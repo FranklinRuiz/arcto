@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent, DragEvent } from 'react';
-import { addEdge, MarkerType, reconnectEdge, useEdgesState, useNodesState, type Connection, type Edge, type ReactFlowInstance } from '@xyflow/react';
+import { addEdge, getNodesBounds, getViewportForBounds, MarkerType, reconnectEdge, useEdgesState, useNodesState, type Connection, type Edge, type ReactFlowInstance } from '@xyflow/react';
+import { toPng } from 'html-to-image';
 import { INITIAL_EDGES, INITIAL_NODES } from '../constants/diagram.constants';
 import { SoftwareNodeComponent } from '../components/SoftwareNode';
 import { TextNodeComponent } from '../components/TextNode';
@@ -221,15 +222,38 @@ export function useDiagramBuilder() {
           setNodes((current) => current.concat(newNode as unknown as SoftwareNode));
           setSelectedNodeId(newNode.id);
         } else if (payload.__isAnnotation) {
-          const newNode = createAnnotationNode({
-            position,
-            icon: payload.icon as string,
-            label: payload.label as string,
-            color: payload.color as string,
-            bg: payload.bg as string,
-          });
-          setNodes((current) => current.concat(newNode as unknown as SoftwareNode));
-          setSelectedNodeId(newNode.id);
+          // Dropping an annotation directly onto a connection attaches it as a
+          // small inline indicator on that edge instead of creating a standalone node.
+          const targetEl = event.target as HTMLElement | null;
+          const edgeEl = targetEl?.closest?.('.react-flow__edge') as HTMLElement | null;
+          const edgeId = edgeEl?.dataset.id;
+
+          if (edgeId) {
+            const newAnnotation = {
+              id: `eanno-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+              icon: payload.icon as string,
+              label: payload.label as string,
+              color: payload.color as string,
+              bg: payload.bg as string,
+            };
+            setEdges((current) =>
+              current.map((edge) => {
+                if (edge.id !== edgeId) return edge;
+                const existing = edge.data?.annotations ?? [];
+                return { ...edge, data: { ...edge.data, annotations: [...existing, newAnnotation] } };
+              }),
+            );
+          } else {
+            const newNode = createAnnotationNode({
+              position,
+              icon: payload.icon as string,
+              label: payload.label as string,
+              color: payload.color as string,
+              bg: payload.bg as string,
+            });
+            setNodes((current) => current.concat(newNode as unknown as SoftwareNode));
+            setSelectedNodeId(newNode.id);
+          }
         } else if (payload.__isIcon) {
           const item = payload as unknown as PaletteItem;
           const newNode = createIconNode({ item, position });
@@ -245,7 +269,7 @@ export function useDiagramBuilder() {
         // invalid drop data, ignore
       }
     },
-    [rfInstance, setNodes],
+    [rfInstance, setNodes, setEdges],
   );
 
   const updateEdgeDataById = useCallback(
@@ -501,6 +525,85 @@ export function useDiagramBuilder() {
     URL.revokeObjectURL(url);
   }, [nodes, edges]);
 
+  const exportPng = useCallback((title = 'diagrama-software') => {
+    const viewportEl = document.querySelector('.react-flow__viewport') as HTMLElement | null;
+    if (!viewportEl || nodes.length === 0) return;
+
+    const safeFilename = title.trim().replace(/[<>:"/\\|?*]/g, '').replace(/\s+/g, '-') || 'diagrama-software';
+    const PADDING = 64;
+    const nodesBounds = getNodesBounds(nodes);
+    const imageWidth = Math.round(nodesBounds.width + PADDING * 2);
+    const imageHeight = Math.round(nodesBounds.height + PADDING * 2);
+    const { x, y, zoom } = getViewportForBounds(nodesBounds, imageWidth, imageHeight, 0.5, 2, 0);
+
+    // Arrowheads reference shared <marker> defs via `url('#id')`. That fragment
+    // only resolves within the same SVG fragment — but html-to-image rasterizes
+    // the cloned DOM through a foreignObject/data-URI pipeline where the shared
+    // <defs> (a sibling <svg className="react-flow__marker">) ends up isolated
+    // from the edges' own <svg> wrappers, so most arrowheads silently vanish.
+    // Cloning the marker defs directly into every edge's <svg> makes each
+    // reference resolve locally regardless of that pipeline's quirks.
+    const markerDefs = viewportEl.querySelector('svg.react-flow__marker defs');
+    const restoreMarkerDefs: Array<() => void> = [];
+    if (markerDefs) {
+      viewportEl.querySelectorAll('svg').forEach((svg) => {
+        if (!svg.querySelector('[marker-end], [marker-start]')) return;
+        const clone = markerDefs.cloneNode(true) as SVGDefsElement;
+        svg.insertBefore(clone, svg.firstChild);
+        restoreMarkerDefs.push(() => clone.remove());
+      });
+    }
+    const restoreMarkers = () => restoreMarkerDefs.forEach((restore) => restore());
+
+    // Edge line color comes from a CSS custom-property cascade
+    // (`stroke: var(--xy-edge-stroke, var(--xy-edge-stroke-default))`), which
+    // html-to-image's DOM clone doesn't carry over — so the lines render
+    // transparent/invisible in the snapshot while their markers (defined with
+    // explicit fill colors) still show up. Baking the resolved stroke/fill as
+    // explicit inline styles before the snapshot sidesteps that cascade.
+    const edgePaths = Array.from(viewportEl.querySelectorAll<SVGPathElement>('.react-flow__edge-path'));
+    const restoreEdgePaths: Array<() => void> = edgePaths.map((path) => {
+      const prevStroke = path.style.stroke;
+      const prevFill = path.style.fill;
+      const prevStrokeWidth = path.style.strokeWidth;
+      const prevDashArray = path.style.strokeDasharray;
+      const computed = window.getComputedStyle(path);
+      path.style.stroke = computed.stroke;
+      path.style.fill = computed.fill || 'none';
+      path.style.strokeWidth = computed.strokeWidth;
+      path.style.strokeDasharray = computed.strokeDasharray;
+      return () => {
+        path.style.stroke = prevStroke;
+        path.style.fill = prevFill;
+        path.style.strokeWidth = prevStrokeWidth;
+        path.style.strokeDasharray = prevDashArray;
+      };
+    });
+    const restoreEdgeStyles = () => restoreEdgePaths.forEach((restore) => restore());
+
+    toPng(viewportEl, {
+      width: imageWidth,
+      height: imageHeight,
+      backgroundColor: '#ffffff',
+      pixelRatio: 2,
+      style: {
+        width: `${imageWidth}px`,
+        height: `${imageHeight}px`,
+        transform: `translate(${x}px, ${y}px) scale(${zoom})`,
+      },
+    }).then((dataUrl) => {
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = `${safeFilename}.png`;
+      link.click();
+    }).catch(() => {
+      // image generation failed, ignore
+    }).finally(() => {
+      restoreMarkers();
+      restoreEdgeStyles();
+    });
+  }, [nodes]);
+
   const importJson = useCallback(
     (event: ChangeEvent<HTMLInputElement>, onTitleFound?: (title: string) => void) => {
       const file = event.target.files?.[0];
@@ -562,6 +665,7 @@ export function useDiagramBuilder() {
     deleteSelected,
     clearDiagram,
     exportJson,
+    exportPng,
     importJson,
     selectNode,
     selectEdge,

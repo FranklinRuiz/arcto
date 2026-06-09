@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react';
 import {
   AlertTriangle, BrushCleaning, CheckCheck, ChevronRight,
-  Download, Layers, LayoutGrid, Loader2,
+  Download, FileImage, FileJson, Layers, LayoutGrid, Loader2,
   MoreHorizontal, Trash2, Undo2, Upload,
 } from 'lucide-react';
 import type { AlignAxis } from '../types/diagram.types';
@@ -50,6 +50,7 @@ interface AppToolbarProps {
   alignNodes: (axis: AlignAxis) => void;
   clearDiagram: () => void;
   exportJson: (title?: string) => void;
+  exportPng: (title?: string) => void;
   importJson: (event: ChangeEvent<HTMLInputElement>) => void;
   sizeMode: SizeMode;
   onSizeModeChange: (mode: SizeMode) => void;
@@ -69,6 +70,7 @@ export function AppToolbar({
   alignNodes,
   clearDiagram,
   exportJson,
+  exportPng,
   importJson,
   sizeMode,
   onSizeModeChange,
@@ -78,9 +80,11 @@ export function AppToolbar({
   const titleInputRef = useRef<HTMLInputElement>(null);
 
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
   const [confirmingClear, setConfirmingClear] = useState(false);
   const confirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const moreWrapRef = useRef<HTMLDivElement>(null);
+  const exportWrapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isEditingTitle) titleInputRef.current?.select();
@@ -98,6 +102,17 @@ export function AppToolbar({
     document.addEventListener('mousedown', onOutsideClick);
     return () => document.removeEventListener('mousedown', onOutsideClick);
   }, [showMoreMenu]);
+
+  useEffect(() => {
+    if (!showExportMenu) return;
+    const onOutsideClick = (e: MouseEvent) => {
+      if (!exportWrapRef.current?.contains(e.target as Node)) {
+        setShowExportMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', onOutsideClick);
+    return () => document.removeEventListener('mousedown', onOutsideClick);
+  }, [showExportMenu]);
 
   const commitTitle = () => {
     const trimmed = titleDraft.trim() || 'Arquitectura sin título';
@@ -240,15 +255,40 @@ export function AppToolbar({
           <span>Importar</span>
           <input type="file" accept="application/json" className="visually-hidden" onChange={importJson} />
         </label>
-        <button
-          type="button"
-          onClick={() => exportJson(diagramTitle)}
-          className="header-btn-label header-btn-label--primary"
-          title="Exportar diagrama como JSON"
-        >
-          <Download size={14} />
-          <span>Exportar</span>
-        </button>
+        <div className="app-header__more-wrap" ref={exportWrapRef}>
+          <button
+            type="button"
+            onClick={() => setShowExportMenu((v) => !v)}
+            className={`header-btn-label header-btn-label--primary${showExportMenu ? ' header-btn--active' : ''}`}
+            title="Exportar diagrama"
+          >
+            <Download size={14} />
+            <span>Exportar</span>
+          </button>
+
+          {showExportMenu && (
+            <div className="app-header__more-menu" role="menu">
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => { exportJson(diagramTitle); setShowExportMenu(false); }}
+                className="more-menu-item"
+              >
+                <FileJson size={14} />
+                <span>Exportar como JSON</span>
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => { exportPng(diagramTitle); setShowExportMenu(false); }}
+                className="more-menu-item"
+              >
+                <FileImage size={14} />
+                <span>Exportar como imagen (PNG)</span>
+              </button>
+            </div>
+          )}
+        </div>
 
         <div className="app-header__div" />
 

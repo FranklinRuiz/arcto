@@ -105,7 +105,15 @@ export type GroupNode = Node<GroupNodeData, 'groupNode'>;
 export type CircleGroupNode = Node<GroupNodeData, 'circleGroupNode'>;
 export type EdgeShape = 'smooth' | 'straight';
 export type AlignAxis = 'center-h' | 'center-v';
-export type SoftwareEdge = Edge<{ dashed?: boolean; shape?: EdgeShape }>;
+
+export interface EdgeAnnotationData {
+  id: string;
+  icon: string;
+  label: string;
+  color: string;
+  bg: string;
+}
+export type SoftwareEdge = Edge<{ dashed?: boolean; shape?: EdgeShape; annotations?: EdgeAnnotationData[] }>;
 
 export interface TextNodeData extends Record<string, unknown> {
   text: string;

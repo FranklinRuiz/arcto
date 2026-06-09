@@ -81,6 +81,7 @@ export function DiagramBuilderPage() {
         alignNodes={builder.alignNodes}
         clearDiagram={builder.clearDiagram}
         exportJson={builder.exportJson}
+        exportPng={builder.exportPng}
         importJson={handleImport}
         sizeMode={sizeMode}
         onSizeModeChange={setSizeMode}

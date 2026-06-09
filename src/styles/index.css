@@ -1092,11 +1092,11 @@ textarea.form-control {
   /* ── Node size tokens: Standard (default) ── */
   --node-min-w: 220px;
   --node-max-w: 280px;
-  --node-pad-v: 12px;
-  --node-pad-h: 14px;
-  --icon-box: 48px;
-  --icon-pad: 6px;
-  --icon-radius: 11px;
+  --node-pad-v: 11px;
+  --node-pad-h: 11px;
+  --icon-box: 52px;
+  --icon-pad: 5px;
+  --icon-radius: 7px;
   --title-sz: 14px;
   --sub-sz: 11.5px;
   --node-gap: 12px;
@@ -1106,11 +1106,11 @@ textarea.form-control {
 .canvas-shell.canvas--size-compact {
   --node-min-w: 170px;
   --node-max-w: 210px;
-  --node-pad-v: 9px;
-  --node-pad-h: 11px;
-  --icon-box: 34px;
+  --node-pad-v: 8px;
+  --node-pad-h: 8px;
+  --icon-box: 37px;
   --icon-pad: 3px;
-  --icon-radius: 8px;
+  --icon-radius: 6px;
   --title-sz: 12.5px;
   --sub-sz: 10.5px;
   --node-gap: 9px;
@@ -1120,11 +1120,11 @@ textarea.form-control {
 .canvas-shell.canvas--size-presentation {
   --node-min-w: 270px;
   --node-max-w: 320px;
-  --node-pad-v: 16px;
-  --node-pad-h: 18px;
-  --icon-box: 60px;
-  --icon-pad: 9px;
-  --icon-radius: 14px;
+  --node-pad-v: 14px;
+  --node-pad-h: 14px;
+  --icon-box: 65px;
+  --icon-pad: 8px;
+  --icon-radius: 9px;
   --title-sz: 15px;
   --sub-sz: 12.5px;
   --node-gap: 14px;
@@ -1171,7 +1171,7 @@ textarea.form-control {
   max-width: var(--node-max-w);
   padding: var(--node-pad-v) var(--node-pad-h);
   border: 0.5px solid var(--color-border-tertiary);
-  border-radius: 14px;
+  border-radius: 8px;
   background: var(--color-background-primary);
   box-shadow: 0 2px 8px rgb(15 23 42 / 0.06);
   transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
@@ -2303,14 +2303,14 @@ textarea.form-control {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
-  padding: 10px 8px;
-  border-radius: 8px;
-  color: #475569;
+  gap: 3px;
+  padding: 6px 7px;
+  border-radius: 7px;
+  color: #1e293b;
   cursor: grab;
   user-select: none;
   outline: none;
-  min-width: 60px;
+  min-width: 40px;
   transition: background 120ms ease, color 120ms ease;
 }
 
@@ -2330,16 +2330,17 @@ textarea.form-control {
 .annotation-node--selected {
   background: #f1f5f9;
   color: #1e293b;
-  outline: 2px solid #94a3b8;
+  outline: 0.5px solid #94a3b8;
   outline-offset: 1px;
 }
 
 .annotation-node__label {
-  font-size: 9.5px;
-  color: #475569;
+  font-size: 8px;
+  font-weight: 600;
+  color: #1e293b;
   text-align: center;
   white-space: nowrap;
-  max-width: 72px;
+  max-width: 56px;
   overflow: hidden;
   text-overflow: ellipsis;
   cursor: text;
@@ -2393,44 +2394,79 @@ textarea.form-control {
 
 .annotation-icon-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 4px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 3px;
 }
 
 .annotation-icon-card {
+  position: relative;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  padding: 6px 2px;
+  padding: 7px 4px;
   border-radius: 6px;
   border: none;
   background: transparent;
-  color: #64748b;
+  color: #1e293b;
   cursor: grab;
   transition: background 120ms ease, color 120ms ease, transform 120ms ease;
 }
 
-.annotation-icon-card:hover {
+.annotation-icon-card:hover,
+.annotation-icon-card:focus-visible {
   background: #f1f5f9;
   color: #0f172a;
-}
-
-.annotation-icon-card__label {
-  font-size: 9px;
-  color: #94a3b8;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 100%;
-  line-height: 1.2;
 }
 
 .annotation-icon-card:active {
   cursor: grabbing;
   transform: scale(0.93);
+}
+
+/* ── Edge annotations: small inline flow indicators on connections ── */
+
+.edge-annotations {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.edge-annotation {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 21px;
+  height: 21px;
+  border-radius: 6px;
+  border: 1.5px solid color-mix(in srgb, var(--anno-color, #94a3b8) 55%, transparent);
+  background: color-mix(in srgb, var(--anno-bg, #f1f5f9) 92%, white);
+  color: var(--anno-color, #475569);
+  cursor: default;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.12);
+}
+
+.edge-annotation__remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #ef4444;
+  color: #fff;
+  border: 1.5px solid #ffffff;
+  cursor: pointer;
+  font-size: 9px;
+  line-height: 1;
+  padding: 0;
+}
+
+.edge-annotation:hover .edge-annotation__remove {
+  display: flex;
 }
 
 /* ── Circle Group node ── */

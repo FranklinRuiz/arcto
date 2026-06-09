@@ -1,12 +1,27 @@
 import { memo, useContext, useEffect, useRef, useState } from 'react';
-import { BaseEdge, EdgeLabelRenderer, getSmoothStepPath, getStraightPath, Position, type EdgeProps } from '@xyflow/react';
+import { BaseEdge, EdgeLabelRenderer, getSmoothStepPath, getStraightPath, Position, useReactFlow, type EdgeProps } from '@xyflow/react';
 import { EdgeEditContext } from './EdgeEditContext';
+import { ANNOTATION_ICON_MAP } from './AnnotationNode';
+import type { EdgeAnnotationData } from '../types/diagram.types';
 
 const INSET = 4;
 
 export const InlineEditableEdge = memo((props: EdgeProps) => {
   const { id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, label, markerEnd, style, data, animated } = props;
+  const { setEdges } = useReactFlow();
   const dashed = Boolean((data as Record<string, unknown>)?.dashed);
+  const annotations = ((data as Record<string, unknown>)?.annotations ?? []) as EdgeAnnotationData[];
+
+  const removeAnnotation = (annotationId: string) => {
+    setEdges((current) =>
+      current.map((edge) => {
+        if (edge.id !== id) return edge;
+        const existing = ((edge.data as Record<string, unknown> | undefined)?.annotations ?? []) as EdgeAnnotationData[];
+        return { ...edge, data: { ...edge.data, annotations: existing.filter((a) => a.id !== annotationId) } };
+      }),
+    );
+  };
+
   const edgeStyle = dashed
     ? { ...style, strokeDasharray: '8 5', ...(animated ? {} : { animation: 'none' }) }
     : style;
@@ -98,6 +113,38 @@ export const InlineEditableEdge = memo((props: EdgeProps) => {
             {String(label)}
           </div>
         ) : null}
+
+        {annotations.length > 0 && (
+          <div
+            className="edge-annotations nodrag nopan"
+            style={{
+              position: 'absolute',
+              transform: `translate(-50%, calc(-50% + 16px)) translate(${labelX}px, ${labelY}px)`,
+              pointerEvents: 'all',
+            }}
+          >
+            {annotations.map((annotation) => {
+              const Icon = ANNOTATION_ICON_MAP[annotation.icon];
+              return (
+                <div
+                  key={annotation.id}
+                  className="edge-annotation"
+                  style={{ '--anno-bg': annotation.bg, '--anno-color': annotation.color, '--anno-border': annotation.color } as React.CSSProperties}
+                >
+                  {Icon && <Icon size={12} strokeWidth={2.25} />}
+                  <button
+                    type="button"
+                    className="edge-annotation__remove"
+                    title="Quitar anotación"
+                    onClick={(e) => { e.stopPropagation(); removeAnnotation(annotation.id); }}
+                  >
+                    ×
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </EdgeLabelRenderer>
     </>
   );
