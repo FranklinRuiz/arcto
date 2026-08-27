@@ -85,7 +85,7 @@ export function DiagramCanvas({ builder, sizeMode }: DiagramCanvasProps) {
           connectionMode={ConnectionMode.Loose}
           panOnDrag={isTouch ? true : [2]}
           selectionOnDrag={!isTouch}
-          connectionLineStyle={{ strokeWidth: 3 }}
+          connectionLineStyle={{ strokeWidth: 2.4 }}
           defaultEdgeOptions={{ animated: true, type: 'smoothstep' }}
           proOptions={{ hideAttribution: true }}
         >

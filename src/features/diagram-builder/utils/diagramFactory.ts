@@ -56,7 +56,7 @@ export function createAnimatedEdge(params: {
     animated: false,
     label: params.label?.trim() || 'conexión',
     markerEnd: { type: MarkerType.ArrowClosed },
-    style: { strokeWidth: 3 },
+    style: { strokeWidth: 2.4 },
     data: { dashed: false, shape: 'smooth' as const },
   };
 }
@@ -87,7 +87,7 @@ export function createGroupNode(params: { position: XYPosition }): GroupNode {
     position: params.position,
     style: { width: 460, height: 320 },
     zIndex: -1,
-    data: { label: 'Zona / Dominio', color: '#0F6E56', dashed: true, rounded: true },
+    data: { label: 'Zona / Dominio', color: '#1D5A96', dashed: true, rounded: true },
   };
 }
 
@@ -98,7 +98,7 @@ export function createCircleGroupNode(params: { position: XYPosition }): CircleG
     position: params.position,
     style: { width: 320, height: 320 },
     zIndex: -1,
-    data: { label: 'Nombre del grupo', color: '#0F6E56', dashed: true },
+    data: { label: 'Nombre del grupo', color: '#5B6472', dashed: true },
   };
 }
 
@@ -107,7 +107,7 @@ export function createLabelNode(params: { position: XYPosition }): LabelNode {
     id: `label-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
     type: 'labelNode',
     position: params.position,
-    data: { text: 'Etiqueta', color: '#f97316', rotation: 0, bold: false },
+    data: { text: 'Etiqueta', color: '#7A5A22', rotation: 0, bold: false },
   };
 }
 

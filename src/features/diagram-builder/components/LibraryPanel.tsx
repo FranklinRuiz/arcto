@@ -98,7 +98,7 @@ export function LibraryPanel({ isOpen, onClose, onDragStart, onClickItem }: Libr
   const HeroIcon = iconMap[heroItem.type] ?? ServerIcon;
 
   const showHero  = !q || 'componente'.includes(q) || 'elemento libre'.includes(q);
-  const showGroup = !q || 'contenedor'.includes(q) || 'zona'.includes(q) || 'dominio'.includes(q) || 'circular'.includes(q) || 'clúster'.includes(q) || 'cluster'.includes(q);
+  const showGroup = !q || 'contenedor'.includes(q) || 'zona'.includes(q) || 'dominio'.includes(q);
   const showText  = !q || 'texto'.includes(q) || 'anotación'.includes(q) || 'texto libre'.includes(q);
   const showLabel = !q || 'etiqueta'.includes(q) || 'caja'.includes(q) || 'label'.includes(q);
 
@@ -266,7 +266,7 @@ export function LibraryPanel({ isOpen, onClose, onDragStart, onClickItem }: Libr
         {showUtilSections && showGroup && (
           <div className="library-section">
             <div className="library-section__title">
-              Contenedores <span className="library-section__count">2</span>
+              Contenedores <span className="library-section__count">1</span>
             </div>
             <div className="library-grid">
               <button
@@ -289,28 +289,6 @@ export function LibraryPanel({ isOpen, onClose, onDragStart, onClickItem }: Libr
                 <div className="library-item__info">
                   <div className="library-item__label">Zona / Dominio</div>
                   <div className="library-item__subtitle">Delimita un área o contexto</div>
-                </div>
-                <div className="library-item__drag"><DragHandle /></div>
-              </button>
-              <button
-                type="button"
-                draggable
-                onDragStart={(e) => {
-                  e.dataTransfer.setData('application/reactflow', JSON.stringify({ __isCircleGroup: true }));
-                  e.dataTransfer.effectAllowed = 'move';
-                  dragGhost('Clúster', e);
-                }}
-                onClick={() => onClickItem({ __isCircleGroup: true })}
-                className="library-item"
-              >
-                <div className="library-item__icon" style={{ background: '#f0fdfa', color: '#0d9488' }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="9" strokeDasharray="4 2" />
-                  </svg>
-                </div>
-                <div className="library-item__info">
-                  <div className="library-item__label">Clúster</div>
-                  <div className="library-item__subtitle">Agrupación visual libre</div>
                 </div>
                 <div className="library-item__drag"><DragHandle /></div>
               </button>

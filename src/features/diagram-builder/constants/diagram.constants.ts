@@ -8,13 +8,13 @@ export type NodeCategory =
 export const CATEGORY_STYLES: Record<NodeCategory, { bg: string; color: string; border: string }> = {
   ai:            { bg: '#EEEDFE', color: '#534AB7', border: '#AFA9EC' },
   data:          { bg: '#E1F5EE', color: '#0F6E56', border: '#5DCAA5' },
-  cache:         { bg: '#EEF4EE', color: '#3A7D44', border: 'rgba(58, 125, 68, 0.35)' },
-  services:      { bg: '#FAECE7', color: '#993C1D', border: 'rgba(240, 153, 123, 0.35)' },
+  cache:         { bg: '#F3F4E1', color: '#6E7A1F', border: '#C9D08A' },
+  services:      { bg: '#FAECE7', color: '#993C1D', border: '#E8AD94' },
   presentation:  { bg: '#E6F1FB', color: '#185FA5', border: '#85B7EB' },
   actors:        { bg: '#F1EFE8', color: '#5F5E5A', border: '#B4B2A9' },
-  integration:   { bg: '#FFF7E6', color: '#92400E', border: '#FCD34D' },
-  infra:         { bg: '#F0F9FF', color: '#0369A1', border: '#7DD3FC' },
-  observability: { bg: '#F5F3FF', color: '#6D28D9', border: '#C4B5FD' },
+  integration:   { bg: '#FBF3DC', color: '#8A6018', border: '#E0BE72' },
+  infra:         { bg: '#E3F4F5', color: '#0E6E7C', border: '#7FC7D0' },
+  observability: { bg: '#F6EEF7', color: '#7A3A8A', border: '#D3AEDD' },
   security_ext:  { bg: '#FFF1F2', color: '#9F1239', border: '#FDA4AF' },
 };
 
@@ -459,7 +459,7 @@ export const INITIAL_EDGES: SoftwareEdge[] = [
     animated: false,
     label: '/api/consulta',
     markerEnd: { type: MarkerType.ArrowClosed },
-    style: { strokeWidth: 2 },
+    style: { strokeWidth: 2.4 },
     data: { dashed: false },
   },
   {
@@ -472,7 +472,7 @@ export const INITIAL_EDGES: SoftwareEdge[] = [
     animated: false,
     label: 'jdbc',
     markerEnd: { type: MarkerType.ArrowClosed },
-    style: { strokeWidth: 2 },
+    style: { strokeWidth: 2.4 },
     data: { dashed: false },
   },
 ];

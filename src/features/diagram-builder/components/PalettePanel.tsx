@@ -24,7 +24,7 @@ const KIND_COLORS: Record<NodeKind, { color: string; bg: string }> = {
   [NODE_KINDS.GATEWAY]:        { color: '#c2410c', bg: '#ffedd5' },
   [NODE_KINDS.BACKEND]:        { color: '#5b21b6', bg: '#ede9fe' },
   [NODE_KINDS.DATABASE]:       { color: '#047857', bg: '#d1fae5' },
-  [NODE_KINDS.CACHE]:          { color: '#166534', bg: '#dcfce7' },
+  [NODE_KINDS.CACHE]:          { color: '#6E7A1F', bg: '#F3F4E1' },
   [NODE_KINDS.QUEUE]:          { color: '#9d174d', bg: '#fce7f3' },
   [NODE_KINDS.SECURITY]:       { color: '#92400e', bg: '#fef3c7' },
   [NODE_KINDS.CLOUD]:          { color: '#3730a3', bg: '#e0e7ff' },
@@ -36,24 +36,24 @@ const KIND_COLORS: Record<NodeKind, { color: string; bg: string }> = {
   [NODE_KINDS.VECTOR_DB]:      { color: '#059669', bg: '#ecfdf5' },
   [NODE_KINDS.AI_AGENT]:       { color: '#a21caf', bg: '#fdf4ff' },
   // Integration
-  [NODE_KINDS.EVENT_BUS]:      { color: '#92400e', bg: '#fffbeb' },
-  [NODE_KINDS.PUBSUB]:         { color: '#92400e', bg: '#fffbeb' },
-  [NODE_KINDS.WEBHOOK]:        { color: '#92400e', bg: '#fffbeb' },
-  [NODE_KINDS.ETL]:            { color: '#92400e', bg: '#fffbeb' },
-  [NODE_KINDS.SERVICE_MESH]:   { color: '#92400e', bg: '#fffbeb' },
+  [NODE_KINDS.EVENT_BUS]:      { color: '#8A6018', bg: '#FBF3DC' },
+  [NODE_KINDS.PUBSUB]:         { color: '#8A6018', bg: '#FBF3DC' },
+  [NODE_KINDS.WEBHOOK]:        { color: '#8A6018', bg: '#FBF3DC' },
+  [NODE_KINDS.ETL]:            { color: '#8A6018', bg: '#FBF3DC' },
+  [NODE_KINDS.SERVICE_MESH]:   { color: '#8A6018', bg: '#FBF3DC' },
   // Infrastructure
-  [NODE_KINDS.KUBERNETES]:     { color: '#0369a1', bg: '#f0f9ff' },
-  [NODE_KINDS.CONTAINER]:      { color: '#0369a1', bg: '#f0f9ff' },
-  [NODE_KINDS.LOAD_BALANCER]:  { color: '#0369a1', bg: '#f0f9ff' },
-  [NODE_KINDS.CDN]:            { color: '#0369a1', bg: '#f0f9ff' },
-  [NODE_KINDS.OBJECT_STORAGE]: { color: '#0369a1', bg: '#f0f9ff' },
-  [NODE_KINDS.FILE_STORAGE]:   { color: '#0369a1', bg: '#f0f9ff' },
+  [NODE_KINDS.KUBERNETES]:     { color: '#0E6E7C', bg: '#E3F4F5' },
+  [NODE_KINDS.CONTAINER]:      { color: '#0E6E7C', bg: '#E3F4F5' },
+  [NODE_KINDS.LOAD_BALANCER]:  { color: '#0E6E7C', bg: '#E3F4F5' },
+  [NODE_KINDS.CDN]:            { color: '#0E6E7C', bg: '#E3F4F5' },
+  [NODE_KINDS.OBJECT_STORAGE]: { color: '#0E6E7C', bg: '#E3F4F5' },
+  [NODE_KINDS.FILE_STORAGE]:   { color: '#0E6E7C', bg: '#E3F4F5' },
   // Observability
-  [NODE_KINDS.LOGGING]:        { color: '#6d28d9', bg: '#f5f3ff' },
-  [NODE_KINDS.METRICS]:        { color: '#6d28d9', bg: '#f5f3ff' },
-  [NODE_KINDS.MONITORING]:     { color: '#6d28d9', bg: '#f5f3ff' },
-  [NODE_KINDS.TRACING]:        { color: '#6d28d9', bg: '#f5f3ff' },
-  [NODE_KINDS.ALERTING]:       { color: '#6d28d9', bg: '#f5f3ff' },
+  [NODE_KINDS.LOGGING]:        { color: '#7A3A8A', bg: '#F6EEF7' },
+  [NODE_KINDS.METRICS]:        { color: '#7A3A8A', bg: '#F6EEF7' },
+  [NODE_KINDS.MONITORING]:     { color: '#7A3A8A', bg: '#F6EEF7' },
+  [NODE_KINDS.TRACING]:        { color: '#7A3A8A', bg: '#F6EEF7' },
+  [NODE_KINDS.ALERTING]:       { color: '#7A3A8A', bg: '#F6EEF7' },
   // Security ext
   [NODE_KINDS.IAM]:            { color: '#9f1239', bg: '#fff1f2' },
   [NODE_KINDS.OAUTH2]:         { color: '#9f1239', bg: '#fff1f2' },
@@ -71,15 +71,12 @@ const KIND_COLORS: Record<NodeKind, { color: string; bg: string }> = {
 };
 
 const PRESET_COLORS = [
-  { value: '#0F6E56', label: 'Teal' },
-  { value: '#185FA5', label: 'Azul' },
-  { value: '#3A7D44', label: 'Verde' },
-  { value: '#993C1D', label: 'Coral' },
-  { value: '#3C3489', label: 'Púrpura' },
-  { value: '#993556', label: 'Rosa' },
-  { value: '#4A4845', label: 'Gris' },
-  { value: '#6B4FA0', label: 'Violeta' },
-  { value: '#888780', label: 'Neutro' },
+  { value: '#5B6472', label: 'Gris' },
+  { value: '#1D5A96', label: 'Azul' },
+  { value: '#0B6152', label: 'Teal' },
+  { value: '#7A5A22', label: 'Ámbar' },
+  { value: '#4A3F82', label: 'Púrpura' },
+  { value: '#8C3B3B', label: 'Rojo' },
 ];
 
 function SyncPreview() {
@@ -103,17 +100,15 @@ function AsyncPreview() {
 const EDGE_COLORS = [
   { value: '#94a3b8', label: 'Gris' },
   { value: '#0f172a', label: 'Negro' },
-  { value: '#3b82f6', label: 'Azul' },
-  { value: '#22c55e', label: 'Verde' },
-  { value: '#ef4444', label: 'Rojo' },
-  { value: '#f97316', label: 'Naranja' },
-  { value: '#a855f7', label: 'Violeta' },
+  { value: '#2563eb', label: 'Azul' },
+  { value: '#15803d', label: 'Verde' },
+  { value: '#b91c1c', label: 'Rojo' },
 ];
 
 const EDGE_WEIGHTS = [
   { value: 1.5, label: 'Delgada' },
-  { value: 3,   label: 'Normal' },
-  { value: 5,   label: 'Gruesa' },
+  { value: 2.4, label: 'Normal' },
+  { value: 4,   label: 'Gruesa' },
 ];
 
 function WeightLine({ width }: { width: number }) {
@@ -149,7 +144,7 @@ function EdgePropertiesPanel({ edge, onToggleAsync, onLiveUpdate }: {
   const isAsync = Boolean(edge.data?.dashed) && (edge as { animated?: boolean }).animated;
   const edgeLabel = typeof edge.label === 'string' ? edge.label : '';
   const edgeColor = (edge.style as { stroke?: string } | undefined)?.stroke ?? '#94a3b8';
-  const edgeWeight = (edge.style?.strokeWidth as number | undefined) ?? 3;
+  const edgeWeight = (edge.style?.strokeWidth as number | undefined) ?? 2.4;
   const edgeShape = edge.data?.shape ?? 'smooth';
 
   return (
@@ -214,7 +209,7 @@ function EdgePropertiesPanel({ edge, onToggleAsync, onLiveUpdate }: {
                   onClick={() => onLiveUpdate({ strokeWidth: w.value })}
                   title={w.label}
                 >
-                  <WeightLine width={w.value === 1.5 ? 1.5 : w.value === 3 ? 2.5 : 4} />
+                  <WeightLine width={w.value} />
                   <span>{w.label}</span>
                 </button>
               ))}

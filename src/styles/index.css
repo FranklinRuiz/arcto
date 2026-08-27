@@ -1170,8 +1170,8 @@ textarea.form-control {
   min-width: var(--node-min-w);
   max-width: var(--node-max-w);
   padding: var(--node-pad-v) var(--node-pad-h);
-  border: 0.5px solid var(--color-border-tertiary);
-  border-radius: 8px;
+  border: 1px solid var(--cat-border);
+  border-radius: 5px;
   background: var(--color-background-primary);
   box-shadow: 0 2px 8px rgb(15 23 42 / 0.06);
   transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
@@ -1181,7 +1181,6 @@ textarea.form-control {
 .software-node:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgb(15 23 42 / 0.11);
-  border-color: var(--cat-border);
 }
 
 .software-node:active {
@@ -2811,7 +2810,6 @@ textarea.form-control {
   gap: 5px;
   margin-bottom: 6px;
 }
-
 
 /* ── Panel backdrop (mobile only — hidden on desktop) ── */
 

@@ -4,9 +4,15 @@ import { NODE_KINDS, type NodeKind } from '../../types/diagram.types';
 type IconProps = { size?: number | string };
 type IconBaseProps = PropsWithChildren<IconProps>;
 
-/** Fixed ink color for outlines/silhouettes — accent fills use currentColor (category color) for contrast. */
-const ICON_INK = '#1e293b';
-
+/**
+ * Shared 24x24 icon shell.
+ * Outline uses --icon-ink (navy on light backgrounds by default); accent
+ * masses use currentColor; inner marks drawn over an accent mass use
+ * --icon-paper. Both variables can be overridden per-context — e.g. a solid
+ * color badge on the canvas sets --icon-ink: #fff and color: #fff so the
+ * whole glyph reads white, while --icon-paper is set to the badge's own
+ * accent color so cut-out details stay legible against it.
+ */
 function IconBase({ children, size = 22 }: IconBaseProps) {
   return (
     <svg
@@ -14,8 +20,8 @@ function IconBase({ children, size = 22 }: IconBaseProps) {
       height={size}
       viewBox="0 0 24 24"
       fill="none"
-      stroke={ICON_INK}
-      strokeWidth="1.25"
+      stroke="var(--icon-ink, #1e293b)"
+      strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
@@ -25,14 +31,14 @@ function IconBase({ children, size = 22 }: IconBaseProps) {
   );
 }
 
-// ─── Core ────────────────────────────────────────────────────────────────────
+// ─── Base y actores ────────────────────────────────────────────────────────
 
 export function BoxIcon({ size }: IconProps) {
   return (
     <IconBase size={size}>
-      <rect fill="currentColor" stroke="none" x="3" y="7" width="5" height="3" rx="0.5" />
-      <rect fill="currentColor" stroke="none" x="3" y="14" width="5" height="3" rx="0.5" />
-      <rect x="8" y="4" width="13" height="16" rx="1.5" />
+      <rect x="6" y="4" width="15" height="16" rx="2.5" />
+      <rect x="2.5" y="7" width="6" height="3.4" rx="1.2" fill="currentColor" stroke="none" />
+      <rect x="2.5" y="13.6" width="6" height="3.4" rx="1.2" fill="currentColor" stroke="none" />
     </IconBase>
   );
 }
@@ -40,8 +46,8 @@ export function BoxIcon({ size }: IconProps) {
 export function UserIcon({ size }: IconProps) {
   return (
     <IconBase size={size}>
-      <circle cx="12" cy="8" r="4" fill="currentColor" stroke="none" />
-      <path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" />
+      <circle cx="12" cy="8.2" r="3.7" fill="currentColor" stroke="none" />
+      <path d="M4.5 20.5c0-4.1 3.36-7.4 7.5-7.4s7.5 3.3 7.5 7.4" />
     </IconBase>
   );
 }
@@ -51,10 +57,10 @@ export function MonitorIcon({ size }: IconProps) {
     <IconBase size={size}>
       <path
         fill="currentColor" stroke="none" fillRule="evenodd"
-        d="M2 4h20v5H2z M4 6h2v1H4z M8 6h6v1H8z"
+        d="M4.5 4h15A2.5 2.5 0 0 1 22 6.5v3H2v-3A2.5 2.5 0 0 1 4.5 4Z M4.4 6.05h1.7v1.4H4.4Z M7.9 6.05h6.4v1.4H7.9Z"
       />
-      <rect x="2" y="4" width="20" height="14" rx="2" />
-      <path d="M8 22h8 M12 18v4" />
+      <rect x="2" y="4" width="20" height="14" rx="2.5" />
+      <path d="M12 18v3M8.5 21h7" />
     </IconBase>
   );
 }
@@ -62,126 +68,137 @@ export function MonitorIcon({ size }: IconProps) {
 export function SmartphoneIcon({ size }: IconProps) {
   return (
     <IconBase size={size}>
-      <rect x="5" y="2" width="14" height="20" rx="2.5" />
-      <rect fill="currentColor" stroke="none" x="7.5" y="5" width="9" height="11" rx="1" />
-      <circle cx="12" cy="19" r="1.2" fill={ICON_INK} />
+      <rect x="5.5" y="2" width="13" height="20" rx="3" />
+      <rect x="7.6" y="5.4" width="8.8" height="11.4" rx="1.2" fill="currentColor" stroke="none" />
+      <path d="M10.6 3.6h2.8" strokeWidth="1.2" />
+      <path d="M10.4 19.4h3.2" strokeWidth="1.6" />
     </IconBase>
   );
 }
 
-/** API Gateway — horizontal lines feeding into an ellipse port with output spurs */
 export function GatewayIcon({ size }: IconProps) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24"
-         fill="none" stroke="currentColor"
-         strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"
-         aria-hidden="true">
-      <path d="M2 8h12" strokeWidth="1.5"/>
-      <path d="M2 12h12" strokeWidth="1.5"/>
-      <path d="M2 16h12" strokeWidth="1.5"/>
-      <ellipse cx="14" cy="12" rx="3" ry="7" strokeWidth="2.2"/>
-      <path d="M18.5 10.5h3.5" strokeWidth="1.5"/>
-      <path d="M18.5 13.5h2.5" strokeWidth="1.5"/>
-    </svg>
+    <IconBase size={size}>
+      <path d="M2.5 8h9M2.5 12h9M2.5 16h9" strokeWidth="1.4" />
+      <path
+        fill="currentColor" stroke="none" fillRule="evenodd"
+        d="M14.5 4a2.5 2.5 0 0 1 2.5 2.5v11a2.5 2.5 0 0 1-5 0v-11A2.5 2.5 0 0 1 14.5 4Z M12.9 12a1.6 1.6 0 1 0 3.2 0 1.6 1.6 0 1 0-3.2 0Z"
+      />
+      <path d="M17.8 9.4h3.7M17.8 14.6h2.7" strokeWidth="1.4" />
+    </IconBase>
   );
 }
 
 export function ServerIcon({ size }: IconProps) {
   return (
     <IconBase size={size}>
+      <rect x="3" y="3" width="18" height="5.5" rx="1.6" />
+      <circle cx="6.3" cy="5.75" r="1.05" fill="var(--icon-ink, #1e293b)" stroke="none" />
+      <path d="M9.5 5.75h8" strokeWidth="1.2" />
       <path
         fill="currentColor" stroke="none" fillRule="evenodd"
-        d="M3 9.5h18v5H3z M5.5 11.25h2v1.5h-2z M10 11.25h9v1.5h-9z"
+        d="M4.6 9.25h14.8A1.6 1.6 0 0 1 21 10.85v2.3a1.6 1.6 0 0 1-1.6 1.6H4.6A1.6 1.6 0 0 1 3 13.15v-2.3a1.6 1.6 0 0 1 1.6-1.6Z M5.25 12a1.05 1.05 0 1 0 2.1 0 1.05 1.05 0 1 0-2.1 0Z M9.5 11.4h8v1.2h-8Z"
       />
-      <rect x="3" y="3" width="18" height="5" rx="1.5" />
-      <circle cx="6" cy="5.5" r="0.9" fill={ICON_INK} />
-      <path d="M9 5.5h6" strokeWidth="0.9" />
-      <rect x="3" y="9.5" width="18" height="5" rx="1.5" />
-      <rect x="3" y="16" width="18" height="5" rx="1.5" />
-      <circle cx="6" cy="18.5" r="0.9" fill={ICON_INK} />
-      <path d="M9 18.5h6" strokeWidth="0.9" />
+      <rect x="3" y="15.5" width="18" height="5.5" rx="1.6" />
+      <circle cx="6.3" cy="18.25" r="1.05" fill="var(--icon-ink, #1e293b)" stroke="none" />
+      <path d="M9.5 18.25h8" strokeWidth="1.2" />
     </IconBase>
   );
 }
 
+// ─── Datos ───────────────────────────────────────────────────────────────
+
 export function DatabaseIcon({ size }: IconProps) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24"
-         fill="none" stroke="currentColor"
-         strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"
-         aria-hidden="true">
-      <ellipse cx="12" cy="5" rx="8" ry="2.5"/>
-      <path d="M4 5v5c0 1.4 3.58 2.5 8 2.5s8-1.1 8-2.5V5"/>
-      <path d="M4 10v5c0 1.4 3.58 2.5 8 2.5s8-1.1 8-2.5v-5"/>
-      <path d="M4 15v5c0 1.4 3.58 2.5 8 2.5s8-1.1 8-2.5v-5"/>
-      <circle cx="16.5" cy="8.5" r="0.95"/>
-      <circle fill="currentColor" stroke="none" cx="16.5" cy="8.5" r="0.4"/>
-      <circle cx="16.5" cy="13.5" r="0.95"/>
-      <circle fill="currentColor" stroke="none" cx="16.5" cy="13.5" r="0.4"/>
-      <circle cx="16.5" cy="18.5" r="0.95"/>
-      <circle fill="currentColor" stroke="none" cx="16.5" cy="18.5" r="0.4"/>
-    </svg>
+    <IconBase size={size}>
+      <path fill="currentColor" stroke="none" d="M12 2.5c4.42 0 8 1.12 8 2.5s-3.58 2.5-8 2.5-8-1.12-8-2.5 3.58-2.5 8-2.5Z" />
+      <ellipse cx="12" cy="5" rx="8" ry="2.5" />
+      <path d="M20 5v14c0 1.38-3.58 2.5-8 2.5s-8-1.12-8-2.5V5" />
+      <path d="M4 10.6c0 1.38 3.58 2.5 8 2.5s8-1.12 8-2.5" />
+      <path d="M4 16.2c0 1.38 3.58 2.5 8 2.5s8-1.12 8-2.5" />
+    </IconBase>
   );
 }
 
 export function CacheIcon({ size }: IconProps) {
   return (
-    <svg width={size} height={size} viewBox="0 -18 256 256"
-         xmlns="http://www.w3.org/2000/svg"
-         preserveAspectRatio="xMidYMid meet"
-         aria-hidden="true">
-      {/* Layer 3 bottom — shadow */}
-      <path fill="currentColor" fillOpacity={0.6} stroke="#9ca3af" strokeWidth={1.5}
-        d="M245.97 168.943c-13.662 7.121-84.434 36.22-99.501 44.075-15.067 7.856-23.437 7.78-35.34 2.09-11.902-5.69-87.216-36.112-100.783-42.597C3.566 169.271 0 166.535 0 163.951v-25.876s98.05-21.345 113.879-27.024c15.828-5.679 21.32-5.884 34.79-.95 13.472 4.936 94.018 19.468 107.331 24.344l-.006 25.51c.002 2.558-3.07 5.364-10.024 8.988"/>
-      {/* Layer 3 bottom — face */}
-      <path fill="currentColor" stroke="#9ca3af" strokeWidth={1.5}
-        d="M245.965 143.22c-13.661 7.118-84.431 36.218-99.498 44.072-15.066 7.857-23.436 7.78-35.338 2.09-11.903-5.686-87.214-36.113-100.78-42.594-13.566-6.485-13.85-10.948-.524-16.166 13.326-5.22 88.224-34.605 104.055-40.284 15.828-5.677 21.319-5.884 34.789-.948 13.471 4.934 83.819 32.935 97.13 37.81 13.316 4.881 13.827 8.9.166 16.02"/>
-      {/* Layer 2 middle — shadow */}
-      <path fill="currentColor" fillOpacity={0.6} stroke="#9ca3af" strokeWidth={1.5}
-        d="M245.97 127.074c-13.662 7.122-84.434 36.22-99.501 44.078-15.067 7.853-23.437 7.777-35.34 2.087-11.903-5.687-87.216-36.112-100.783-42.597C3.566 127.402 0 124.67 0 122.085V96.206s98.05-21.344 113.879-27.023c15.828-5.679 21.32-5.885 34.79-.95C162.142 73.168 242.688 87.697 256 92.574l-.006 25.513c.002 2.557-3.07 5.363-10.024 8.987"/>
-      {/* Layer 2 middle — face */}
-      <path fill="currentColor" stroke="#9ca3af" strokeWidth={1.5}
-        d="M245.965 101.351c-13.661 7.12-84.431 36.218-99.498 44.075-15.066 7.854-23.436 7.777-35.338 2.087-11.903-5.686-87.214-36.112-100.78-42.594-13.566-6.483-13.85-10.947-.524-16.167C23.151 83.535 98.05 54.148 113.88 48.47c15.828-5.678 21.319-5.884 34.789-.949 13.471 4.934 83.819 32.933 97.13 37.81 13.316 4.88 13.827 8.9.166 16.02"/>
-      {/* Layer 1 top — shadow */}
-      <path fill="currentColor" fillOpacity={0.6} stroke="#9ca3af" strokeWidth={1.5}
-        d="M245.97 83.653c-13.662 7.12-84.434 36.22-99.501 44.078-15.067 7.854-23.437 7.777-35.34 2.087-11.903-5.687-87.216-36.113-100.783-42.595C3.566 83.98 0 81.247 0 78.665v-25.88s98.05-21.343 113.879-27.021c15.828-5.68 21.32-5.884 34.79-.95C162.142 29.749 242.688 44.278 256 49.155l-.006 25.512c.002 2.555-3.07 5.361-10.024 8.986"/>
-      {/* Layer 1 top — face */}
-      <path fill="currentColor" stroke="#9ca3af" strokeWidth={1.5}
-        d="M245.965 57.93c-13.661 7.12-84.431 36.22-99.498 44.074-15.066 7.854-23.436 7.777-35.338 2.09C99.227 98.404 23.915 67.98 10.35 61.497-3.217 55.015-3.5 50.55 9.825 45.331 23.151 40.113 98.05 10.73 113.88 5.05c15.828-5.679 21.319-5.883 34.789-.948 13.471 4.935 83.819 32.934 97.13 37.811 13.316 4.876 13.827 8.897.166 16.017"/>
-      {/* Top-layer decorations */}
-      <path fill="white"
-        d="M159.283 32.757l-22.01 2.285-4.927 11.856-7.958-13.23-25.415-2.284 18.964-6.839-5.69-10.498 17.755 6.944 16.738-5.48-4.524 10.855 17.067 6.391M131.032 90.275L89.955 73.238l58.86-9.035-17.783 26.072M74.082 39.347c17.375 0 31.46 5.46 31.46 12.194 0 6.736-14.085 12.195-31.46 12.195s-31.46-5.46-31.46-12.195c0-6.734 14.085-12.194 31.46-12.194"/>
-      {/* Corner accent */}
-      <path fill="currentColor" fillOpacity={0.35}
-        d="M185.295 35.998l34.836 13.766-34.806 13.753-.03-27.52"/>
-      <path fill="currentColor" fillOpacity={0.5}
-        d="M146.755 51.243l38.54-15.245.03 27.519-3.779 1.478-34.791-13.752"/>
-    </svg>
+    <IconBase size={size}>
+      <rect x="4.5" y="4.5" width="15" height="15" rx="3" />
+      <path d="M9 2v2.5M15 2v2.5M9 19.5V22M15 19.5V22M2 9h2.5M2 15h2.5M19.5 9H22M19.5 15H22" strokeWidth="1.4" />
+      <path fill="currentColor" stroke="none" d="M13.6 6.8 8.7 13.3h2.9L10.4 17.6 15.5 11h-3.1l1.2-4.2Z" />
+    </IconBase>
   );
 }
 
-/** Message Queue — three mail-slot envelopes with diagonal fold lines */
 export function QueueIcon({ size }: IconProps) {
   return (
-    <svg width={size} height={size} viewBox="0 -24.29 70 70"
-         xmlns="http://www.w3.org/2000/svg"
-         aria-hidden="true">
-      <path
-        fill="currentColor"
-        transform="translate(75.978 -561.815)"
-        d="m -74.536841,582.9697 c -0.5739,-0.3564 -0.9798,-0.8262 -1.2288,-1.42208 -0.1842,-0.44084 -0.2124,-1.67048 -0.2124,-9.25077 l 0,-8.74235 0.3412,-0.58221 c 0.2275,-0.38821 0.5392,-0.67807 0.9355,-0.8699 l 0.5943,-0.28769 30.6283,0 30.6284,0 0.4666,0.40964 c 0.576,0.50575 1.5351,1.8918 2.8031998,4.05114 1.1169,1.90172 3.6025,6.50778 3.6025,6.67569 0,0.0625 -0.5343,1.02571 -1.1873,2.14052 -2.5548,4.36132 -4.0824998,6.67906 -5.0211998,7.61777 l -0.517,0.517 -30.7108,-5.5e-4 c -29.72,-5.5e-4 -30.724,-0.009 -31.1225,-0.25625 z m 61.8655,-2.00794 c 1.0439,-1.36682 4.9089998,-7.7182 4.9089998,-8.06671 0,-0.35714 -3.7130998,-6.91975 -4.9688998,-8.78224 l -0.5328,-0.79012 -30.4073,0.0352 c -29.9204,0.0346 -30.4104,0.0395 -30.6021,0.30165 -0.1632,0.22317 -0.1948,1.61999 -0.1948,8.60381 0,4.71803 0.055,8.48097 0.1258,8.66815 0.069,0.18193 0.2281,0.43315 0.3532,0.55826 0.2107,0.21065 2.4691,0.22493 30.5106,0.19287 l 30.2832,-0.0346 0.5241,-0.68627 z m -59.0663,-1.45522 c -0.1967,-0.0731 -0.4283,-0.28802 -0.5147,-0.47764 -0.1105,-0.24251 -0.1571,-2.17256 -0.1571,-6.50712 l 0,-6.16236 0.3312,-0.38511 0.3312,-0.3851 8.0071,-0.0403 c 4.4038,-0.0222 8.2112,-0.003 8.4607,0.042 0.2496,0.0453 0.5738,0.20238 0.7206,0.34915 0.2567,0.25671 0.2669,0.51135 0.2669,6.69656 0,6.36177 0,6.43247 -0.2889,6.69118 -0.2766,0.25041 -0.6379,0.26253 -8.5441,0.28656 -5.0499,0.0154 -8.3941,-0.0265 -8.6129,-0.10776 z m 15.5243,-5.89602 c 0,-3.15544 -0.036,-3.9665 -0.1716,-3.88322 -0.094,0.0579 -1.5304,1.16294 -3.1911,2.45564 -3.6181,2.81614 -3.6786,2.85716 -4.0477,2.74004 -0.1576,-0.05 -1.5349,-1.06002 -3.0606,-2.24443 -1.5258,-1.1844 -3.0057,-2.32946 -3.2888,-2.54456 l -0.5147,-0.39109 0,3.92806 0,3.92805 7.1373,0 7.1372,0 0,-3.98849 z m -3.3639,-3.84379 2.7438,-2.1187 -3.3272,-0.0367 c -1.8299,-0.0202 -4.8013,-0.0202 -6.6031,0 l -3.2759,0.0367 3.3038,2.56723 3.3037,2.56724 0.5555,-0.44854 c 0.3055,-0.2467 1.7902,-1.40195 3.2994,-2.56723 z m 7.7685,9.74312 c -0.7006,-0.2836 -0.6897,-0.17635 -0.6943,-6.81124 0,-4.35355 0.042,-6.30658 0.1518,-6.54709 0.086,-0.18852 0.3421,-0.40761 0.5695,-0.48685 0.5876,-0.20487 16.0989,-0.1978 16.6881,0.008 0.2393,0.0834 0.4956,0.26467 0.5695,0.40274 0.082,0.15342 0.1343,2.72848 0.1343,6.62116 0,6.30118 0,6.37293 -0.2888,6.63157 -0.2766,0.25036 -0.6395,0.26262 -8.5441,0.28872 -5.1129,0.0169 -8.3812,-0.0237 -8.586,-0.10661 z m 15.4974,-5.89933 c 0,-3.1556 -0.036,-3.96645 -0.1715,-3.88292 -0.094,0.0581 -1.5613,1.18509 -3.2598,2.50449 -3.5206,2.7348 -3.6967,2.84559 -4.1469,2.60967 -0.1726,-0.0905 -1.6727,-1.21553 -3.3335,-2.50017 -1.6608,-1.28464 -3.0968,-2.39511 -3.1912,-2.46771 -0.1363,-0.1049 -0.1715,0.6748 -0.1715,3.79656 l 0,3.92857 7.1372,0 7.1373,0 0,-3.98849 z m -2.9642,-4.16012 2.3202,-1.80237 -3.3153,-0.0367 c -1.8234,-0.0202 -4.7891,-0.0202 -6.5906,0 l -3.2753,0.0367 3.2907,2.56932 3.2908,2.56931 0.9797,-0.76694 c 0.5388,-0.42182 2.0237,-1.57801 3.2998,-2.56932 z m 7.2877,10.05068 c -0.626,-0.34633 -0.6179,-0.2553 -0.6133,-6.90379 0,-6.81272 -0.013,-6.64929 0.7364,-6.93406 0.5357,-0.2037 16.087,-0.19527 16.673,0.009 0.2394,0.0834 0.4956,0.26466 0.5695,0.40274 0.082,0.15331 0.1344,2.70672 0.1344,6.55859 0,6.0054 -0.013,6.32307 -0.2623,6.63157 l -0.2624,0.32403 -8.3504,0.0319 c -5.9014,0.0225 -8.4309,-0.0127 -8.6249,-0.12 z m 15.5784,-5.89056 c 0,-3.1548 -0.036,-3.96674 -0.1715,-3.88441 -0.094,0.0573 -1.5613,1.18433 -3.2598,2.50462 -3.5193,2.73555 -3.6964,2.8471 -4.147,2.61103 -0.1726,-0.0905 -1.6727,-1.21553 -3.3334,-2.50017 -1.6608,-1.28464 -3.0969,-2.39511 -3.1912,-2.46771 -0.1363,-0.1049 -0.1716,0.6748 -0.1716,3.79656 l 0,3.92857 7.1373,0 7.1372,0 0,-3.98849 z m -3.958,-5.99924 c -1.8241,-0.0202 -4.7957,-0.0202 -6.6037,0 l -3.2872,0.0367 3.2982,2.56232 3.2982,2.56232 3.3055,-2.56232 3.3055,-2.56232 -3.3165,-0.0367 z"/>
-    </svg>
+    <IconBase size={size}>
+      <path d="M8.4 3.6h7.2M6 6.6h12" strokeWidth="1.4" />
+      <path fill="currentColor" stroke="none" d="M5.4 9.4h13.2a2.6 2.6 0 0 1 2.4 1.6L12 16.6 3 11a2.6 2.6 0 0 1 2.4-1.6Z" />
+      <rect x="3" y="9.4" width="18" height="11.2" rx="2.6" />
+      <path d="M3.4 10.6 12 16.4l8.6-5.8" />
+    </IconBase>
   );
 }
+
+export function ObjectStorageIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <path fill="currentColor" stroke="none" d="M3.7 6.6h16.6l-.55 5.2H4.25L3.7 6.6Z" />
+      <path d="M3.7 6.6h16.6l-1.35 13.1a2 2 0 0 1-1.99 1.8H7.04a2 2 0 0 1-1.99-1.8L3.7 6.6Z" />
+      <path d="M2.6 6.6h18.8" />
+      <rect x="7.2" y="14.2" width="9.6" height="2" rx="1" />
+      <rect x="8.4" y="17.6" width="7.2" height="2" rx="1" />
+    </IconBase>
+  );
+}
+
+export function FileStorageIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <path
+        fill="currentColor" stroke="none" fillRule="evenodd"
+        d="M5.5 3.5h13a2 2 0 0 1 2 2v3.6H3.5V5.5a2 2 0 0 1 2-2Z M8.2 5.6h7.6v1.4H8.2Z"
+      />
+      <rect x="3.5" y="3.5" width="17" height="17" rx="2.5" />
+      <path d="M3.5 9.1h17M3.5 14.8h17" />
+      <path d="M8.4 12h4.4M8.4 17.7h4.4" strokeWidth="1.4" />
+    </IconBase>
+  );
+}
+
+export function VectorDbIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <path d="M4 3.5v17h16.5" />
+      <circle cx="8.2" cy="15.6" r="2.3" fill="currentColor" stroke="none" />
+      <circle cx="12.6" cy="12.2" r="2.5" fill="currentColor" stroke="none" />
+      <circle cx="16.6" cy="8.6" r="2.3" fill="currentColor" stroke="none" />
+      <circle cx="20" cy="5.4" r="2" fill="currentColor" stroke="none" />
+    </IconBase>
+  );
+}
+
+export function EtlIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <circle cx="4.2" cy="12" r="3.2" fill="currentColor" stroke="none" />
+      <path d="M7.6 12h1.4" strokeWidth="1.6" />
+      <rect x="9.2" y="8.4" width="6.6" height="7.2" rx="1.6" fill="currentColor" stroke="none" />
+      <path d="m11.1 10.3 1.5 1.7-1.5 1.7M13.4 10.3l1.5 1.7-1.5 1.7" stroke="var(--icon-paper, #fff)" strokeWidth="1.2" />
+      <path d="M16.2 12h1.4" strokeWidth="1.6" />
+      <path fill="currentColor" stroke="none" d="M17.6 9.4c0-.78 1.03-1.4 2.3-1.4s2.3.62 2.3 1.4v5.2c0 .78-1.03 1.4-2.3 1.4s-2.3-.62-2.3-1.4V9.4Z" />
+    </IconBase>
+  );
+}
+
+// ─── Infraestructura ───────────────────────────────────────────────────────
 
 export function ShieldIcon({ size }: IconProps) {
   return (
     <IconBase size={size}>
-      <path
-        fill="currentColor" stroke="none"
-        d="M12 2L3 6v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V6l-9-4Z"
-      />
-      <path d="m9 12 2 2 4-5" stroke="white" strokeWidth="1.25" />
+      <path fill="currentColor" d="M12 2.6 4.2 6v5.6c0 4.9 3.3 9.4 7.8 10.7 4.5-1.3 7.8-5.8 7.8-10.7V6L12 2.6Z" />
+      <path d="m8.8 12 2.2 2.2 4.2-4.9" stroke="var(--icon-paper, #fff)" strokeWidth="1.7" />
     </IconBase>
   );
 }
@@ -189,519 +206,431 @@ export function ShieldIcon({ size }: IconProps) {
 export function CloudIcon({ size }: IconProps) {
   return (
     <IconBase size={size}>
-      <path
-        d="M17.5 19H8a5 5 0 1 1 1.1-9.88A6 6 0 0 1 20 12.5 3.5 3.5 0 0 1 17.5 19Z"
-        fill="currentColor" stroke="none"
-      />
+      <path fill="currentColor" d="M6.9 19.4a4.9 4.9 0 0 1 .5-9.78 6.3 6.3 0 0 1 11.6 1.6 4.1 4.1 0 0 1-.6 8.18H6.9Z" />
     </IconBase>
   );
 }
 
-/** On-Premise — building/data-centre */
 export function OnPremiseIcon({ size }: IconProps) {
   return (
     <IconBase size={size}>
-      <path d="M3 21h18" />
-      <path d="M5 21V7l7-5 7 5v14" />
-      <rect fill="currentColor" stroke="none" x="9" y="13" width="6" height="8" />
-      <path d="M9 10h6" strokeWidth="0.9" />
+      <path
+        fill="currentColor" stroke="none" fillRule="evenodd"
+        d="M4.5 5.5h15a2 2 0 0 1 2 2V10H2.5V7.5a2 2 0 0 1 2-2Z M4.9 7.1h1.8v1.4H4.9Z M8.3 7.1h1.8v1.4H8.3Z M11.7 7.1h1.8v1.4h-1.8Z M15.1 7.1h1.8v1.4h-1.8Z"
+      />
+      <rect x="2.5" y="5.5" width="19" height="15.5" rx="2.5" />
+      <path d="M2.5 10h19" />
+      <rect x="10" y="15.4" width="4" height="5.6" rx="0.6" fill="currentColor" stroke="none" />
+      <path d="M5.4 13.4h3.6M15 13.4h3.6" strokeWidth="1.4" />
     </IconBase>
   );
 }
 
-/** Mainframe — tall vertical cabinet */
 export function MainframeIcon({ size }: IconProps) {
   return (
     <IconBase size={size}>
-      <rect x="6" y="2" width="12" height="20" rx="2" />
       <path
         fill="currentColor" stroke="none" fillRule="evenodd"
-        d="M8 10h8v4H8z M9 11.5h1v1H9z M11 11.5h4v1h-4z"
+        d="M4.6 5.6h14.8v5H4.6Z M6.1 7.4h4.4v1.4H6.1Z M11.9 7.4h6v1.4h-6Z"
       />
-      <circle cx="9.5" cy="5.5" r="0.8" fill={ICON_INK} />
-      <circle cx="12" cy="5.5" r="0.8" fill={ICON_INK} />
-      <circle cx="14.5" cy="5.5" r="0.8" fill={ICON_INK} />
-      <path d="M8 17h8M8 19h5" strokeWidth="0.9" />
+      <rect x="3" y="3" width="18" height="18" rx="2.5" />
+      <path d="M3 12.6h18" />
+      <circle cx="6.5" cy="15.4" r="1.05" fill="var(--icon-ink, #1e293b)" stroke="none" />
+      <circle cx="9.8" cy="15.4" r="1.05" fill="var(--icon-ink, #1e293b)" stroke="none" />
+      <circle cx="13.1" cy="15.4" r="1.05" fill="var(--icon-ink, #1e293b)" stroke="none" />
+      <path d="M6 18.4h12" strokeWidth="1.4" />
     </IconBase>
   );
 }
 
 export function GlobeIcon({ size }: IconProps) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24"
-         fill="none" stroke="currentColor"
-         strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"
-         aria-hidden="true">
-      <circle cx="12" cy="12" r="9"/>
-      <path d="M3 12h18"/>
-      <path d="M12 3a14 14 0 0 1 0 18"/>
-      <path d="M12 3a14 14 0 0 0 0 18"/>
-    </svg>
+    <IconBase size={size}>
+      <circle cx="12" cy="12" r="9" fill="currentColor" />
+      <path d="M3.3 9.4h17.4M3.3 14.6h17.4" stroke="var(--icon-paper, #fff)" strokeWidth="1.3" />
+      <path
+        d="M12 3v18M12 3c-2.8 2.5-4.3 5.6-4.3 9s1.5 6.5 4.3 9c2.8-2.5 4.3-5.6 4.3-9s-1.5-6.5-4.3-9Z"
+        stroke="var(--icon-paper, #fff)" strokeWidth="1.3"
+      />
+    </IconBase>
   );
 }
 
-/** Worker / Job — gear ring with clock hands */
 export function WorkerIcon({ size }: IconProps) {
   return (
     <IconBase size={size}>
-      <circle fill="currentColor" stroke="none" cx="12" cy="12" r="4.5" />
-      <path d="M12 2v3M12 19v3M2 12h3M19 12h3M5.4 5.4l2.1 2.1M16.5 16.5l2.1 2.1M5.4 18.6l2.1-2.1M16.5 7.5l2.1-2.1" />
-      <path d="M12 10.5V12l1.5 1" stroke="white" strokeWidth="0.9" />
-    </IconBase>
-  );
-}
-
-/** AI Model / LLM — neural network with highlighted core */
-export function AiModelIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <circle cx="4.5" cy="7" r="2" />
-      <circle cx="4.5" cy="17" r="2" />
-      <circle fill="currentColor" stroke="none" cx="12" cy="12" r="2.8" />
-      <circle cx="19.5" cy="7" r="2" />
-      <circle cx="19.5" cy="17" r="2" />
-      <path d="M6.3 8 9.5 10.5M6.3 16 9.5 13.5M14.5 10.5 17.7 8M14.5 13.5 17.7 16" />
-    </IconBase>
-  );
-}
-
-/** Vector Store — 2-D embedding space with two highlighted clusters */
-export function VectorDbIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <path d="M4 4v16h16" strokeWidth="0.9" />
-      <circle cx="8" cy="16" r="1.8" />
-      <circle fill="currentColor" stroke="none" cx="12" cy="13" r="1.8" />
-      <circle cx="16" cy="9" r="1.8" />
-      <circle fill="currentColor" stroke="none" cx="19" cy="6" r="1.8" />
-      <path d="M9.5 15 11 13.5M13.5 12 14.8 10.5M17 8 18 7" strokeWidth="0.75" strokeDasharray="1.5 1.5" />
-    </IconBase>
-  );
-}
-
-/** AI Agent — bot face with antenna and feet */
-export function AiAgentIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <rect fill="currentColor" stroke="none" x="6" y="9" width="12" height="10" rx="2.5" />
-      <circle cx="9.5" cy="13.5" r="1" fill="white" />
-      <circle cx="14.5" cy="13.5" r="1" fill="white" />
-      <path d="M10 16.5h4" stroke="white" strokeWidth="0.9" />
-      <path d="M12 6v3" />
-      <circle cx="12" cy="5" r="1.5" />
-      <path d="M5 14h1M18 14h1M9 19v2M15 19v2" strokeWidth="0.9" />
-    </IconBase>
-  );
-}
-
-export function TypeIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <polyline points="4 7 4 4 20 4 20 7" />
-      <line x1="9" y1="20" x2="15" y2="20" />
-      <line x1="12" y1="4" x2="12" y2="20" />
-    </IconBase>
-  );
-}
-
-// ─── Integration ─────────────────────────────────────────────────────────────
-
-/** Event Bus — publishers → horizontal bus bar → subscribers */
-export function EventBusIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
       <path
-        fill="currentColor" stroke="none" fillRule="evenodd"
-        d="M3 11h18v2.5H3z"
+        fill="currentColor"
+        d="M9.98 5.4 10.37 2.74h3.26L14.02 5.4a6.9 6.9 0 0 1 1.22.51L17.39 4.3l2.31 2.31-1.61 2.15a6.9 6.9 0 0 1 .51 1.22l2.66.39v3.26l-2.66.39a6.9 6.9 0 0 1-.51 1.22l1.61 2.15-2.31 2.31-2.15-1.61a6.9 6.9 0 0 1-1.22.51l-.39 2.66h-3.26l-.39-2.66a6.9 6.9 0 0 1-1.22-.51L6.61 19.7 4.3 17.39l1.61-2.15a6.9 6.9 0 0 1-.51-1.22l-2.66-.39v-3.26l2.66-.39a6.9 6.9 0 0 1 .51-1.22L4.3 6.61 6.61 4.3l2.15 1.61a6.9 6.9 0 0 1 1.22-.51Z"
       />
-      <rect x="3" y="11" width="18" height="2.5" rx="1.25" />
-      <circle cx="6.5" cy="5" r="2" />
-      <circle cx="13.5" cy="5" r="2" />
-      <circle cx="9" cy="19" r="2" />
-      <circle cx="17" cy="19" r="2" />
-      <path d="M6.5 7v4M13.5 7v4M9 13.5V17M17 13.5V17" />
+      <circle cx="12" cy="12" r="3" fill="var(--icon-paper, #fff)" />
     </IconBase>
   );
 }
 
-/** Pub/Sub — topic node connecting publishers and subscribers */
-export function PubSubIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <circle fill="currentColor" stroke="none" cx="12" cy="12" r="3.5" />
-      <path d="M10.5 12h3M12 10.5v3" stroke="white" strokeWidth="0.9" />
-      <circle cx="3.5" cy="7" r="1.8" />
-      <circle cx="3.5" cy="17" r="1.8" />
-      <circle cx="20.5" cy="7" r="1.8" />
-      <circle cx="20.5" cy="17" r="1.8" />
-      <path d="M5.3 8 9 10.5M5.3 16 9 13.5M18.7 8 15 10.5M18.7 16 15 13.5" />
-    </IconBase>
-  );
-}
-
-/** Webhook — source box → HTTP push arrow → curved endpoint */
-export function WebhookIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <rect fill="currentColor" stroke="none" x="1.5" y="9" width="6" height="6" rx="1.5" />
-      <path d="M7.5 12h5M10 10l2 2-2 2" strokeWidth="0.9" />
-      <path d="M12 8v4h6a2 2 0 0 1 0 4h-6 M14 14l-2 2 2 2" />
-    </IconBase>
-  );
-}
-
-/** ETL — Extract circle → Transform box → Load cylinder */
-export function EtlIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <circle cx="4" cy="12" r="2.5" />
-      <path d="M6.5 12h2" />
-      <rect fill="currentColor" stroke="none" x="8.5" y="9.5" width="7" height="5" rx="1" />
-      <path d="M11 12h2M12 11v2" stroke="white" strokeWidth="0.9" />
-      <path d="M15.5 12h2" />
-      <ellipse cx="20" cy="12" rx="2" ry="3.5" />
-    </IconBase>
-  );
-}
-
-/** Service Mesh — 4 services connected in a grid */
-export function ServiceMeshIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <circle cx="7" cy="7" r="2" />
-      <circle fill="currentColor" stroke="none" cx="17" cy="7" r="2" />
-      <circle fill="currentColor" stroke="none" cx="7" cy="17" r="2" />
-      <circle cx="17" cy="17" r="2" />
-      <path d="M9 7h6M7 9v6M17 9v6M9 17h6" strokeWidth="0.9" />
-    </IconBase>
-  );
-}
-
-// ─── Infrastructure ───────────────────────────────────────────────────────────
-
-/** Kubernetes — hexagonal outline with highlighted core and 6 spokes */
-export function KubernetesIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <path d="M12 2l8.66 5v10L12 22l-8.66-5V7Z" />
-      <circle fill="currentColor" stroke="none" cx="12" cy="12" r="2.8" />
-      <path d="M12 9.2V5M12 14.8V19M8.3 10.5L4.5 7M15.7 13.5L19.5 17M8.3 13.5L4.5 17M15.7 10.5L19.5 7" strokeWidth="0.9" />
-    </IconBase>
-  );
-}
-
-/** Container — terminal-window frame + highlighted app block */
 export function ContainerIcon({ size }: IconProps) {
   return (
     <IconBase size={size}>
       <path
         fill="currentColor" stroke="none" fillRule="evenodd"
-        d="M2 6h20v4H2z M5 7.5h1.5v1H5z M8 7.5h1.5v1H8z M11 7.5h1.5v1H11z"
+        d="M4.5 4.5h15a2 2 0 0 1 2 2v2.3H2.5V6.5a2 2 0 0 1 2-2Z M5.1 5.95h1.5v1.4H5.1Z M7.7 5.95h1.5v1.4H7.7Z M10.3 5.95h1.5v1.4h-1.5Z"
       />
-      <rect x="2" y="6" width="20" height="14" rx="2" />
-      <path d="M2 10h20" />
-      <rect x="6" y="13" width="12" height="5" rx="1" />
-      <path d="M9 15.5h6" strokeWidth="0.9" />
+      <rect x="2.5" y="4.5" width="19" height="15" rx="2.5" />
+      <path d="M2.5 8.8h19" />
+      <rect x="6" y="12" width="12" height="4.6" rx="1.4" />
+      <path d="M9 14.3h6" strokeWidth="1.3" />
     </IconBase>
   );
 }
 
-/** Load Balancer — single input → 3 highlighted backend slots */
+export function KubernetesIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <path d="M12 2.3 20.4 7v10L12 21.7 3.6 17V7L12 2.3Z" />
+      <path
+        d="M12 9V5.8M12 15v3.2M9.4 10.5 6.6 8.9M17.4 15.1l-2.8-1.6M9.4 13.5l-2.8 1.6M15.7 10.5l3.8-3.5"
+        strokeWidth="1.2"
+      />
+      <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none" />
+    </IconBase>
+  );
+}
+
 export function LoadBalancerIcon({ size }: IconProps) {
   return (
     <IconBase size={size}>
-      <circle cx="4" cy="12" r="2.5" />
-      <path d="M6.5 12h3M9.5 12l2.5-5M9.5 12h2.5M9.5 12l2.5 5" />
-      <rect fill="currentColor" stroke="none" x="12" y="5" width="8.5" height="3.5" rx="1" />
-      <rect x="12" y="10.25" width="8.5" height="3.5" rx="1" />
-      <rect x="12" y="15.5" width="8.5" height="3.5" rx="1" />
+      <circle cx="3.8" cy="12" r="2.6" />
+      <path d="M6.4 12h1.6M8 12h1.5c1.5 0 1.1-5.2 2.3-5.2M8 12h3.8M8 12h1.5c1.5 0 1.1 5.2 2.3 5.2" strokeWidth="1.3" />
+      <rect x="11.8" y="4.8" width="9.4" height="4" rx="1.4" fill="currentColor" stroke="none" />
+      <rect x="11.8" y="10" width="9.4" height="4" rx="1.4" />
+      <rect x="11.8" y="15.2" width="9.4" height="4" rx="1.4" />
     </IconBase>
   );
 }
 
-/** CDN — globe with highlighted polar cap + 2 edge nodes */
 export function CdnIcon({ size }: IconProps) {
   return (
     <IconBase size={size}>
-      <circle cx="12" cy="13" r="6" />
-      <path
-        fill="currentColor" stroke="none"
-        d="M12 7c-1.7 1.7-2.5 3.8-2.5 6 0 1 .15 2 .45 3h4.1c.3-1 .45-2 .45-3 0-2.2-.8-4.3-2.5-6z"
-      />
-      <path d="M12 7c1.7 1.7 2.5 3.8 2.5 6s-.8 4.3-2.5 6 M6 13h12" />
-      <circle cx="5" cy="4" r="2" />
-      <circle cx="19" cy="4" r="2" />
-      <path d="M6.5 5.5l3.5 4M17.5 5.5L14 9.5" strokeWidth="0.75" />
+      <circle cx="12" cy="13.6" r="6.2" />
+      <path fill="currentColor" stroke="none" d="M12 7.4c-1.8 1.9-2.7 4-2.7 6.2s.9 4.3 2.7 6.2c1.8-1.9 2.7-4 2.7-6.2s-.9-4.3-2.7-6.2Z" />
+      <path d="M5.8 13.6h12.4" />
+      <circle cx="4" cy="4.6" r="2.2" fill="currentColor" stroke="none" />
+      <circle cx="20" cy="4.6" r="2.2" fill="currentColor" stroke="none" />
+      <path d="M5.7 6.1 8.5 9.1M18.3 6.1 15.5 9.1" strokeWidth="1.3" />
     </IconBase>
   );
 }
 
-/** Object Storage — bucket with highlighted lid + stacked object pills */
-export function ObjectStorageIcon({ size }: IconProps) {
+export function ServiceMeshIcon({ size }: IconProps) {
   return (
     <IconBase size={size}>
-      <path
-        fill="currentColor" stroke="none" fillRule="evenodd"
-        d="M3.5 7h17l-1 5H4.5z"
-      />
-      <path d="M4 7h16l-2 14H6L4 7Z" />
-      <path d="M3 7h18 M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
-      <path d="M7 15h10M7 18h6" strokeWidth="0.9" />
+      <path d="M9.2 6.5h5.6M6.5 9.2v5.6M17.5 9.2v5.6M9.2 17.5h5.6" strokeWidth="1.5" />
+      <path d="M8.5 8.5 15.5 15.5M15.5 8.5 8.5 15.5" strokeWidth="1.2" />
+      <circle cx="6.5" cy="6.5" r="2.7" fill="currentColor" stroke="none" />
+      <circle cx="17.5" cy="6.5" r="2.7" fill="currentColor" stroke="none" />
+      <circle cx="6.5" cy="17.5" r="2.7" fill="currentColor" stroke="none" />
+      <circle cx="17.5" cy="17.5" r="2.7" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="12" r="2.3" fill="var(--icon-paper, #fff)" />
     </IconBase>
   );
 }
 
-/** File Storage — cabinet with highlighted header band + drawers */
-export function FileStorageIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <rect x="3" y="4" width="18" height="17" rx="2" />
-      <path
-        fill="currentColor" stroke="none" fillRule="evenodd"
-        d="M3 4h18v6H3z"
-      />
-      <path d="M3 10h18M3 16h18" />
-      <path d="M6 13h5M6 19h4" strokeWidth="0.9" />
-      <circle cx="17" cy="13" r="0.8" fill={ICON_INK} />
-      <circle cx="17" cy="19" r="0.8" fill={ICON_INK} />
-    </IconBase>
-  );
-}
-
-// ─── Observability ────────────────────────────────────────────────────────────
-
-/** Logging — document with highlighted header + timestamped log lines */
-export function LoggingIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <path
-        fill="currentColor" stroke="none" fillRule="evenodd"
-        d="M4 2h10v6h6v-2L14 2z"
-      />
-      <path d="M4 2h10l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z M14 2v6h6" />
-      <circle cx="7.5" cy="12" r="0.9" fill={ICON_INK} />
-      <path d="M9.5 12h7" strokeWidth="0.9" />
-      <circle cx="7.5" cy="15.5" r="0.9" fill={ICON_INK} />
-      <path d="M9.5 15.5h5" strokeWidth="0.9" />
-      <circle cx="7.5" cy="19" r="0.9" fill={ICON_INK} />
-      <path d="M9.5 19h6" strokeWidth="0.9" />
-    </IconBase>
-  );
-}
-
-/** Metrics — bar chart with one highlighted bar */
-export function MetricsIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <path d="M4 4v16h16" strokeWidth="0.9" />
-      <rect x="6" y="14" width="3" height="6" rx="0.5" />
-      <rect fill="currentColor" stroke="none" x="11" y="8" width="3" height="12" rx="0.5" />
-      <rect x="16" y="11" width="3" height="9" rx="0.5" />
-    </IconBase>
-  );
-}
-
-/** Monitoring — dashboard frame with highlighted header bar + line chart */
-export function MonitoringIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <rect x="2" y="3" width="20" height="15" rx="2" />
-      <path
-        fill="currentColor" stroke="none" fillRule="evenodd"
-        d="M2 3h20v4H2z"
-      />
-      <circle cx="5" cy="5" r="0.7" fill="white" />
-      <circle cx="7.5" cy="5" r="0.7" fill="white" />
-      <path d="M4 13l3-3 3 2 4-4 5 2" strokeWidth="1.15" />
-      <path d="M8 21h8M12 18v3" strokeWidth="0.9" />
-    </IconBase>
-  );
-}
-
-/** Tracing — root span + nested highlighted child span (Gantt-like) */
-export function TracingIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <rect x="3" y="7" width="18" height="2.5" rx="1" />
-      <rect fill="currentColor" stroke="none" x="6" y="11.5" width="10" height="2.5" rx="1" />
-      <rect x="9" y="16" width="7" height="2.5" rx="1" />
-      <path d="M6 9.5v2M9 14v2" strokeWidth="0.75" />
-    </IconBase>
-  );
-}
-
-/** Alerting — bell + highlighted alert badge */
-export function AlertingIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <path d="M6 10a6 6 0 0 1 12 0v4l2 2H4l2-2v-4Z" />
-      <path d="M10 18a2 2 0 0 0 4 0" />
-      <circle fill="currentColor" stroke="none" cx="19" cy="5" r="3" />
-    </IconBase>
-  );
-}
-
-// ─── Security ─────────────────────────────────────────────────────────────────
-
-/** IAM — user silhouette + highlighted role badge with key */
-export function IamIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <circle cx="8" cy="8" r="3" />
-      <path d="M2 20c0-3.3 2.7-6 6-6s6 2.7 6 6" />
-      <circle fill="currentColor" stroke="none" cx="18" cy="9" r="2.5" />
-      <path d="M16.2 10.8 13 20 M14.5 16.5h2.5M14 18.5h2" strokeWidth="0.9" />
-    </IconBase>
-  );
-}
-
-/** OAuth2 — client box → token → highlighted auth server with lock */
-export function OAuth2Icon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <rect x="1.5" y="9" width="6" height="6" rx="1.5" />
-      <path d="M7.5 12h5M10.5 10.5l2 1.5-2 1.5" strokeWidth="0.9" />
-      <circle fill="currentColor" stroke="none" cx="16.5" cy="12" r="4" />
-      <rect x="14.5" y="11.5" width="4" height="3" rx="0.5" fill="white" />
-      <path d="M15 11.5V10a1.5 1.5 0 0 1 3 0v1.5" stroke="white" strokeWidth="0.85" />
-    </IconBase>
-  );
-}
-
-/** Key Vault — safe door with highlighted dial */
-export function KeyVaultIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <rect x="3" y="4" width="16" height="16" rx="2" />
-      <circle fill="currentColor" stroke="none" cx="11" cy="12" r="3.5" />
-      <circle cx="11" cy="12" r="1.2" fill="white" />
-      <path d="M14.5 12h4 M19 10.5v3" strokeWidth="1.15" />
-    </IconBase>
-  );
-}
-
-/** Secrets Manager — highlighted padlock body with keyhole */
-export function SecretsIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <rect fill="currentColor" stroke="none" x="5" y="11" width="14" height="10" rx="2" />
-      <path d="M8 11V8a4 4 0 0 1 8 0v3" />
-      <circle cx="12" cy="15.5" r="1.5" fill="white" />
-      <path d="M12 17v2" stroke="white" strokeWidth="0.9" />
-    </IconBase>
-  );
-}
-
-/** API Security — highlighted shield with code chevrons inside */
-export function ApiSecurityIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <path
-        fill="currentColor" stroke="none"
-        d="M12 2L3 6v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V6l-9-4Z"
-      />
-      <path d="M9 10l-2 2 2 2M15 10l2 2-2 2M13 9l-2 6" stroke="white" strokeWidth="0.9" />
-    </IconBase>
-  );
-}
-
-// ─── AI Extended ──────────────────────────────────────────────────────────────
-
-/** MCP Server — server rack with highlighted plug connector */
 export function McpServerIcon({ size }: IconProps) {
   return (
     <IconBase size={size}>
       <path
         fill="currentColor" stroke="none" fillRule="evenodd"
-        d="M2 6h15v4H2z M5 7.5h1.5v1H5z"
+        d="M4.5 5.5h10a2 2 0 0 1 2 2v2.2H2.5V7.5a2 2 0 0 1 2-2Z M5.1 7h2.4v1.4H5.1Z"
       />
-      <rect x="2" y="6" width="15" height="12" rx="2" />
-      <path d="M2 10h15M2 14h15" />
-      <circle cx="5.5" cy="12" r="0.8" fill={ICON_INK} />
-      <circle cx="5.5" cy="16" r="0.8" fill={ICON_INK} />
-      <rect fill="currentColor" stroke="none" x="17" y="10" width="5" height="4" rx="1" />
-      <path d="M19 8v2M19 14v2" />
+      <rect x="2.5" y="5.5" width="14" height="13" rx="2.5" />
+      <path d="M2.5 9.7h14M2.5 14.1h14" />
+      <circle cx="5.5" cy="11.9" r="1" fill="var(--icon-ink, #1e293b)" stroke="none" />
+      <circle cx="5.5" cy="16.3" r="1" fill="var(--icon-ink, #1e293b)" stroke="none" />
+      <path d="M8.4 11.9h5.2M8.4 16.3h5.2" strokeWidth="1.3" />
+      <path d="M15.6 11h1.8M15.6 13h1.8" strokeWidth="1.4" />
+      <rect x="17.4" y="9.6" width="4.6" height="4.8" rx="1.4" fill="currentColor" stroke="none" />
     </IconBase>
   );
 }
 
-/** AI Tool — function braces with highlighted core */
-export function AiToolIcon({ size }: IconProps) {
+// ─── Mensajería / integración ──────────────────────────────────────────────
+
+export function EventBusIcon({ size }: IconProps) {
   return (
     <IconBase size={size}>
-      <path d="M8 3H6a2 2 0 0 0-2 2v4a2 2 0 0 1-2 2 2 2 0 0 1 2 2v4c0 1.1.9 2 2 2h2 M16 3h2a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2 2 2 0 0 0-2 2v4a2 2 0 0 1-2 2h-2" />
-      <circle fill="currentColor" stroke="none" cx="12" cy="12" r="2" />
+      <circle cx="6.5" cy="4.8" r="2.5" />
+      <circle cx="13.5" cy="4.8" r="2.5" />
+      <circle cx="9" cy="19.2" r="2.5" />
+      <circle cx="17" cy="19.2" r="2.5" />
+      <path d="M6.5 7.3v3.2M13.5 7.3v3.2M9 13.5v3.2M17 13.5v3.2" strokeWidth="1.4" />
+      <rect x="2.5" y="10.5" width="19" height="3" rx="1.5" fill="currentColor" stroke="none" />
     </IconBase>
   );
 }
 
-/** Prompt Template — document with highlighted template variable + AI sparkle */
-export function PromptTemplateIcon({ size }: IconProps) {
+export function PubSubIcon({ size }: IconProps) {
   return (
     <IconBase size={size}>
-      <rect x="3" y="2" width="15" height="20" rx="2" />
-      <path
-        fill="currentColor" stroke="none" fillRule="evenodd"
-        d="M3 2h11v6h4v-3l-4-3z"
-      />
-      <path d="M14 2v4h4" />
-      <rect fill="currentColor" stroke="none" x="6" y="11" width="7" height="2.5" rx="0.5" />
-      <path d="M6 16h9M6 18.5h5" strokeWidth="0.9" />
-      <path d="M20.5 4.5l1.5-1.5M21.5 5.5l-1.5-1.5" strokeWidth="0.9" />
+      <circle cx="4.2" cy="6.6" r="2.4" />
+      <circle cx="4.2" cy="17.4" r="2.4" />
+      <circle cx="19.8" cy="6.6" r="2.4" />
+      <circle cx="19.8" cy="17.4" r="2.4" />
+      <path d="M6.3 7.8 8.9 9.6M6.3 16.2 8.9 14.4M17.7 7.8 15.1 9.6M17.7 16.2 15.1 14.4" strokeWidth="1.4" />
+      <circle cx="12" cy="12" r="4" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="12" r="1.9" fill="none" stroke="var(--icon-paper, #fff)" strokeWidth="1.3" />
     </IconBase>
   );
 }
 
-/** Knowledge Base — stacked books with highlighted base volume */
-export function KnowledgeBaseIcon({ size }: IconProps) {
+export function WebhookIcon({ size }: IconProps) {
   return (
     <IconBase size={size}>
-      <rect fill="currentColor" stroke="none" x="4" y="15" width="16" height="4" rx="0.8" />
-      <rect x="5" y="11" width="14" height="4" rx="0.8" />
-      <rect x="6" y="7" width="12" height="4" rx="0.8" />
-      <path d="M9 7v12" strokeWidth="0.75" />
+      <rect x="2" y="8.8" width="6.4" height="6.4" rx="1.8" fill="currentColor" stroke="none" />
+      <path d="M8.4 12h4.6M11 9.9 13.1 12 11 14.1" strokeWidth="1.4" />
+      <circle cx="18" cy="12" r="3.9" />
+      <path fill="currentColor" stroke="none" d="M18.9 9.3 16.3 12.8h2l-.9 3 2.6-3.6h-2l.9-2.9Z" />
     </IconBase>
   );
 }
 
-/** RAG Pipeline — vector DB → highlighted retrieval core → generation box */
-export function RagPipelineIcon({ size }: IconProps) {
-  return (
-    <IconBase size={size}>
-      <ellipse cx="3.5" cy="12" rx="2" ry="3.5" />
-      <path d="M5.5 12h3M7 10.5l2 1.5-2 1.5" strokeWidth="0.9" />
-      <circle fill="currentColor" stroke="none" cx="12" cy="12" r="3" />
-      <circle cx="11.2" cy="11.2" r="1.2" fill="white" />
-      <path d="M12.2 12.2l1.5 1.5" stroke="white" strokeWidth="0.9" />
-      <path d="M15.5 12h2.5M16.5 10.5l2 1.5-2 1.5" strokeWidth="0.9" />
-      <rect x="18" y="9" width="4" height="6" rx="1" />
-    </IconBase>
-  );
-}
-
-/** Guardrails — two barrier gates flanking a checked channel */
 export function GuardrailsIcon({ size }: IconProps) {
   return (
     <IconBase size={size}>
-      <path d="M3 12h18" strokeWidth="0.9" />
-      <rect x="6" y="8" width="3" height="8" rx="0.8" />
-      <rect x="15" y="8" width="3" height="8" rx="0.8" />
-      <path d="M6.5 6l1 1 2-2M15.5 6l1 1 2-2" strokeWidth="0.9" />
-      <path fill="currentColor" stroke="none" d="M12 5l-1.5 3h3L12 5Z" />
+      <rect x="3.4" y="6.5" width="4" height="11" rx="1.4" />
+      <rect x="16.6" y="6.5" width="4" height="11" rx="1.4" />
+      <path d="M4.5 9.6h1.8M4.5 12h1.8M4.5 14.4h1.8M17.7 9.6h1.8M17.7 12h1.8M17.7 14.4h1.8" strokeWidth="1.2" />
+      <path fill="currentColor" stroke="none" d="M8.8 10.4h3.4V8l3.6 4-3.6 4v-2.4H8.8Z" />
     </IconBase>
   );
 }
 
-/** AI Workflow — start node → highlighted AI step box → diamond branch */
+// ─── Observabilidad ─────────────────────────────────────────────────────────
+
+export function LoggingIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <path fill="currentColor" stroke="none" d="M13.8 2.5 19.5 8.2H15a1.2 1.2 0 0 1-1.2-1.2V2.5Z" />
+      <path d="M13.8 2.5H6.5a2.2 2.2 0 0 0-2.2 2.2v14.6a2.2 2.2 0 0 0 2.2 2.2h11a2.2 2.2 0 0 0 2.2-2.2V8.4l-5.9-5.9Z" />
+      <path d="M13.8 2.6V7a1.2 1.2 0 0 0 1.2 1.2h4.4" />
+      <circle cx="7.9" cy="12.2" r="1" fill="var(--icon-ink, #1e293b)" stroke="none" />
+      <circle cx="7.9" cy="15.5" r="1" fill="var(--icon-ink, #1e293b)" stroke="none" />
+      <circle cx="7.9" cy="18.8" r="1" fill="var(--icon-ink, #1e293b)" stroke="none" />
+      <rect x="10.2" y="11.4" width="6.4" height="1.6" rx="0.8" fill="currentColor" stroke="none" />
+      <rect x="10.2" y="14.7" width="5.2" height="1.6" rx="0.8" fill="currentColor" stroke="none" />
+      <rect x="10.2" y="18" width="4.4" height="1.6" rx="0.8" fill="currentColor" stroke="none" />
+    </IconBase>
+  );
+}
+
+export function MetricsIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <path d="M4 3.5v17h16.5" />
+      <rect x="6.6" y="13" width="3.4" height="7.5" rx="1" />
+      <rect x="16.2" y="10.4" width="3.4" height="10.1" rx="1" />
+      <rect x="11.4" y="7.4" width="3.4" height="13.1" rx="1" fill="currentColor" stroke="none" />
+    </IconBase>
+  );
+}
+
+export function MonitoringIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <path
+        fill="currentColor" stroke="none" fillRule="evenodd"
+        d="M4.5 3.5h15a2 2 0 0 1 2 2v2.3H2.5V5.5a2 2 0 0 1 2-2Z M4.6 4.95h1.5v1.4H4.6Z M7.2 4.95h1.5v1.4H7.2Z"
+      />
+      <rect x="2.5" y="3.5" width="19" height="14" rx="2.5" />
+      <path d="M5.2 14.2 8.4 10.8l2.8 2.1 3.4-4 4.2 2.5" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M12 17.5v3.2M8.5 20.7h7" />
+    </IconBase>
+  );
+}
+
+export function TracingIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <rect x="3" y="5.4" width="18" height="3.2" rx="1.6" />
+      <rect x="9.4" y="15.4" width="8" height="3.2" rx="1.6" />
+      <path d="M6.6 8.8v2M9.6 13.6v1.6" strokeWidth="1.2" />
+      <rect x="6.4" y="10.4" width="11" height="3.2" rx="1.6" fill="currentColor" stroke="none" />
+    </IconBase>
+  );
+}
+
+export function AlertingIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <path d="M6 10.9a6 6 0 0 1 12 0v5.1l1.9 2.2H4.1L6 16v-5.1Z" />
+      <path d="M9.8 18.2a2.2 2.2 0 0 0 4.4 0" />
+      <path
+        fill="currentColor" stroke="none" fillRule="evenodd"
+        d="M18.6 2.2a3.4 3.4 0 1 1 0 6.8 3.4 3.4 0 0 1 0-6.8Z M18 3.6h1.2v2.6H18Z M18 6.9h1.2v1.2H18Z"
+      />
+    </IconBase>
+  );
+}
+
+// ─── Seguridad ──────────────────────────────────────────────────────────────
+
+export function IamIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <circle cx="8.5" cy="7.6" r="3.3" />
+      <path d="M2.5 20.5c0-3.4 2.7-6.1 6-6.1s6 2.7 6 6.1" />
+      <path
+        fill="currentColor" stroke="none" fillRule="evenodd"
+        d="M18 5.6a2.9 2.9 0 1 1 0 5.8 2.9 2.9 0 0 1 0-5.8Z M17 8.5a1 1 0 1 0 2 0 1 1 0 1 0-2 0Z"
+      />
+      <path d="m17.2 11.1-2 4.2M16 13h1.9M15.4 14.5h1.7" strokeWidth="1.3" />
+    </IconBase>
+  );
+}
+
+export function OAuth2Icon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <rect x="1.8" y="8.8" width="6.4" height="6.4" rx="1.8" />
+      <path d="M8.2 12h4.2M10.5 10.1 12.4 12l-1.9 1.9" strokeWidth="1.3" />
+      <circle cx="17.2" cy="12" r="4.7" fill="currentColor" stroke="none" />
+      <rect x="15.3" y="11.6" width="3.8" height="3.2" rx="0.7" fill="var(--icon-paper, #fff)" stroke="none" />
+      <path d="M16 11.6v-1.1a1.2 1.2 0 0 1 2.4 0v1.1" stroke="var(--icon-paper, #fff)" strokeWidth="1.1" />
+    </IconBase>
+  );
+}
+
+export function KeyVaultIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <rect x="2.5" y="3.5" width="16" height="17" rx="2.5" />
+      <circle cx="10.5" cy="12" r="4" fill="currentColor" stroke="none" />
+      <path d="M10.5 8.4v1.4M10.5 14.2v1.4M6.9 12h1.4M12.7 12h1.4" stroke="var(--icon-paper, #fff)" strokeWidth="1.2" />
+      <circle cx="10.5" cy="12" r="1.4" fill="var(--icon-paper, #fff)" stroke="none" />
+      <path d="M18.6 12h2.4M21 10.2v3.6" strokeWidth="1.6" />
+    </IconBase>
+  );
+}
+
+export function SecretsIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <path d="M7.8 10.6V7.9a4.2 4.2 0 0 1 8.4 0v2.7" />
+      <path
+        fill="currentColor" stroke="none" fillRule="evenodd"
+        d="M7 10.6h10a2.6 2.6 0 0 1 2.6 2.6v5.4A2.6 2.6 0 0 1 17 21.2H7a2.6 2.6 0 0 1-2.6-2.6v-5.4A2.6 2.6 0 0 1 7 10.6Z M10.6 14.9a1.4 1.4 0 1 0 2.8 0 1.4 1.4 0 1 0-2.8 0Z M11.3 15.8h1.4v2.6h-1.4Z"
+      />
+    </IconBase>
+  );
+}
+
+export function ApiSecurityIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <path fill="currentColor" d="M12 2.6 4.2 6v5.6c0 4.9 3.3 9.4 7.8 10.7 4.5-1.3 7.8-5.8 7.8-10.7V6L12 2.6Z" />
+      <path d="M9.6 9.9 7.7 12l1.9 2.1M14.4 9.9 16.3 12l-1.9 2.1M12.9 9.1l-1.8 5.8" stroke="var(--icon-paper, #fff)" strokeWidth="1.35" />
+    </IconBase>
+  );
+}
+
+// ─── IA ─────────────────────────────────────────────────────────────────────
+
+export function AiModelIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <path d="M6.6 8.3 9.4 10.5M6.6 15.7 9.4 13.5M14.6 10.5 17.4 8.3M14.6 13.5 17.4 15.7" strokeWidth="1.6" />
+      <circle cx="4.5" cy="7" r="2.4" fill="currentColor" stroke="none" />
+      <circle cx="4.5" cy="17" r="2.4" fill="currentColor" stroke="none" />
+      <circle cx="19.5" cy="7" r="2.4" fill="currentColor" stroke="none" />
+      <circle cx="19.5" cy="17" r="2.4" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="12" r="3.6" fill="currentColor" stroke="none" />
+    </IconBase>
+  );
+}
+
+export function AiAgentIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <circle cx="12" cy="4.2" r="1.7" />
+      <path d="M12 5.9v2.1" />
+      <path d="M3.7 12.6h1.5M18.8 12.6h1.5M9.2 19.2v2.3M14.8 19.2v2.3" strokeWidth="1.4" />
+      <path
+        fill="currentColor" stroke="none" fillRule="evenodd"
+        d="M8.2 8h7.6a3 3 0 0 1 3 3v5.2a3 3 0 0 1-3 3H8.2a3 3 0 0 1-3-3V11a3 3 0 0 1 3-3Z M8.5 12.6a1.3 1.3 0 1 0 2.6 0 1.3 1.3 0 1 0-2.6 0Z M12.9 12.6a1.3 1.3 0 1 0 2.6 0 1.3 1.3 0 1 0-2.6 0Z M9.7 15.7h4.6v1.4H9.7Z"
+      />
+    </IconBase>
+  );
+}
+
+export function AiToolIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <path d="M8.6 3.5H7A2.5 2.5 0 0 0 4.5 6v3.5A2.5 2.5 0 0 1 2 12a2.5 2.5 0 0 1 2.5 2.5V18A2.5 2.5 0 0 0 7 20.5h1.6" strokeWidth="1.8" />
+      <path d="M15.4 3.5H17A2.5 2.5 0 0 1 19.5 6v3.5A2.5 2.5 0 0 0 22 12a2.5 2.5 0 0 0-2.5 2.5V18a2.5 2.5 0 0 1-2.5 2.5h-1.6" strokeWidth="1.8" />
+      <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none" />
+    </IconBase>
+  );
+}
+
+export function PromptTemplateIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <path fill="currentColor" stroke="none" d="M13.4 2.5 16.9 6h-2.3a1.2 1.2 0 0 1-1.2-1.2V2.5Z" />
+      <path d="M13.4 2.5H5.6a2.2 2.2 0 0 0-2.2 2.2v14.6a2.2 2.2 0 0 0 2.2 2.2h9a2.2 2.2 0 0 0 2.2-2.2V5.7l-3.4-3.2Z" />
+      <path d="M13.4 2.6v2.6A1.2 1.2 0 0 0 14.6 6.4h2.2" />
+      <rect x="6" y="10.2" width="6.8" height="2.8" rx="1" fill="currentColor" stroke="none" />
+      <path d="M6 16h8M6 18.6h5" strokeWidth="1.35" />
+      <path fill="currentColor" stroke="none" d="M19.6 3.2 20.4 5.4 22.6 6.2 20.4 7 19.6 9.2 18.8 7 16.6 6.2 18.8 5.4Z" />
+    </IconBase>
+  );
+}
+
+export function KnowledgeBaseIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <rect x="5.6" y="5.6" width="12.8" height="4.6" rx="1.3" />
+      <path d="M9.2 5.6v4.6" strokeWidth="1.3" />
+      <rect x="4.6" y="10.5" width="14.8" height="4.6" rx="1.3" />
+      <path d="M8.6 10.5v4.6" strokeWidth="1.3" />
+      <rect x="3.4" y="15.4" width="17.2" height="4.8" rx="1.3" fill="currentColor" stroke="none" />
+      <path d="M8 15.4v4.8" stroke="var(--icon-paper, #fff)" strokeWidth="1.4" />
+    </IconBase>
+  );
+}
+
+export function RagPipelineIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <path fill="currentColor" stroke="none" d="M1.7 9.3c0-.9 1.05-1.6 2.35-1.6s2.35.7 2.35 1.6v5.4c0 .9-1.05 1.6-2.35 1.6S1.7 15.6 1.7 14.7V9.3Z" />
+      <path d="M6.6 12h1.5" strokeWidth="1.6" />
+      <circle cx="12" cy="12" r="3.9" fill="currentColor" stroke="none" />
+      <circle cx="11.3" cy="11.3" r="1.7" fill="none" stroke="var(--icon-paper, #fff)" strokeWidth="1.2" />
+      <path d="m12.6 12.6 1.7 1.7" stroke="var(--icon-paper, #fff)" strokeWidth="1.3" />
+      <path d="M16 12h1.5" strokeWidth="1.6" />
+      <rect x="17.6" y="8.2" width="4.4" height="7.6" rx="1.4" fill="currentColor" stroke="none" />
+    </IconBase>
+  );
+}
+
 export function AiWorkflowIcon({ size }: IconProps) {
   return (
     <IconBase size={size}>
-      <circle cx="3" cy="12" r="2" />
-      <path d="M5 12h2" strokeWidth="0.9" />
-      <rect fill="currentColor" stroke="none" x="7" y="9" width="5.5" height="6" rx="1" />
-      <circle cx="9.75" cy="12" r="1.2" fill="white" />
-      <path d="M12.5 12h2" strokeWidth="0.9" />
-      <path d="M18 8.5l3 3.5-3 3.5-3-3.5 3-3.5Z" />
+      <circle cx="3.4" cy="12" r="2.6" fill="currentColor" stroke="none" />
+      <path d="M6.1 12h1.5" strokeWidth="1.6" />
+      <rect x="7.7" y="8.3" width="6.4" height="7.4" rx="1.6" fill="currentColor" stroke="none" />
+      <path fill="var(--icon-paper, #fff)" stroke="none" d="M10.9 9.4 11.75 11.15 13.5 12l-1.75.85-.85 1.75-.85-1.75L8.3 12l1.75-.85Z" />
+      <path d="M14.4 12h1.4" strokeWidth="1.6" />
+      <path fill="currentColor" stroke="none" d="M18.6 8.2 22.1 12l-3.5 3.8L15.1 12Z" />
+    </IconBase>
+  );
+}
+
+// ─── Tipografía / otros ─────────────────────────────────────────────────────
+
+export function TypeIcon({ size }: IconProps) {
+  return (
+    <IconBase size={size}>
+      <rect x="3.5" y="4" width="17" height="3.4" rx="1.2" fill="currentColor" stroke="none" />
+      <path d="M12 7.4v12.2M8.6 19.8h6.8" strokeWidth="1.8" />
     </IconBase>
   );
 }
