@@ -78,7 +78,7 @@ export function DiagramCanvas({ builder, sizeMode }: DiagramCanvasProps) {
           onReconnect={builder.onReconnect}
           reconnectRadius={20}
           onNodeContextMenu={(e) => { if ((e.target as HTMLElement).tagName !== 'TEXTAREA') e.preventDefault(); }}
-          onEdgeContextMenu={(e) => e.preventDefault()}
+          onEdgeContextMenu={(e) => { if ((e.target as HTMLElement).tagName !== 'INPUT') e.preventDefault(); }}
           onPaneClick={builder.clearSelection}
           onPaneContextMenu={(e) => e.preventDefault()}
           fitView
