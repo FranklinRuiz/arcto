@@ -2,7 +2,7 @@ import { useState, type DragEvent } from 'react';
 import { PALETTE, PALETTE_GROUPS, getKindStyle } from '../constants/diagram.constants';
 import { NODE_KINDS, type PaletteItem } from '../types/diagram.types';
 import { iconMap, ServerIcon, TypeIcon } from './icons/DiagramIcons';
-import { ANNOTATION_ICON_MAP } from './AnnotationNode';
+import { ANNOTATION_ICON_MAP, ANNOTATION_DESCRIPTIONS } from './AnnotationNode';
 import { Shapes } from 'lucide-react';
 
 interface LibraryPanelProps {
@@ -248,6 +248,7 @@ export function LibraryPanel({ isOpen, onClose, onDragStart, onClickItem }: Libr
                                 }}
                                 onClick={() => onClickItem(payload)}
                                 className="annotation-icon-card"
+                                title={`${iconName} — ${ANNOTATION_DESCRIPTIONS[iconName] ?? ''}`}
                               >
                                 <Icon size={15} strokeWidth={2.25} />
                               </button>

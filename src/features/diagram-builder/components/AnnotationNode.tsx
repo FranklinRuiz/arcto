@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useReactFlow, type NodeProps } from '@xyflow/react';
 import {
-  Fingerprint, KeyRound, Lock, Cookie,
+  Fingerprint, KeyRound, ShieldCheck, Cookie,
   FileJson, FileCode, FileSpreadsheet, Hash, Binary, QrCode,
-  Webhook, Zap, Mail, Clock, BadgeCheck, AlertCircle,
+  Webhook, Zap, Mail, Clock, FileBadge2, AlertCircle,
   type LucideIcon,
 } from 'lucide-react';
 import type { AnnotationNode } from '../types/diagram.types';
@@ -16,7 +16,7 @@ import type { AnnotationNode } from '../types/diagram.types';
 export const ANNOTATION_ICON_MAP: Record<string, LucideIcon> = {
   'JWT': Fingerprint,
   'API Key': KeyRound,
-  'OAuth': Lock,
+  'OAuth': ShieldCheck,
   'Cookie': Cookie,
   'JSON': FileJson,
   'XML': FileCode,
@@ -28,8 +28,28 @@ export const ANNOTATION_ICON_MAP: Record<string, LucideIcon> = {
   'Evento': Zap,
   'Email': Mail,
   'Timestamp': Clock,
-  'Certificado': BadgeCheck,
+  'Certificado': FileBadge2,
   'Error': AlertCircle,
+};
+
+/** Short plain-language explanation shown as a tooltip on each annotation icon. */
+export const ANNOTATION_DESCRIPTIONS: Record<string, string> = {
+  'JWT': 'Token de sesión firmado',
+  'API Key': 'Llave de acceso a la API',
+  'OAuth': 'Autorización delegada',
+  'Cookie': 'Sesión guardada en el navegador',
+  'JSON': 'Payload en formato JSON',
+  'XML': 'Payload en formato XML',
+  'CSV': 'Datos tabulares',
+  'Hash': 'Huella / checksum de integridad',
+  'Binario': 'Datos en binario',
+  'QR': 'Código QR',
+  'Webhook': 'Notificación HTTP saliente',
+  'Evento': 'Disparador asíncrono',
+  'Email': 'Notificación por correo',
+  'Timestamp': 'Marca de tiempo',
+  'Certificado': 'Certificado / firma digital',
+  'Error': 'Indicador de fallo',
 };
 
 export function AnnotationNodeComponent({ id, data, selected }: NodeProps<AnnotationNode>) {

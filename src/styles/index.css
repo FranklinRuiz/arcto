@@ -2313,11 +2313,6 @@ textarea.form-control {
   transition: background 120ms ease, color 120ms ease;
 }
 
-.annotation-node:hover {
-  background: #f1f5f9;
-  color: #1e293b;
-}
-
 .annotation-node:active {
   cursor: grabbing;
 }
@@ -2326,12 +2321,6 @@ textarea.form-control {
   cursor: grabbing;
 }
 
-.annotation-node--selected {
-  background: #f1f5f9;
-  color: #1e293b;
-  outline: 0.5px solid #94a3b8;
-  outline-offset: 1px;
-}
 
 .annotation-node__label {
   font-size: 8px;
