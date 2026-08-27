@@ -242,160 +242,6 @@ function EdgePropertiesPanel({ edge, onToggleAsync, onLiveUpdate }: {
 }
 
 
-function CircleGroupPropertiesPanel({
-  node,
-  onLiveUpdate,
-}: {
-  node: SoftwareNode;
-  onLiveUpdate: (nodeId: string, patch: Partial<GroupFormData>) => void;
-}) {
-  const data = node.data as unknown as { label: string; color: string; dashed?: boolean; filled?: boolean };
-  const [label, setLabel] = useState(data.label);
-  const [color, setColor] = useState(data.color);
-  const [dashed, setDashed] = useState(data.dashed !== false);
-  const [filled, setFilled] = useState(data.filled === true);
-  const labelRef = useRef<HTMLInputElement>(null);
-  const prevNodeIdRef = useRef(node.id);
-
-  useEffect(() => {
-    if (node.id === prevNodeIdRef.current) return;
-    prevNodeIdRef.current = node.id;
-    const d = node.data as unknown as { label: string; color: string; dashed?: boolean; filled?: boolean };
-    setLabel(d.label);
-    setColor(d.color);
-    setDashed(d.dashed !== false);
-    setFilled(d.filled === true);
-  }, [node]);
-
-  const updateLabel = (value: string) => {
-    setLabel(value);
-    onLiveUpdate(node.id, { label: value });
-  };
-
-  const updateColor = (value: string) => {
-    setColor(value);
-    onLiveUpdate(node.id, { color: value });
-  };
-
-  const updateDashed = (value: boolean) => {
-    setDashed(value);
-    onLiveUpdate(node.id, { dashed: value });
-  };
-
-  const updateFilled = (value: boolean) => {
-    setFilled(value);
-    onLiveUpdate(node.id, { filled: value });
-  };
-
-  return (
-    <div className="node-props-panel">
-      <div className="props-header">
-        <div className="props-header__icon" style={{ background: color + '22', color }}>
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" strokeWidth="1.5" strokeDasharray={dashed ? '3 2' : undefined} />
-          </svg>
-        </div>
-        <div className="props-header__text">
-          <div className="props-header__title">{label || 'Contenedor circular'}</div>
-          <div className="props-header__subtitle">Agrupa elementos</div>
-        </div>
-      </div>
-      <div className="props-body">
-        <div className="form-grid">
-          <label className="form-field">
-            <span>Título</span>
-            <input
-              ref={labelRef}
-              value={label}
-              onChange={(e) => updateLabel(e.target.value)}
-              className="form-control"
-              placeholder="Ej: Microservicios…"
-              maxLength={28}
-            />
-          </label>
-          <div className="form-field">
-            <span>Color</span>
-            <div className="group-color-grid">
-              {PRESET_COLORS.map((c) => (
-                <button
-                  key={c.value}
-                  type="button"
-                  className={`group-color-swatch${color === c.value ? ' group-color-swatch--active' : ''}`}
-                  style={{ background: c.value }}
-                  title={c.label}
-                  onClick={() => updateColor(c.value)}
-                />
-              ))}
-              <input
-                type="color"
-                className="group-color-custom"
-                value={color}
-                onChange={(e) => updateColor(e.target.value)}
-                title="Color personalizado"
-              />
-            </div>
-          </div>
-          <div className="form-field">
-            <span>Estilo</span>
-            <div className="style-grid">
-              <button
-                type="button"
-                className={`style-btn${!dashed ? ' style-btn--active' : ''}`}
-                onClick={() => updateDashed(false)}
-                title="Borde sólido"
-              >
-                <svg width="32" height="18" viewBox="0 0 32 18" fill="none">
-                  <circle cx="16" cy="9" r="7" stroke="currentColor" strokeWidth="2" />
-                </svg>
-                <span>Sólido</span>
-              </button>
-              <button
-                type="button"
-                className={`style-btn${dashed ? ' style-btn--active' : ''}`}
-                onClick={() => updateDashed(true)}
-                title="Borde entrecortado"
-              >
-                <svg width="32" height="18" viewBox="0 0 32 18" fill="none">
-                  <circle cx="16" cy="9" r="7" stroke="currentColor" strokeWidth="2" strokeDasharray="4 3" />
-                </svg>
-                <span>Entrecortado</span>
-              </button>
-            </div>
-          </div>
-          <div className="form-field">
-            <span>Fondo</span>
-            <div className="style-grid">
-              <button
-                type="button"
-                className={`style-btn${!filled ? ' style-btn--active' : ''}`}
-                onClick={() => updateFilled(false)}
-                title="Sin fondo"
-              >
-                <svg width="32" height="18" viewBox="0 0 32 18" fill="none">
-                  <circle cx="16" cy="9" r="7" stroke="currentColor" strokeWidth="2" />
-                  <line x1="10" y1="3" x2="22" y2="15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-                <span>Sin fondo</span>
-              </button>
-              <button
-                type="button"
-                className={`style-btn${filled ? ' style-btn--active' : ''}`}
-                onClick={() => updateFilled(true)}
-                title="Con fondo"
-              >
-                <svg width="32" height="18" viewBox="0 0 32 18" fill="none">
-                  <circle cx="16" cy="9" r="7" stroke="currentColor" strokeWidth="2" fill="currentColor" fillOpacity="0.15" />
-                </svg>
-                <span>Con fondo</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function GroupPropertiesPanel({
   node,
   onLiveUpdate,
@@ -765,21 +611,12 @@ export function PalettePanel({ selectedNode, selectedEdge, toggleEdgeAsync, live
   const nodeType = selectedNode?.type as string | undefined;
   const isSoftwareSelected = nodeType === 'softwareNode' || nodeType === 'iconNode';
   const isGroupSelected = nodeType === 'groupNode';
-  const isCircleGroupSelected = nodeType === 'circleGroupNode';
   const isLabelSelected = nodeType === 'labelNode';
 
   if (isLabelSelected && selectedNode) {
     return (
       <section className="palette-section">
         <LabelPropertiesPanel node={selectedNode} onLiveUpdate={liveUpdateLabel} />
-      </section>
-    );
-  }
-
-  if (isCircleGroupSelected && selectedNode) {
-    return (
-      <section className="palette-section">
-        <CircleGroupPropertiesPanel node={selectedNode} onLiveUpdate={liveUpdateGroup} />
       </section>
     );
   }

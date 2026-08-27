@@ -102,7 +102,6 @@ export interface GroupFormData {
 export type SoftwareNode = Node<SoftwareNodeData, 'softwareNode'>;
 export type IconNode = Node<SoftwareNodeData, 'iconNode'>;
 export type GroupNode = Node<GroupNodeData, 'groupNode'>;
-export type CircleGroupNode = Node<GroupNodeData, 'circleGroupNode'>;
 export type EdgeShape = 'smooth' | 'straight';
 export type AlignAxis = 'center-h' | 'center-v';
 
@@ -148,7 +147,7 @@ export interface AnnotationNodeData extends Record<string, unknown> {
 }
 export type AnnotationNode = Node<AnnotationNodeData, 'annotationNode'>;
 
-export type DiagramNode = SoftwareNode | TextNode | IconNode | GroupNode | CircleGroupNode | LabelNode | AnnotationNode;
+export type DiagramNode = SoftwareNode | TextNode | IconNode | GroupNode | LabelNode | AnnotationNode;
 
 export interface DiagramPayload {
   title?: string;

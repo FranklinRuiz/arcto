@@ -43,7 +43,7 @@ export function DiagramBuilderPage() {
 
   useEffect(() => {
     const nodeType = builder.selectedNode?.type as string | undefined;
-    const isPropertiesNode = nodeType === 'softwareNode' || nodeType === 'iconNode' || nodeType === 'groupNode' || nodeType === 'circleGroupNode' || nodeType === 'labelNode';
+    const isPropertiesNode = nodeType === 'softwareNode' || nodeType === 'iconNode' || nodeType === 'groupNode' || nodeType === 'labelNode';
     const hasEdge = !!builder.selectedEdge;
     setIsPropertiesOpen(isPropertiesNode || hasEdge);
   }, [builder.selectedNode, builder.selectedEdge]);

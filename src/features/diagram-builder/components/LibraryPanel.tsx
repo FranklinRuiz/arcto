@@ -9,7 +9,7 @@ interface LibraryPanelProps {
   isOpen: boolean;
   onClose: () => void;
   onDragStart: (event: DragEvent<HTMLButtonElement>, item: PaletteItem) => void;
-  onClickItem: (payload: PaletteItem | { __isGroup: boolean } | { __isText: boolean } | { __isCircleGroup: boolean } | { __isLabel: boolean } | { __isAnnotation: boolean; icon: string; label: string; color: string; bg: string }) => void;
+  onClickItem: (payload: PaletteItem | { __isGroup: boolean } | { __isText: boolean } | { __isLabel: boolean } | { __isAnnotation: boolean; icon: string; label: string; color: string; bg: string }) => void;
 }
 
 type FilterKey = 'all' | 'ai' | 'services' | 'data' | 'infra' | 'integration' | 'observability' | 'security';

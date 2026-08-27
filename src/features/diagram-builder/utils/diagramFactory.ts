@@ -1,5 +1,5 @@
 import { MarkerType, type XYPosition } from '@xyflow/react';
-import { NODE_KINDS, type AnnotationNode, type CircleGroupNode, type EdgeFormData, type GroupNode, type IconNode, type LabelNode, type NodeFormData, type NodeKind, type PaletteItem, type SoftwareEdge, type SoftwareNode, type SoftwareNodeData } from '../types/diagram.types';
+import { NODE_KINDS, type AnnotationNode, type EdgeFormData, type GroupNode, type IconNode, type LabelNode, type NodeFormData, type NodeKind, type PaletteItem, type SoftwareEdge, type SoftwareNode, type SoftwareNodeData } from '../types/diagram.types';
 
 function isNodeKind(value: unknown): value is NodeKind {
   return Object.values(NODE_KINDS).includes(value as NodeKind);
@@ -88,17 +88,6 @@ export function createGroupNode(params: { position: XYPosition }): GroupNode {
     style: { width: 460, height: 320 },
     zIndex: -1,
     data: { label: 'Zona / Dominio', color: '#1D5A96', dashed: true, rounded: true },
-  };
-}
-
-export function createCircleGroupNode(params: { position: XYPosition }): CircleGroupNode {
-  return {
-    id: `circle-group-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-    type: 'circleGroupNode',
-    position: params.position,
-    style: { width: 320, height: 320 },
-    zIndex: -1,
-    data: { label: 'Nombre del grupo', color: '#5B6472', dashed: true },
   };
 }
 
