@@ -39,12 +39,85 @@ export function createNode(params: {
   };
 }
 
+// A human has no protocol — if either end of the connection is a person,
+// the label is left blank rather than guessing at a network protocol.
+const HUMAN_KINDS: ReadonlySet<NodeKind> = new Set([NODE_KINDS.USER]);
+
+// A browser/app acting as a client does speak a real protocol outward.
+const CLIENT_KINDS: ReadonlySet<NodeKind> = new Set([NODE_KINDS.FRONTEND, NODE_KINDS.MOBILE]);
+
+// Best-effort default protocol per target kind — the single most common
+// real-world choice, not a vague noun ("Batch", "Logs", "Cola") describing
+// the *kind* of connection instead of a protocol. Where implementations
+// genuinely vary (e.g. a vector DB might be gRPC or REST depending on the
+// product), this picks the most widely used one rather than leaving it
+// blank — it's just a starting suggestion, always editable via double-click.
+// This is a TARGET-only lookup on purpose: reusing it for the source side
+// too (e.g. falling back to "Backend → HTTP" when a microservice is the
+// *source* of an edge to something unmapped, like an event bus) previously
+// produced wrong answers, since that entry only describes traffic arriving
+// at a backend, not traffic a backend sends onward.
+const PROTOCOL_BY_TARGET: Partial<Record<NodeKind, string>> = {
+  [NODE_KINDS.GATEWAY]:         'HTTPS', // API gateways are exposed over HTTPS
+  [NODE_KINDS.LOAD_BALANCER]:   'HTTPS', // fronting web/API traffic
+  [NODE_KINDS.CDN]:             'HTTPS',
+  [NODE_KINDS.BACKEND]:         'HTTP',  // inbound call to a microservice/API
+  [NODE_KINDS.DATABASE]:        'JDBC',  // standard connectivity API for SQL/NoSQL access
+  [NODE_KINDS.CACHE]:           'RESP',  // REdis Serialization Protocol — "Redis" is the product, not the protocol
+  [NODE_KINDS.QUEUE]:           'AMQP',  // standard message-broker protocol
+  [NODE_KINDS.EVENT_BUS]:       'AMQP',  // most brokered event buses speak AMQP
+  [NODE_KINDS.PUBSUB]:          'HTTPS', // managed pub/sub services (e.g. Cloud Pub/Sub) expose an HTTPS/REST API
+  [NODE_KINDS.WEBHOOK]:         'HTTPS', // webhooks are HTTP(S) callbacks by definition
+  [NODE_KINDS.WORKER]:          'AMQP',  // workers typically consume from a broker queue
+  [NODE_KINDS.ETL]:             'HTTPS', // most modern ETL/integration tools pull via REST APIs
+  [NODE_KINDS.SERVICE_MESH]:    'mTLS',  // mesh sidecars enforce mutual TLS
+  [NODE_KINDS.KUBERNETES]:      'HTTPS', // Kubernetes API server is an HTTPS/REST endpoint
+  [NODE_KINDS.CONTAINER]:       'HTTPS', // container/orchestrator engine API
+  [NODE_KINDS.FILE_STORAGE]:    'NFS',   // network file storage protocol
+  [NODE_KINDS.OBJECT_STORAGE]:  'HTTPS', // S3-style object storage is a REST API over HTTPS
+  [NODE_KINDS.ONPREMISE]:       'VPN',   // reaching an on-prem network typically goes over a VPN tunnel
+  [NODE_KINDS.MAINFRAME]:       'MQ',    // IBM MQ is the standard mainframe integration middleware
+  [NODE_KINDS.CLOUD]:           'HTTPS', // cloud provider APIs are HTTPS
+  [NODE_KINDS.EXTERNAL]:        'HTTPS', // third-party integrations are HTTPS
+  [NODE_KINDS.AI_MODEL]:        'HTTPS', // LLM/model provider APIs are HTTPS
+  [NODE_KINDS.AI_AGENT]:        'HTTPS',
+  [NODE_KINDS.MCP_SERVER]:      'MCP',   // Model Context Protocol — a real named protocol
+  [NODE_KINDS.AI_TOOL]:         'MCP',   // AI tools are increasingly wired up via MCP
+  [NODE_KINDS.PROMPT_TEMPLATE]: 'HTTPS',
+  [NODE_KINDS.KNOWLEDGE_BASE]:  'HTTPS',
+  [NODE_KINDS.RAG_PIPELINE]:    'HTTPS',
+  [NODE_KINDS.GUARDRAILS]:      'HTTPS',
+  [NODE_KINDS.AI_WORKFLOW]:     'HTTPS',
+  [NODE_KINDS.VECTOR_DB]:       'gRPC',  // common in Milvus/Qdrant-style vector databases
+  [NODE_KINDS.LOGGING]:         'Syslog', // RFC 5424 — the standard logging protocol
+  [NODE_KINDS.METRICS]:         'HTTPS', // scraped/pushed over HTTP(S), e.g. Prometheus/OTLP-HTTP
+  [NODE_KINDS.MONITORING]:      'HTTPS',
+  [NODE_KINDS.TRACING]:         'OTLP',  // OpenTelemetry Protocol — the standard tracing protocol
+  [NODE_KINDS.ALERTING]:        'HTTPS', // alerts are typically dispatched via HTTP webhook
+  [NODE_KINDS.IAM]:             'OAuth2',
+  [NODE_KINDS.OAUTH2]:          'OAuth2', // the node's own kind is the protocol
+  [NODE_KINDS.KEY_VAULT]:       'HTTPS', // secret managers expose an HTTPS API
+  [NODE_KINDS.SECRETS]:         'HTTPS',
+  [NODE_KINDS.SECURITY]:        'HTTPS',
+  [NODE_KINDS.API_SECURITY]:    'HTTPS',
+};
+
+/** Suggests a protocol label for a new connection based on the kind of the two nodes it joins. Blank if none is known. */
+export function inferConnectionLabel(sourceKind?: NodeKind, targetKind?: NodeKind): string {
+  if ((sourceKind && HUMAN_KINDS.has(sourceKind)) || (targetKind && HUMAN_KINDS.has(targetKind))) return '';
+  if (sourceKind && CLIENT_KINDS.has(sourceKind)) return 'HTTPS';
+  if (targetKind && PROTOCOL_BY_TARGET[targetKind]) return PROTOCOL_BY_TARGET[targetKind]!;
+  return '';
+}
+
 export function createAnimatedEdge(params: {
   source: string;
   target: string;
   sourceHandle?: string | null;
   targetHandle?: string | null;
   label?: string;
+  sourceKind?: NodeKind;
+  targetKind?: NodeKind;
 }): SoftwareEdge {
   return {
     id: `edge-${params.source}-${params.target}-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
@@ -54,7 +127,7 @@ export function createAnimatedEdge(params: {
     targetHandle: params.targetHandle,
     type: 'smoothstep',
     animated: false,
-    label: params.label?.trim() || 'conexión',
+    label: params.label?.trim() || inferConnectionLabel(params.sourceKind, params.targetKind),
     markerEnd: { type: MarkerType.ArrowClosed },
     style: { strokeWidth: 1.9 },
     data: { dashed: false, shape: 'smooth' as const },

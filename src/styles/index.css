@@ -2141,6 +2141,42 @@ textarea.form-control {
   position: relative;
 }
 
+/* Widen the resize hit-area along each edge (not just the corner handles),
+   like draw.io — the visible dashed line stays pinned to the true border,
+   the grabbable strip extends inward. z-index is required: the bordered
+   .group-node box paints after (and covers) these controls in DOM order,
+   which otherwise swallows every pointer event before it reaches them. */
+.group-node-outer .react-flow__resize-control {
+  z-index: 10;
+}
+
+.group-node-outer .react-flow__resize-control.line {
+  border-width: 0;
+  border-color: var(--resize-color, #94a3b8);
+  border-style: dashed;
+}
+
+.group-node-outer .react-flow__resize-control.line.left,
+.group-node-outer .react-flow__resize-control.line.right {
+  top: 0;
+  width: 10px;
+  height: 100%;
+  transform: none;
+}
+
+.group-node-outer .react-flow__resize-control.line.top,
+.group-node-outer .react-flow__resize-control.line.bottom {
+  left: 0;
+  width: 100%;
+  height: 10px;
+  transform: none;
+}
+
+.group-node-outer .react-flow__resize-control.line.left   { left: 0;    border-left-width: 1.5px; }
+.group-node-outer .react-flow__resize-control.line.right  { left: auto; right: 0;  border-right-width: 1.5px; }
+.group-node-outer .react-flow__resize-control.line.top    { top: 0;     border-top-width: 1.5px; }
+.group-node-outer .react-flow__resize-control.line.bottom { top: auto;  bottom: 0; border-bottom-width: 1.5px; }
+
 .group-node {
   width: 100%;
   height: 100%;

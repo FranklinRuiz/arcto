@@ -9,6 +9,8 @@
 
 **[🚀 Pruébalo en vivo →](https://franklinruiz.github.io/arcto/)**
 
+![Diagrama de ejemplo hecho en Arcto](diagram.png)
+
 ---
 
 ## ¿Qué es Arcto?
@@ -20,22 +22,29 @@ Arcto es un editor de diagramas de arquitectura que corre completamente en el na
 ## Características
 
 ### Paleta de elementos
-15 componentes organizados en 6 grupos que cubren los bloques principales de una arquitectura moderna:
+45 componentes organizados en 9 grupos que cubren los bloques de una arquitectura moderna, de punta a punta:
 
 | Grupo | Elementos |
 |---|---|
-| Anotaciones | Texto libre |
+| Actores | Usuario, Sistema Externo |
 | Presentación | Frontend Web, App Móvil |
 | Servicios | API Gateway, Microservicio, Worker / Job |
-| Datos | Base de Datos, Caché, Message Queue |
-| Infraestructura | Servicio Cloud, On-Premise, Mainframe / Host |
-| Seguridad y Ext. | Seguridad / WAF, Sistema Externo, Componente genérico |
+| Datos | Base de Datos, Caché, Message Queue, Vector DB |
+| Infraestructura | Cloud, On-Premise, Mainframe, Kubernetes, Contenedor, Load Balancer, CDN, Object Storage, File Storage |
+| Integración | Event Bus, Pub/Sub, Webhook, ETL, Service Mesh |
+| Observabilidad | Logging, Métricas, Monitoring, Tracing, Alerting |
+| Seguridad | WAF, IAM, OAuth2, Key Vault, Secrets, API Security |
+| Inteligencia Artificial | AI Model, AI Agent, MCP Server, AI Tool, Prompt Template, Knowledge Base, RAG Pipeline, Guardrails, AI Workflow |
+
+Además: **contenedores de dominio** (para agrupar y delimitar zonas/capas del diagrama) y **anotaciones** (texto libre, etiquetas).
 
 ### Lienzo interactivo
 - Arrastrar y soltar elementos desde la paleta
 - **16 puntos de conexión** por nodo, visibles al pasar el cursor con animación
-- Conexiones animadas `smoothstep` con etiqueta editable
-- Doble clic sobre un nodo o conexión para editarlo
+- Conexiones `smoothstep` con etiqueta editable — el protocolo se **sugiere automáticamente** según el tipo de nodo origen/destino (p. ej. Backend → Base de Datos sugiere `JDBC`) y siempre es editable con doble clic
+- Selección con un clic: abre el panel de propiedades del nodo o conexión en el sidebar
+- **Contenedores redimensionables desde cualquier borde** (no solo las esquinas), con alineación de título configurable (izquierda / centro / derecha)
+- **Modo presentación**: al activarlo, hacer clic en un nodo anima el flujo de datos hacia sus conexiones y resalta con un pulso ("faro") los nodos relacionados — ideal para demos
 - **Selección múltiple por lazo** (arrastrar sobre el canvas)
 - **Paneo** con clic derecho + arrastrar
 - Controles de zoom y fondo de cuadrícula
@@ -46,7 +55,8 @@ Arcto es un editor de diagramas de arquitectura que corre completamente en el na
 - Panel de formato en el sidebar al seleccionar el nodo
 
 ### Edición
-- Modal compacto: nombre, tecnología, tipo de componente con icono en tiempo real
+- Panel de propiedades en el sidebar: nombre, subtítulo, tipo de componente con icono en tiempo real
+- Edición inline del texto de las conexiones con doble clic
 - `Enter` para guardar · `Escape` para cancelar
 
 ### Persistencia y historial
@@ -109,11 +119,16 @@ src/
 │   └── diagram-builder/
 │       ├── components/
 │       │   ├── icons/DiagramIcons.tsx   # todos los SVG del proyecto
+│       │   ├── AnnotationNode.tsx
 │       │   ├── AppToolbar.tsx
 │       │   ├── DiagramCanvas.tsx
-│       │   ├── EdgeEditModal.tsx
-│       │   ├── NodeEditModal.tsx
-│       │   ├── PalettePanel.tsx
+│       │   ├── EdgeEditContext.ts
+│       │   ├── GroupNode.tsx            # contenedores de dominio
+│       │   ├── IconNode.tsx
+│       │   ├── InlineEditableEdge.tsx   # conexiones + edición inline
+│       │   ├── LabelNode.tsx
+│       │   ├── LibraryPanel.tsx         # paleta de elementos
+│       │   ├── PalettePanel.tsx         # panel de propiedades (sidebar)
 │       │   ├── Sidebar.tsx
 │       │   ├── SoftwareNode.tsx
 │       │   └── TextNode.tsx
@@ -122,7 +137,7 @@ src/
 │       ├── pages/DiagramBuilderPage.tsx
 │       ├── types/diagram.types.ts
 │       ├── utils/
-│       │   ├── diagramFactory.ts
+│       │   ├── diagramFactory.ts        # creación de nodos/edges + inferencia de protocolo
 │       │   └── diagramValidation.ts
 │       └── __tests__/
 │           ├── diagramFactory.test.ts

@@ -14,13 +14,12 @@ export function GroupNodeComponent({ data, selected }: NodeProps<GroupNode>) {
   const labelAlign = data.labelAlign ?? 'left';
 
   return (
-    <div className="group-node-outer">
+    <div className="group-node-outer" style={{ '--resize-color': data.color } as React.CSSProperties}>
       <NodeResizer
         isVisible={selected}
         minWidth={180}
         minHeight={120}
-        handleStyle={{ width: 10, height: 10, borderRadius: 3, background: data.color, border: '2px solid white' }}
-        lineStyle={{ borderColor: data.color, borderWidth: 1.5, borderStyle: 'dashed' }}
+        handleStyle={{ width: 6, height: 6, borderRadius: 2, background: data.color, border: '1.5px solid white' }}
       />
       <Handle id="top"    type="source" position={Position.Top}    className="group-node__handle" />
       <Handle id="right"  type="source" position={Position.Right}  className="group-node__handle" />

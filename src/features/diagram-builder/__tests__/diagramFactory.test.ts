@@ -27,7 +27,7 @@ describe('diagramFactory', () => {
     expect(edge.source).toBe('a');
     expect(edge.target).toBe('b');
     expect(edge.animated).toBe(true);
-    expect(edge.label).toBe('conexión');
+    expect(edge.label).toBe('');
   });
 
   it('normalizes invalid node data', () => {

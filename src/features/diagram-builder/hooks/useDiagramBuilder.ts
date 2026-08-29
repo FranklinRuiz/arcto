@@ -159,17 +159,23 @@ export function useDiagramBuilder() {
 
   const onConnect = useCallback(
     (params: Connection) => {
+      const sourceNode = nodes.find((n) => n.id === params.source);
+      const targetNode = nodes.find((n) => n.id === params.target);
+      const sourceKind = sourceNode?.type === 'softwareNode' || sourceNode?.type === 'iconNode' ? sourceNode.data.kind : undefined;
+      const targetKind = targetNode?.type === 'softwareNode' || targetNode?.type === 'iconNode' ? targetNode.data.kind : undefined;
+
       const newEdge = createAnimatedEdge({
         source: params.source || '',
         target: params.target || '',
         sourceHandle: params.sourceHandle,
         targetHandle: params.targetHandle,
-        label: 'conexión',
+        sourceKind,
+        targetKind,
       });
 
       setEdges((current) => addEdge(newEdge, current));
     },
-    [setEdges],
+    [nodes, setEdges],
   );
 
   const onDragStart = useCallback((event: DragEvent<HTMLButtonElement>, item: PaletteItem) => {
