@@ -1569,6 +1569,20 @@ textarea.form-control {
   outline: none;
 }
 
+.software-node--beacon {
+  position: relative;
+}
+
+.software-node--beacon::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  border: 2px solid var(--cat-border);
+  animation: beacon-pulse 1.6s ease-out infinite;
+  pointer-events: none;
+}
+
 .react-flow__node.selected > div {
   box-shadow: none !important;
 }
@@ -1583,12 +1597,22 @@ textarea.form-control {
   fill: #94a3b8;
 }
 
+/* ── Flujo de datos animado ── */
+
+@keyframes edge-flow-dash {
+  to { stroke-dashoffset: -13; }
+}
+
+.edge-flow-dot {
+  filter: drop-shadow(0 0 3px rgb(0 0 0 / 0.25));
+}
+
 .edge-label-display {
   display: inline-block;
-  background: var(--color-background-tertiary);
-  padding: 1px 5px;
+  background: transparent;
+  padding: 0;
   border: none;
-  border-radius: 4px;
+  border-radius: 0;
   box-shadow: none;
   font-family: inherit;
   font-size: 11px;
@@ -2042,6 +2066,7 @@ textarea.form-control {
 .icon-node__icon {
   display: flex;
   flex-shrink: 0;
+  position: relative;
   width: 124px;
   height: 124px;
   padding: 18px;
@@ -2050,6 +2075,21 @@ textarea.form-control {
   border: 2px solid;
   box-shadow: 0 4px 16px rgb(15 23 42 / 0.1);
   transition: box-shadow 160ms ease, transform 160ms ease;
+}
+
+.icon-node--beacon .icon-node__icon::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  border: 2px solid var(--beacon-color, currentColor);
+  animation: beacon-pulse 1.6s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes beacon-pulse {
+  0%   { transform: scale(1);    opacity: 0.9; }
+  100% { transform: scale(1.35); opacity: 0; }
 }
 
 .icon-node:hover .icon-node__icon {
@@ -2115,17 +2155,17 @@ textarea.form-control {
 
 .group-node__label {
   position: absolute;
-  top: -2px;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 10px;
   display: inline-flex;
   align-items: center;
-  padding: 3px 12px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 500;
+  padding: 0;
+  background: transparent;
+  border: none;
+  font-family: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  font-weight: 600;
   white-space: nowrap;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
   text-decoration: none;
   text-decoration-line: none;
 }
@@ -2566,6 +2606,10 @@ textarea.form-control {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 6px;
+}
+
+.style-grid--3 {
+  grid-template-columns: 1fr 1fr 1fr;
 }
 
 .style-btn {

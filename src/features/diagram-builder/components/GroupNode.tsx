@@ -1,10 +1,17 @@
 import { Handle, NodeResizer, Position, type NodeProps } from '@xyflow/react';
 import type { GroupNode } from '../types/diagram.types';
 
+const LABEL_ALIGN_STYLE: Record<'left' | 'center' | 'right', React.CSSProperties> = {
+  left:   { left: 10, right: 'auto', textAlign: 'left' },
+  center: { left: '50%', right: 'auto', transform: 'translateX(-50%)', textAlign: 'center' },
+  right:  { left: 'auto', right: 10, textAlign: 'right' },
+};
+
 export function GroupNodeComponent({ data, selected }: NodeProps<GroupNode>) {
   const isDashed = data.dashed !== false;
-  const borderRadius = data.rounded !== false ? 16 : 4;
-  const bg = data.filled ? data.color + '0a' : 'transparent';
+  const borderRadius = data.rounded !== false ? 12 : 4;
+  const bg = data.filled ? data.color + '14' : 'transparent';
+  const labelAlign = data.labelAlign ?? 'left';
 
   return (
     <div className="group-node-outer">
@@ -29,7 +36,7 @@ export function GroupNodeComponent({ data, selected }: NodeProps<GroupNode>) {
         }}
       >
         {data.label && (
-          <div className="group-node__label" style={{ background: `color-mix(in srgb, ${data.color} 12%, white)`, color: data.color, border: `0.5px solid color-mix(in srgb, ${data.color} 35%, transparent)` }}>
+          <div className="group-node__label" style={{ color: data.color, ...LABEL_ALIGN_STYLE[labelAlign] }}>
             {data.label}
           </div>
         )}

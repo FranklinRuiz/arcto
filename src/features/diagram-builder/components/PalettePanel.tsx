@@ -106,7 +106,7 @@ const EDGE_COLORS = [
 ];
 
 const EDGE_WEIGHTS = [
-  { value: 1.5, label: 'Delgada' },
+  { value: 1.9, label: 'Delgada' },
   { value: 2.4, label: 'Normal' },
   { value: 4,   label: 'Gruesa' },
 ];
@@ -141,10 +141,10 @@ function EdgePropertiesPanel({ edge, onToggleAsync, onLiveUpdate }: {
   onToggleAsync: () => void;
   onLiveUpdate: (patch: { color?: string; strokeWidth?: number; shape?: 'smooth' | 'straight' }) => void;
 }) {
-  const isAsync = Boolean(edge.data?.dashed) && (edge as { animated?: boolean }).animated;
+  const isAsync = Boolean(edge.data?.dashed);
   const edgeLabel = typeof edge.label === 'string' ? edge.label : '';
   const edgeColor = (edge.style as { stroke?: string } | undefined)?.stroke ?? '#94a3b8';
-  const edgeWeight = (edge.style?.strokeWidth as number | undefined) ?? 2.4;
+  const edgeWeight = (edge.style?.strokeWidth as number | undefined) ?? 1.9;
   const edgeShape = edge.data?.shape ?? 'smooth';
 
   return (
@@ -249,13 +249,14 @@ function GroupPropertiesPanel({
   node: SoftwareNode;
   onLiveUpdate: (nodeId: string, patch: Partial<GroupFormData>) => void;
 }) {
-  const data = node.data as unknown as { label: string; color: string; dashed?: boolean; rounded?: boolean; filled?: boolean };
+  const data = node.data as unknown as { label: string; color: string; dashed?: boolean; rounded?: boolean; filled?: boolean; labelAlign?: 'left' | 'center' | 'right' };
   const [form, setForm] = useState<GroupFormData>({
     label: data.label,
     color: data.color,
     dashed: data.dashed !== false,
     rounded: data.rounded !== false,
     filled: data.filled === true,
+    labelAlign: data.labelAlign ?? 'left',
   });
   const labelRef = useRef<HTMLInputElement>(null);
   const prevNodeIdRef = useRef(node.id);
@@ -263,8 +264,8 @@ function GroupPropertiesPanel({
   useEffect(() => {
     if (node.id === prevNodeIdRef.current) return;
     prevNodeIdRef.current = node.id;
-    const d = node.data as unknown as { label: string; color: string; dashed?: boolean; rounded?: boolean; filled?: boolean };
-    setForm({ label: d.label, color: d.color, dashed: d.dashed !== false, rounded: d.rounded !== false, filled: d.filled === true });
+    const d = node.data as unknown as { label: string; color: string; dashed?: boolean; rounded?: boolean; filled?: boolean; labelAlign?: 'left' | 'center' | 'right' };
+    setForm({ label: d.label, color: d.color, dashed: d.dashed !== false, rounded: d.rounded !== false, filled: d.filled === true, labelAlign: d.labelAlign ?? 'left' });
   }, [node]);
 
   const update = <K extends keyof GroupFormData>(field: K, value: GroupFormData[K]) => {
@@ -298,6 +299,47 @@ function GroupPropertiesPanel({
               maxLength={28}
             />
           </label>
+          <div className="form-field">
+            <span>Alineación del título</span>
+            <div className="style-grid style-grid--3">
+              <button
+                type="button"
+                className={`style-btn${form.labelAlign === 'left' ? ' style-btn--active' : ''}`}
+                onClick={() => update('labelAlign', 'left')}
+                title="Alinear a la izquierda"
+              >
+                <svg width="20" height="18" viewBox="0 0 20 18" fill="none">
+                  <line x1="1" y1="3" x2="15" y2="3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  <line x1="1" y1="9" x2="19" y2="9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.35" />
+                </svg>
+                <span>Izquierda</span>
+              </button>
+              <button
+                type="button"
+                className={`style-btn${form.labelAlign === 'center' ? ' style-btn--active' : ''}`}
+                onClick={() => update('labelAlign', 'center')}
+                title="Centrar"
+              >
+                <svg width="20" height="18" viewBox="0 0 20 18" fill="none">
+                  <line x1="3" y1="3" x2="17" y2="3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  <line x1="1" y1="9" x2="19" y2="9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.35" />
+                </svg>
+                <span>Centro</span>
+              </button>
+              <button
+                type="button"
+                className={`style-btn${form.labelAlign === 'right' ? ' style-btn--active' : ''}`}
+                onClick={() => update('labelAlign', 'right')}
+                title="Alinear a la derecha"
+              >
+                <svg width="20" height="18" viewBox="0 0 20 18" fill="none">
+                  <line x1="5" y1="3" x2="19" y2="3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  <line x1="1" y1="9" x2="19" y2="9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.35" />
+                </svg>
+                <span>Derecha</span>
+              </button>
+            </div>
+          </div>
           <div className="form-field">
             <span>Color</span>
             <div className="group-color-grid">

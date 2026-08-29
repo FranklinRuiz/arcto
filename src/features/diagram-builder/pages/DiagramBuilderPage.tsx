@@ -42,11 +42,12 @@ export function DiagramBuilderPage() {
   }, [sizeMode]);
 
   useEffect(() => {
+    if (builder.presentationMode) { setIsPropertiesOpen(false); return; }
     const nodeType = builder.selectedNode?.type as string | undefined;
     const isPropertiesNode = nodeType === 'softwareNode' || nodeType === 'iconNode' || nodeType === 'groupNode' || nodeType === 'labelNode';
     const hasEdge = !!builder.selectedEdge;
     setIsPropertiesOpen(isPropertiesNode || hasEdge);
-  }, [builder.selectedNode, builder.selectedEdge]);
+  }, [builder.selectedNode, builder.selectedEdge, builder.presentationMode]);
 
   const handleClearSelection = useCallback(() => {
     builder.clearSelection();
@@ -85,6 +86,8 @@ export function DiagramBuilderPage() {
         importJson={handleImport}
         sizeMode={sizeMode}
         onSizeModeChange={setSizeMode}
+        presentationMode={builder.presentationMode}
+        onTogglePresentationMode={builder.togglePresentationMode}
       />
       <div className="diagram-layout">
         {/* Mobile backdrop — closes whichever panel is open */}

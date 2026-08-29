@@ -1,17 +1,21 @@
+import { useContext } from 'react';
 import { Handle, Position, type NodeProps } from '@xyflow/react';
 import type { SoftwareNode } from '../types/diagram.types';
 import { iconMap, ServerIcon } from './icons/DiagramIcons';
 import { getKindStyle } from '../constants/diagram.constants';
+import { EdgeEditContext } from './EdgeEditContext';
 
 type CSSVarProps = React.CSSProperties & { '--cat-border'?: string; '--cat-bg'?: string; '--icon-bg'?: string };
 
-export function SoftwareNodeComponent({ data, selected }: NodeProps<SoftwareNode>) {
+export function SoftwareNodeComponent({ id, data, selected }: NodeProps<SoftwareNode>) {
   const Icon = iconMap[data.icon] ?? ServerIcon;
   const style = getKindStyle(data.kind);
+  const { activeNodeIds } = useContext(EdgeEditContext);
+  const isBeacon = activeNodeIds.has(id);
 
   return (
     <div
-      className={`software-node${selected ? ' software-node--selected' : ''}`}
+      className={`software-node${selected ? ' software-node--selected' : ''}${isBeacon ? ' software-node--beacon' : ''}`}
       style={{ '--cat-border': style.border, '--cat-bg': style.bg } as CSSVarProps}
     >
       <Handle id="top-1" type="source" position={Position.Top}    style={{ left: '10%' }} className="software-node__handle" />

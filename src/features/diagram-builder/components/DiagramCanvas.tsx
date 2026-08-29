@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Background, ConnectionMode, Controls, ReactFlow, useViewport } from '@xyflow/react';
+import { Background, BackgroundVariant, ConnectionMode, Controls, ReactFlow, useViewport } from '@xyflow/react';
 import type { useDiagramBuilder } from '../hooks/useDiagramBuilder';
 import { EdgeEditContext } from './EdgeEditContext';
 import { InlineEditableEdge } from './InlineEditableEdge';
@@ -8,6 +8,7 @@ export type SizeMode = 'compact' | 'standard' | 'presentation';
 
 const isTouch = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
 const EDGE_TYPES = { smoothstep: InlineEditableEdge };
+const EMPTY_SET: ReadonlySet<string> = new Set();
 
 type DiagramBuilderState = ReturnType<typeof useDiagramBuilder>;
 
@@ -43,11 +44,28 @@ export function DiagramCanvas({ builder, sizeMode }: DiagramCanvasProps) {
   const [isPanning, setIsPanning] = useState(false);
   const shellRef = useRef<HTMLElement>(null);
 
+  const activeNodeId = builder.presentationMode ? (builder.selectedNode?.id ?? null) : null;
+  const { activeNodeIds, activeEdgeIds } = useMemo(() => {
+    if (!activeNodeId) return { activeNodeIds: EMPTY_SET, activeEdgeIds: EMPTY_SET };
+    const nodeIds = new Set<string>([activeNodeId]);
+    const edgeIds = new Set<string>();
+    for (const edge of builder.edges) {
+      if (edge.source === activeNodeId || edge.target === activeNodeId) {
+        edgeIds.add(edge.id);
+        nodeIds.add(edge.source);
+        nodeIds.add(edge.target);
+      }
+    }
+    return { activeNodeIds: nodeIds, activeEdgeIds: edgeIds };
+  }, [activeNodeId, builder.edges]);
+
   const edgeEditContext = useMemo(() => ({
     editingEdgeId: builder.editingEdge?.id ?? null,
     onCommit: builder.commitInlineEdgeEdit,
     onCancel: builder.closeEdgeEditor,
-  }), [builder.editingEdge?.id, builder.commitInlineEdgeEdit, builder.closeEdgeEditor]);
+    activeNodeIds,
+    activeEdgeIds,
+  }), [builder.editingEdge?.id, builder.commitInlineEdgeEdit, builder.closeEdgeEditor, activeNodeIds, activeEdgeIds]);
 
   const sizeClass = sizeMode !== 'standard' ? `canvas--size-${sizeMode}` : '';
 
@@ -85,11 +103,11 @@ export function DiagramCanvas({ builder, sizeMode }: DiagramCanvasProps) {
           connectionMode={ConnectionMode.Loose}
           panOnDrag={isTouch ? true : [2]}
           selectionOnDrag={!isTouch}
-          connectionLineStyle={{ strokeWidth: 2.4 }}
-          defaultEdgeOptions={{ animated: true, type: 'smoothstep' }}
+          connectionLineStyle={{ strokeWidth: 1.9 }}
+          defaultEdgeOptions={{ animated: false, type: 'smoothstep' }}
           proOptions={{ hideAttribution: true }}
         >
-          <Background gap={18} size={1} />
+          <Background variant={BackgroundVariant.Lines} gap={27} lineWidth={1} color="#e5e9f0" style={{ backgroundColor: '#ffffff' }} />
           <Controls showInteractive={false} />
           <ViewportObserver shellRef={shellRef} />
         </ReactFlow>

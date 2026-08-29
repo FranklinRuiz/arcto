@@ -35,6 +35,8 @@ export function useDiagramBuilder() {
   const [rfInstance, setRfInstance] = useState<ReactFlowInstance<SoftwareNode, SoftwareEdge> | null>(null);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [editingEdgeId, setEditingEdgeId] = useState<string | null>(null);
+  const [presentationMode, setPresentationMode] = useState(false);
+  const togglePresentationMode = useCallback(() => setPresentationMode((v) => !v), []);
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
 
   const selectedNode = useMemo(() => nodes.find((node) => node.id === selectedNodeId) || null, [nodes, selectedNodeId]);
@@ -113,8 +115,9 @@ export function useDiagramBuilder() {
   }, []);
 
   const openEdgeEditor = useCallback((edge: Edge) => {
+    if (presentationMode) return;
     setEditingEdgeId(edge.id);
-  }, []);
+  }, [presentationMode]);
 
   const closeEdgeEditor = useCallback(() => {
     setEditingEdgeId(null);
@@ -142,10 +145,10 @@ export function useDiagramBuilder() {
       setEdges((current) =>
         current.map((edge) => {
           if (edge.id !== edgeId) return edge;
-          const nowAsync = !(edge.data?.dashed && edge.animated);
+          const nowAsync = !edge.data?.dashed;
           return {
             ...edge,
-            animated: nowAsync,
+            animated: false,
             data: { ...edge.data, dashed: nowAsync },
           };
         }),
@@ -666,5 +669,7 @@ export function useDiagramBuilder() {
     liveUpdateNode,
     updateTextNodeData,
     placeItem,
+    presentationMode,
+    togglePresentationMode,
   };
 }

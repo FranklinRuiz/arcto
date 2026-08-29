@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react';
 import {
-  AlertTriangle, BrushCleaning, CheckCheck, ChevronRight,
+  Activity, AlertTriangle, BrushCleaning, CheckCheck, ChevronRight,
   Download, FileImage, FileJson, Layers, LayoutGrid, Loader2,
   MoreHorizontal, Trash2, Undo2, Upload,
 } from 'lucide-react';
@@ -54,6 +54,8 @@ interface AppToolbarProps {
   importJson: (event: ChangeEvent<HTMLInputElement>) => void;
   sizeMode: SizeMode;
   onSizeModeChange: (mode: SizeMode) => void;
+  presentationMode: boolean;
+  onTogglePresentationMode: () => void;
 }
 
 export function AppToolbar({
@@ -74,6 +76,8 @@ export function AppToolbar({
   importJson,
   sizeMode,
   onSizeModeChange,
+  presentationMode,
+  onTogglePresentationMode,
 }: AppToolbarProps) {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState(diagramTitle);
@@ -229,6 +233,20 @@ export function AppToolbar({
             </div>
           </>
         )}
+
+        <div className="app-header__div" />
+
+        {/* Presentation / demo mode */}
+        <button
+          type="button"
+          onClick={onTogglePresentationMode}
+          className={`header-btn${presentationMode ? ' header-btn--active' : ''}`}
+          title={presentationMode
+            ? 'Salir del modo presentación'
+            : 'Modo presentación: al hacer clic en un elemento anima sus conexiones (bloquea la edición)'}
+        >
+          <Activity size={15} />
+        </button>
 
         <div className="app-header__div" />
 

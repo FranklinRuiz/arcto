@@ -1,6 +1,8 @@
+import { useContext } from 'react';
 import { Handle, Position, type NodeProps } from '@xyflow/react';
 import { NODE_KINDS, type NodeKind, type IconNode } from '../types/diagram.types';
 import { iconMap, ServerIcon } from './icons/DiagramIcons';
+import { EdgeEditContext } from './EdgeEditContext';
 
 const kindColors: Record<NodeKind, { color: string; border: string }> = {
   // Core
@@ -57,19 +59,21 @@ const kindColors: Record<NodeKind, { color: string; border: string }> = {
   [NODE_KINDS.AI_WORKFLOW]:      { color: '#7c3aed', border: '#c4b5fd' },
 };
 
-export function IconNodeComponent({ data, selected }: NodeProps<IconNode>) {
+export function IconNodeComponent({ id, data, selected }: NodeProps<IconNode>) {
   const Icon = iconMap[data.icon] ?? ServerIcon;
   const { color, border } = kindColors[data.kind] ?? kindColors[NODE_KINDS.DEFAULT];
+  const { activeNodeIds } = useContext(EdgeEditContext);
+  const isBeacon = activeNodeIds.has(id);
 
   return (
-    <div className={`icon-node${selected ? ' icon-node--selected' : ''}`}>
+    <div className={`icon-node${selected ? ' icon-node--selected' : ''}${isBeacon ? ' icon-node--beacon' : ''}`}>
       <Handle id="top"    type="source" position={Position.Top}    className="icon-node__handle" />
       <Handle id="right"  type="source" position={Position.Right}  className="icon-node__handle" />
       <Handle id="bottom" type="source" position={Position.Bottom} className="icon-node__handle" />
       <Handle id="left"   type="source" position={Position.Left}   className="icon-node__handle" />
       <div
         className="icon-node__icon"
-        style={{ color, borderColor: border }}
+        style={{ color, borderColor: border, '--beacon-color': border } as React.CSSProperties}
       >
         <Icon size="100%" />
       </div>

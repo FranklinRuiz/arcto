@@ -7,7 +7,7 @@ import type { EdgeAnnotationData } from '../types/diagram.types';
 const INSET = 4;
 
 export const InlineEditableEdge = memo((props: EdgeProps) => {
-  const { id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, label, markerEnd, style, data, animated } = props;
+  const { id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, label, markerEnd, style, data } = props;
   const { setEdges } = useReactFlow();
   const dashed = Boolean((data as Record<string, unknown>)?.dashed);
   const annotations = ((data as Record<string, unknown>)?.annotations ?? []) as EdgeAnnotationData[];
@@ -22,11 +22,13 @@ export const InlineEditableEdge = memo((props: EdgeProps) => {
     );
   };
 
-  const edgeStyle = dashed
-    ? { ...style, strokeDasharray: '8 5', ...(animated ? {} : { animation: 'none' }) }
-    : style;
+  const { editingEdgeId, onCommit, onCancel, activeEdgeIds } = useContext(EdgeEditContext);
+  const flowAnimated = activeEdgeIds.has(id);
 
-  const { editingEdgeId, onCommit, onCancel } = useContext(EdgeEditContext);
+  const edgeStyle = dashed
+    ? { ...style, strokeDasharray: '8 5', animation: flowAnimated ? 'edge-flow-dash 0.6s linear infinite' : 'none' }
+    : style;
+  const strokeColor = (style as { stroke?: string } | undefined)?.stroke ?? '#94a3b8';
   const isEditing = editingEdgeId === id;
   const inputRef = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState(String(label ?? ''));
@@ -80,7 +82,14 @@ export const InlineEditableEdge = memo((props: EdgeProps) => {
 
   return (
     <>
-      <BaseEdge path={edgePath} markerEnd={markerEnd} style={edgeStyle} />
+      <BaseEdge id={id} path={edgePath} markerEnd={markerEnd} style={edgeStyle} />
+      {flowAnimated && !dashed && (
+        <circle r="3.5" fill={strokeColor} className="edge-flow-dot">
+          <animateMotion dur="1.8s" repeatCount="indefinite">
+            <mpath href={`#${id}`} />
+          </animateMotion>
+        </circle>
+      )}
       <EdgeLabelRenderer>
         {isEditing ? (
           <div

@@ -83,12 +83,15 @@ export interface EdgeFormData {
   label: string;
 }
 
+export type GroupLabelAlign = 'left' | 'center' | 'right';
+
 export interface GroupNodeData extends Record<string, unknown> {
   label: string;
   color: string;
   dashed?: boolean;
   rounded?: boolean;
   filled?: boolean;
+  labelAlign?: GroupLabelAlign;
 }
 
 export interface GroupFormData {
@@ -97,6 +100,7 @@ export interface GroupFormData {
   dashed?: boolean;
   rounded?: boolean;
   filled?: boolean;
+  labelAlign?: GroupLabelAlign;
 }
 
 export type SoftwareNode = Node<SoftwareNodeData, 'softwareNode'>;

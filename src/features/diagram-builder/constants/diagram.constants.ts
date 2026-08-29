@@ -459,7 +459,7 @@ export const INITIAL_EDGES: SoftwareEdge[] = [
     animated: false,
     label: '/api/consulta',
     markerEnd: { type: MarkerType.ArrowClosed },
-    style: { strokeWidth: 2.4 },
+    style: { strokeWidth: 1.9 },
     data: { dashed: false },
   },
   {
@@ -472,7 +472,7 @@ export const INITIAL_EDGES: SoftwareEdge[] = [
     animated: false,
     label: 'jdbc',
     markerEnd: { type: MarkerType.ArrowClosed },
-    style: { strokeWidth: 2.4 },
+    style: { strokeWidth: 1.9 },
     data: { dashed: false },
   },
 ];
