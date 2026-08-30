@@ -42,7 +42,7 @@ export function DiagramBuilderPage() {
   }, [sizeMode]);
 
   useEffect(() => {
-    if (builder.presentationMode) { setIsPropertiesOpen(false); return; }
+    if (builder.presentationMode) { setIsPropertiesOpen(false); setIsLibraryOpen(false); return; }
     const nodeType = builder.selectedNode?.type as string | undefined;
     const isPropertiesNode = nodeType === 'softwareNode' || nodeType === 'iconNode' || nodeType === 'groupNode' || nodeType === 'labelNode';
     const hasEdge = !!builder.selectedEdge;
@@ -120,8 +120,9 @@ export function DiagramBuilderPage() {
         <button
           type="button"
           className={`library-tab${isLibraryOpen ? ' library-tab--open' : ''}`}
-          style={{ right: isLibraryOpen ? LIBRARY_PANEL_WIDTH : 0, display: isWide ? undefined : 'none' }}
+          style={{ right: isLibraryOpen ? LIBRARY_PANEL_WIDTH : 0, display: isWide && !builder.presentationMode ? undefined : 'none' }}
           onClick={toggleLibrary}
+          disabled={builder.presentationMode}
           title={isLibraryOpen ? 'Cerrar elementos' : 'Abrir elementos'}
         >
           <LayoutGrid size={14} strokeWidth={2} />

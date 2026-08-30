@@ -36,8 +36,12 @@ export function useDiagramBuilder() {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [editingEdgeId, setEditingEdgeId] = useState<string | null>(null);
   const [presentationMode, setPresentationMode] = useState(false);
-  const togglePresentationMode = useCallback(() => setPresentationMode((v) => !v), []);
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
+  const togglePresentationMode = useCallback(() => {
+    setPresentationMode((v) => !v);
+    setSelectedNodeId(null);
+    setSelectedEdgeId(null);
+  }, []);
 
   const selectedNode = useMemo(() => nodes.find((node) => node.id === selectedNodeId) || null, [nodes, selectedNodeId]);
   const selectedEdge = useMemo(() => edges.find((edge) => edge.id === selectedEdgeId) || null, [edges, selectedEdgeId]);
@@ -159,6 +163,7 @@ export function useDiagramBuilder() {
 
   const onConnect = useCallback(
     (params: Connection) => {
+      if (presentationMode) return;
       const sourceNode = nodes.find((n) => n.id === params.source);
       const targetNode = nodes.find((n) => n.id === params.target);
       const sourceKind = sourceNode?.type === 'softwareNode' || sourceNode?.type === 'iconNode' ? sourceNode.data.kind : undefined;
@@ -175,7 +180,7 @@ export function useDiagramBuilder() {
 
       setEdges((current) => addEdge(newEdge, current));
     },
-    [nodes, setEdges],
+    [nodes, presentationMode, setEdges],
   );
 
   const onDragStart = useCallback((event: DragEvent<HTMLButtonElement>, item: PaletteItem) => {
@@ -200,6 +205,7 @@ export function useDiagramBuilder() {
   const onDrop = useCallback(
     (event: DragEvent) => {
       event.preventDefault();
+      if (presentationMode) return;
       const rawData = event.dataTransfer.getData('application/reactflow');
       if (!rawData || !rfInstance) return;
 
@@ -272,7 +278,7 @@ export function useDiagramBuilder() {
         // invalid drop data, ignore
       }
     },
-    [rfInstance, setNodes, setEdges],
+    [rfInstance, presentationMode, setNodes, setEdges],
   );
 
   const updateEdgeDataById = useCallback(
@@ -372,9 +378,10 @@ export function useDiagramBuilder() {
 
   const onReconnect = useCallback(
     (oldEdge: Edge, newConnection: Connection) => {
+      if (presentationMode) return;
       setEdges((current) => reconnectEdge(oldEdge, newConnection, current));
     },
-    [setEdges],
+    [presentationMode, setEdges],
   );
 
   const alignNodes = useCallback((axis: AlignAxis) => {
@@ -404,6 +411,7 @@ export function useDiagramBuilder() {
   }, [nodes, setNodes]);
 
   const deleteSelected = useCallback(() => {
+    if (presentationMode) return;
     const multiNodes = nodes.filter((n) => n.selected);
     const multiEdges = edges.filter((e) => e.selected);
 
@@ -424,9 +432,10 @@ export function useDiagramBuilder() {
       setSelectedEdgeId(null);
       setEditingEdgeId(null);
     }
-  }, [nodes, edges, selectedNodeId, selectedEdgeId, setNodes, setEdges]);
+  }, [nodes, edges, selectedNodeId, selectedEdgeId, presentationMode, setNodes, setEdges]);
 
   const undo = useCallback(() => {
+    if (presentationMode) return;
     if (historyIndexRef.current <= 0) return;
     historyIndexRef.current--;
     const snapshot = historyRef.current[historyIndexRef.current];
@@ -436,7 +445,7 @@ export function useDiagramBuilder() {
     setSelectedNodeId(null);
     setEditingEdgeId(null);
     setCanUndo(historyIndexRef.current > 0);
-  }, [setNodes, setEdges]);
+  }, [presentationMode, setNodes, setEdges]);
 
   const deleteSelectedRef = useRef(deleteSelected);
   deleteSelectedRef.current = deleteSelected;
@@ -471,7 +480,7 @@ export function useDiagramBuilder() {
 
   const placeItem = useCallback(
     (payload: PaletteItem | { __isGroup: boolean } | { __isText: boolean } | { __isLabel: boolean } | { __isAnnotation: boolean; icon: string; label: string; color: string; bg: string }) => {
-      if (!rfInstance) return;
+      if (!rfInstance || presentationMode) return;
       const container = document.querySelector('.canvas-shell');
       const rect = container?.getBoundingClientRect();
       const cx = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
@@ -509,7 +518,7 @@ export function useDiagramBuilder() {
         setSelectedNodeId(newNode.id);
       }
     },
-    [rfInstance, setNodes],
+    [rfInstance, presentationMode, setNodes],
   );
 
   const exportJson = useCallback((title = 'diagrama-software') => {

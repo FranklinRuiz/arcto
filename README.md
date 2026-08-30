@@ -9,13 +9,28 @@
 
 **[🚀 Pruébalo en vivo →](https://franklinruiz.github.io/arcto/)**
 
-![Diagrama de ejemplo hecho en Arcto](diagram.png)
+![Diagrama de ejemplo hecho en Arcto](docs/diagram.png)
+
+![Modo presentación animando el flujo de datos entre nodos](docs/arcto.gif)
+
+---
+
+## Índice
+
+- [¿Qué es Arcto?](#qué-es-arcto)
+- [Características](#características)
+- [Stack](#stack)
+- [Desarrollo local](#desarrollo-local)
+- [Estructura del proyecto](#estructura-del-proyecto)
+- [Contribuir](#contribuir)
+- [Licencia](#licencia)
+- [Autor](#autor)
 
 ---
 
 ## ¿Qué es Arcto?
 
-Arcto es un editor de diagramas de arquitectura que corre completamente en el navegador — sin backend, sin cuenta, sin instalación. Diseña la arquitectura de tu sistema arrastrando componentes al lienzo, conectándolos y exportando el resultado como JSON para compartirlo con tu equipo.
+Arcto es un editor de diagramas de arquitectura que corre completamente en el navegador — sin backend, sin cuenta, sin instalación. Diseña la arquitectura de tu sistema arrastrando componentes al lienzo, conectándolos y exportando el resultado como JSON o imagen para compartirlo con tu equipo.
 
 ---
 
@@ -38,13 +53,15 @@ Arcto es un editor de diagramas de arquitectura que corre completamente en el na
 
 Además: **contenedores de dominio** (para agrupar y delimitar zonas/capas del diagrama) y **anotaciones** (texto libre, etiquetas).
 
+![Panel de elementos con búsqueda y filtros por categoría](docs/element.png)
+
 ### Lienzo interactivo
 - Arrastrar y soltar elementos desde la paleta
 - **16 puntos de conexión** por nodo, visibles al pasar el cursor con animación
 - Conexiones `smoothstep` con etiqueta editable — el protocolo se **sugiere automáticamente** según el tipo de nodo origen/destino (p. ej. Backend → Base de Datos sugiere `JDBC`) y siempre es editable con doble clic
 - Selección con un clic: abre el panel de propiedades del nodo o conexión en el sidebar
 - **Contenedores redimensionables desde cualquier borde** (no solo las esquinas), con alineación de título configurable (izquierda / centro / derecha)
-- **Modo presentación**: al activarlo, hacer clic en un nodo anima el flujo de datos hacia sus conexiones y resalta con un pulso ("faro") los nodos relacionados — ideal para demos
+- **Modo presentación**: bloquea la edición del lienzo (arrastrar, redimensionar, conectar, borrar) y, al hacer clic en un nodo, anima el flujo de datos **hacia adelante** por sus conexiones salientes — el nodo origen brilla de forma continua y cada nodo destino destella justo al recibir la señal, simulando una petición viajando de un componente a otro. Ideal para demos.
 - **Selección múltiple por lazo** (arrastrar sobre el canvas)
 - **Paneo** con clic derecho + arrastrar
 - Controles de zoom y fondo de cuadrícula
@@ -62,13 +79,17 @@ Además: **contenedores de dominio** (para agrupar y delimitar zonas/capas del d
 ### Persistencia y historial
 - **Guardado automático** en `localStorage` — el diagrama sobrevive a recargas
 - **Deshacer** con `Ctrl+Z` / `Cmd+Z` — hasta 60 pasos
-- **Importar / Exportar JSON** para compartir o hacer backup
+- **Importar / Exportar** como JSON (para compartir o hacer backup) o como imagen PNG
 
 ### Barra de herramientas
-- Contraer / expandir sidebar
-- Eliminar selección (`Supr`)
-- Limpiar lienzo
-- Importar y exportar diagrama
+- Deshacer (`Ctrl+Z`) y eliminar selección (`Supr`)
+- Alinear nodos seleccionados horizontal o verticalmente (2+ nodos)
+- Alternar el panel de elementos
+- Importar / exportar el diagrama (JSON o PNG)
+- Limpiar el lienzo (con confirmación)
+- Cambiar el tamaño de vista de los nodos (S / M / L)
+- Alternar el **modo presentación**
+- Renombrar el diagrama con un clic en el título
 
 ---
 
@@ -188,5 +209,5 @@ Distribuido bajo la licencia **MIT**. Consulta el archivo [LICENSE](LICENSE) par
 
 ## Autor
 
-Hecho con ❤️ por [Franklin Ruiz](https://github.com/franklinruiz).  
+Hecho con ❤️ por [Franklin Ruiz](https://github.com/franklinruiz).
 ¿Tienes alguna pregunta? Abre un [issue](https://github.com/franklinruiz/arcto/issues) o escríbeme directamente.

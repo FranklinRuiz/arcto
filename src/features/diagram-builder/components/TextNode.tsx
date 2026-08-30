@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { NodeResizer, useReactFlow, type NodeProps } from '@xyflow/react';
 import type { TextNode } from '../types/diagram.types';
+import { EdgeEditContext } from './EdgeEditContext';
 
 const FONT_SIZES = [10, 12, 14, 16, 18, 20, 24, 28, 32, 40, 48];
 const TB_COLORS = ['#0f172a', '#64748b', '#6366f1', '#0ea5e9', '#16a34a', '#dc2626', '#ea580c', '#f59e0b'];
@@ -12,6 +13,7 @@ function autoHeight(el: HTMLTextAreaElement) {
 
 export function TextNodeComponent({ id, data, selected, width }: NodeProps<TextNode>) {
   const { updateNodeData } = useReactFlow();
+  const { presentationMode } = useContext(EdgeEditContext);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState('');
   const ref = useRef<HTMLTextAreaElement>(null);
@@ -36,6 +38,7 @@ export function TextNodeComponent({ id, data, selected, width }: NodeProps<TextN
   const update = (patch: Partial<TextNode['data']>) => updateNodeData(id, patch);
 
   const startEdit = (e: React.MouseEvent) => {
+    if (presentationMode) return;
     e.stopPropagation();
     setDraft(data.text);
     setEditing(true);
@@ -68,7 +71,7 @@ export function TextNodeComponent({ id, data, selected, width }: NodeProps<TextN
   return (
     <>
       <NodeResizer
-        isVisible={selected}
+        isVisible={selected && !presentationMode}
         minWidth={60}
         minHeight={20}
         handleStyle={{ width: 10, height: 10, borderRadius: 3, background: '#94a3b8', border: '2px solid white' }}
@@ -77,7 +80,7 @@ export function TextNodeComponent({ id, data, selected, width }: NodeProps<TextN
 
       <div className={`text-node${selected ? ' text-node--selected' : ''}${isResized ? ' text-node--resized' : ''}`}>
 
-        {selected && !editing && (
+        {selected && !editing && !presentationMode && (
           <div className="text-node__toolbar nodrag nopan">
             <button
               className={`text-node__tb-btn${data.bold ? ' text-node__tb-btn--active' : ''}`}

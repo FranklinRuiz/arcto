@@ -136,6 +136,7 @@ export function AppToolbar({
   };
 
   const handleClearClick = () => {
+    if (presentationMode) return;
     if (confirmingClear) {
       if (confirmTimerRef.current) clearTimeout(confirmTimerRef.current);
       setConfirmingClear(false);
@@ -174,8 +175,8 @@ export function AppToolbar({
         ) : (
           <button
             className="app-header__title-btn"
-            onClick={() => { setTitleDraft(diagramTitle); setIsEditingTitle(true); }}
-            title="Haz clic para renombrar"
+            onClick={() => { if (presentationMode) return; setTitleDraft(diagramTitle); setIsEditingTitle(true); }}
+            title={presentationMode ? diagramTitle : 'Haz clic para renombrar'}
           >
             {diagramTitle}
           </button>
@@ -199,7 +200,7 @@ export function AppToolbar({
         <button
           type="button"
           onClick={undo}
-          disabled={!canUndo}
+          disabled={!canUndo || presentationMode}
           className="header-btn"
           title="Deshacer (Ctrl+Z)"
         >
@@ -208,14 +209,14 @@ export function AppToolbar({
         <button
           type="button"
           onClick={deleteSelected}
-          disabled={!hasSelection}
+          disabled={!hasSelection || presentationMode}
           className="header-btn header-btn--delete"
           title="Eliminar selección (Supr)"
         >
           <Trash2 size={15} />
         </button>
 
-        {selectedNodesCount >= 2 && (
+        {selectedNodesCount >= 2 && !presentationMode && (
           <>
             <div className="app-header__div" />
             <div className="align-group" title="Alinear nodos seleccionados">
@@ -268,10 +269,14 @@ export function AppToolbar({
         <div className="app-header__div" />
 
         {/* File actions */}
-        <label className="header-btn-label" title="Importar diagrama desde JSON">
+        <label
+          className="header-btn-label"
+          title={presentationMode ? 'Importar deshabilitado en modo presentación' : 'Importar diagrama desde JSON'}
+          style={presentationMode ? { opacity: 0.45, pointerEvents: 'none' } : undefined}
+        >
           <Upload size={14} />
           <span>Importar</span>
-          <input type="file" accept="application/json" className="visually-hidden" onChange={importJson} />
+          <input type="file" accept="application/json" className="visually-hidden" onChange={importJson} disabled={presentationMode} />
         </label>
         <div className="app-header__more-wrap" ref={exportWrapRef}>
           <button
@@ -327,6 +332,7 @@ export function AppToolbar({
                 type="button"
                 role="menuitem"
                 onClick={handleClearClick}
+                disabled={presentationMode}
                 className={`more-menu-item${confirmingClear ? ' more-menu-item--confirm' : ' more-menu-item--danger'}`}
               >
                 {confirmingClear
@@ -343,8 +349,9 @@ export function AppToolbar({
         <button
           type="button"
           onClick={onToggleLibrary}
+          disabled={presentationMode}
           className={`header-btn${isLibraryOpen ? ' header-btn--active' : ''}`}
-          title={isLibraryOpen ? 'Cerrar elementos' : 'Abrir elementos'}
+          title={presentationMode ? 'Elementos deshabilitado en modo presentación' : (isLibraryOpen ? 'Cerrar elementos' : 'Abrir elementos')}
         >
           <LayoutGrid size={15} />
         </button>

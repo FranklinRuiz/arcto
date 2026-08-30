@@ -45,18 +45,20 @@ export function DiagramCanvas({ builder, sizeMode }: DiagramCanvasProps) {
   const shellRef = useRef<HTMLElement>(null);
 
   const activeNodeId = builder.presentationMode ? (builder.selectedNode?.id ?? null) : null;
-  const { activeNodeIds, activeEdgeIds } = useMemo(() => {
-    if (!activeNodeId) return { activeNodeIds: EMPTY_SET, activeEdgeIds: EMPTY_SET };
-    const nodeIds = new Set<string>([activeNodeId]);
+  // Only the selected node gets the continuous beacon ring (it's the one "transmitting").
+  // Destination nodes stay still and only flash at the instant the flow dot lands on them —
+  // this reads as a request arriving, not as an already-active endpoint.
+  const { activeNodeIds, activeEdgeIds, arrivalNodeIds } = useMemo(() => {
+    if (!activeNodeId) return { activeNodeIds: EMPTY_SET, activeEdgeIds: EMPTY_SET, arrivalNodeIds: EMPTY_SET };
     const edgeIds = new Set<string>();
+    const targetIds = new Set<string>();
     for (const edge of builder.edges) {
-      if (edge.source === activeNodeId || edge.target === activeNodeId) {
+      if (edge.source === activeNodeId) {
         edgeIds.add(edge.id);
-        nodeIds.add(edge.source);
-        nodeIds.add(edge.target);
+        targetIds.add(edge.target);
       }
     }
-    return { activeNodeIds: nodeIds, activeEdgeIds: edgeIds };
+    return { activeNodeIds: new Set<string>([activeNodeId]), activeEdgeIds: edgeIds, arrivalNodeIds: targetIds };
   }, [activeNodeId, builder.edges]);
 
   const edgeEditContext = useMemo(() => ({
@@ -65,21 +67,22 @@ export function DiagramCanvas({ builder, sizeMode }: DiagramCanvasProps) {
     onCancel: builder.closeEdgeEditor,
     activeNodeIds,
     activeEdgeIds,
-  }), [builder.editingEdge?.id, builder.commitInlineEdgeEdit, builder.closeEdgeEditor, activeNodeIds, activeEdgeIds]);
+    arrivalNodeIds,
+    presentationMode: builder.presentationMode,
+  }), [builder.editingEdge?.id, builder.commitInlineEdgeEdit, builder.closeEdgeEditor, activeNodeIds, activeEdgeIds, arrivalNodeIds, builder.presentationMode]);
 
   const sizeClass = sizeMode !== 'standard' ? `canvas--size-${sizeMode}` : '';
 
   return (
     <main
       ref={shellRef as React.RefObject<HTMLElement>}
-      className={`canvas-shell${isPanning ? ' canvas-shell--panning' : ''}${sizeClass ? ` ${sizeClass}` : ''}`}
+      className={`canvas-shell${isPanning ? ' canvas-shell--panning' : ''}${sizeClass ? ` ${sizeClass}` : ''}${builder.presentationMode ? ' canvas-shell--presenting' : ''}`}
       onMouseDown={(e) => { if (e.button === 2) setIsPanning(true); }}
       onMouseUp={() => setIsPanning(false)}
       onMouseLeave={() => setIsPanning(false)}
     >
       <EdgeEditContext.Provider value={edgeEditContext}>
         <ReactFlow
-          deleteKeyCode={['Delete', 'Backspace']}
           nodes={builder.nodes}
           edges={builder.edges}
           nodeTypes={builder.nodeTypes}
@@ -106,6 +109,10 @@ export function DiagramCanvas({ builder, sizeMode }: DiagramCanvasProps) {
           connectionLineStyle={{ strokeWidth: 1.9 }}
           defaultEdgeOptions={{ animated: false, type: 'smoothstep' }}
           proOptions={{ hideAttribution: true }}
+          nodesDraggable={!builder.presentationMode}
+          nodesConnectable={!builder.presentationMode}
+          edgesReconnectable={!builder.presentationMode}
+          deleteKeyCode={builder.presentationMode ? [] : ['Delete', 'Backspace']}
         >
           <Background variant={BackgroundVariant.Lines} gap={27} lineWidth={1} color="#e5e9f0" style={{ backgroundColor: '#ffffff' }} />
           <Controls showInteractive={false} />

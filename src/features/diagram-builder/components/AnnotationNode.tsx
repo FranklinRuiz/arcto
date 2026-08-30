@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useReactFlow, type NodeProps } from '@xyflow/react';
+import { EdgeEditContext } from './EdgeEditContext';
 import {
   Fingerprint, KeyRound, ShieldCheck, Cookie,
   FileJson, FileCode, FileSpreadsheet, Hash, Binary, QrCode,
@@ -54,6 +55,7 @@ export const ANNOTATION_DESCRIPTIONS: Record<string, string> = {
 
 export function AnnotationNodeComponent({ id, data, selected }: NodeProps<AnnotationNode>) {
   const { updateNodeData } = useReactFlow();
+  const { presentationMode } = useContext(EdgeEditContext);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -64,6 +66,7 @@ export function AnnotationNodeComponent({ id, data, selected }: NodeProps<Annota
   }, [editing]);
 
   const startEdit = (e: React.MouseEvent) => {
+    if (presentationMode) return;
     e.stopPropagation();
     setDraft(data.label);
     setEditing(true);

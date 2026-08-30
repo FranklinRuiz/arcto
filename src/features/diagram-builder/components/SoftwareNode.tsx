@@ -10,12 +10,13 @@ type CSSVarProps = React.CSSProperties & { '--cat-border'?: string; '--cat-bg'?:
 export function SoftwareNodeComponent({ id, data, selected }: NodeProps<SoftwareNode>) {
   const Icon = iconMap[data.icon] ?? ServerIcon;
   const style = getKindStyle(data.kind);
-  const { activeNodeIds } = useContext(EdgeEditContext);
+  const { activeNodeIds, arrivalNodeIds } = useContext(EdgeEditContext);
   const isBeacon = activeNodeIds.has(id);
+  const isArrival = arrivalNodeIds.has(id);
 
   return (
     <div
-      className={`software-node${selected ? ' software-node--selected' : ''}${isBeacon ? ' software-node--beacon' : ''}`}
+      className={`software-node${selected ? ' software-node--selected' : ''}${isBeacon ? ' software-node--beacon' : ''}${isArrival ? ' software-node--arrival' : ''}`}
       style={{ '--cat-border': style.border, '--cat-bg': style.bg } as CSSVarProps}
     >
       <Handle id="top-1" type="source" position={Position.Top}    style={{ left: '10%' }} className="software-node__handle" />

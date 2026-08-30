@@ -1,5 +1,7 @@
+import { useContext } from 'react';
 import { Handle, NodeResizer, Position, type NodeProps } from '@xyflow/react';
 import type { GroupNode } from '../types/diagram.types';
+import { EdgeEditContext } from './EdgeEditContext';
 
 const LABEL_ALIGN_STYLE: Record<'left' | 'center' | 'right', React.CSSProperties> = {
   left:   { left: 10, right: 'auto', textAlign: 'left' },
@@ -8,6 +10,7 @@ const LABEL_ALIGN_STYLE: Record<'left' | 'center' | 'right', React.CSSProperties
 };
 
 export function GroupNodeComponent({ data, selected }: NodeProps<GroupNode>) {
+  const { presentationMode } = useContext(EdgeEditContext);
   const isDashed = data.dashed !== false;
   const borderRadius = data.rounded !== false ? 12 : 4;
   const bg = data.filled ? data.color + '14' : 'transparent';
@@ -16,7 +19,7 @@ export function GroupNodeComponent({ data, selected }: NodeProps<GroupNode>) {
   return (
     <div className="group-node-outer" style={{ '--resize-color': data.color } as React.CSSProperties}>
       <NodeResizer
-        isVisible={selected}
+        isVisible={selected && !presentationMode}
         minWidth={180}
         minHeight={120}
         handleStyle={{ width: 6, height: 6, borderRadius: 2, background: data.color, border: '1.5px solid white' }}

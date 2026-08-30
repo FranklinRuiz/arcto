@@ -83,7 +83,7 @@ export const InlineEditableEdge = memo((props: EdgeProps) => {
   return (
     <>
       <BaseEdge id={id} path={edgePath} markerEnd={markerEnd} style={edgeStyle} />
-      {flowAnimated && !dashed && (
+      {flowAnimated && (
         <circle r="3.5" fill={strokeColor} className="edge-flow-dot">
           <animateMotion dur="1.8s" repeatCount="indefinite">
             <mpath href={`#${id}`} />
