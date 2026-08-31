@@ -3,6 +3,7 @@ import { LayoutGrid } from 'lucide-react';
 import { AppToolbar } from '../components/AppToolbar';
 import { DiagramCanvas, type SizeMode } from '../components/DiagramCanvas';
 import { LibraryPanel } from '../components/LibraryPanel';
+import { ScenePanel } from '../components/ScenePanel';
 import { Sidebar } from '../components/Sidebar';
 import { useDiagramBuilder } from '../hooks/useDiagramBuilder';
 
@@ -26,6 +27,7 @@ export function DiagramBuilderPage() {
   const isWide = useIsWide();
   const [isPropertiesOpen, setIsPropertiesOpen] = useState(false);
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
+  const [isSceneOpen, setIsSceneOpen] = useState(false);
   const [diagramTitle, setDiagramTitle] = useState(() => {
     try { return localStorage.getItem(TITLE_STORAGE_KEY) || 'Arquitectura sin título'; } catch { return 'Arquitectura sin título'; }
   });
@@ -53,9 +55,28 @@ export function DiagramBuilderPage() {
     builder.clearSelection();
     setIsPropertiesOpen(false);
     setIsLibraryOpen(false);
+    setIsSceneOpen(false);
   }, [builder.clearSelection]);
 
-  const toggleLibrary = useCallback(() => setIsLibraryOpen((v) => !v), []);
+  const toggleLibrary = useCallback(() => {
+    setIsLibraryOpen((v) => !v);
+    setIsSceneOpen(false);
+  }, []);
+
+  const toggleScene = useCallback(() => {
+    setIsSceneOpen((v) => {
+      const next = !v;
+      if (next && builder.presentationMode) builder.togglePresentationMode();
+      return next;
+    });
+    setIsLibraryOpen(false);
+  }, [builder.presentationMode, builder.togglePresentationMode]);
+
+  const handleTogglePresentationMode = useCallback(() => {
+    const turningOn = !builder.presentationMode;
+    builder.togglePresentationMode();
+    if (turningOn) setIsSceneOpen(false);
+  }, [builder.presentationMode, builder.togglePresentationMode]);
 
   const handleImport = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -87,11 +108,13 @@ export function DiagramBuilderPage() {
         sizeMode={sizeMode}
         onSizeModeChange={setSizeMode}
         presentationMode={builder.presentationMode}
-        onTogglePresentationMode={builder.togglePresentationMode}
+        onTogglePresentationMode={handleTogglePresentationMode}
+        isSceneOpen={isSceneOpen}
+        onToggleScene={toggleScene}
       />
       <div className="diagram-layout">
         {/* Mobile backdrop — closes whichever panel is open */}
-        {(isPropertiesOpen || isLibraryOpen) && (
+        {(isPropertiesOpen || isLibraryOpen || isSceneOpen) && (
           <div
             className="panel-backdrop"
             onClick={handleClearSelection}
@@ -114,6 +137,11 @@ export function DiagramBuilderPage() {
           onClose={() => setIsLibraryOpen(false)}
           onDragStart={builder.onDragStart}
           onClickItem={builder.placeItem}
+        />
+        <ScenePanel
+          isOpen={isSceneOpen}
+          onClose={() => setIsSceneOpen(false)}
+          builder={builder}
         />
 
         {/* Side tab — desktop only, hidden via CSS on mobile */}

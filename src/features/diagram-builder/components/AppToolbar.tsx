@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent } fro
 import {
   Activity, AlertTriangle, BrushCleaning, CheckCheck, ChevronRight,
   Download, FileImage, FileJson, Layers, LayoutGrid, Loader2,
-  MoreHorizontal, Trash2, Undo2, Upload,
+  MoreHorizontal, Trash2, Undo2, Upload, Video,
 } from 'lucide-react';
 import type { AlignAxis } from '../types/diagram.types';
 import type { SizeMode } from './DiagramCanvas';
@@ -56,6 +56,8 @@ interface AppToolbarProps {
   onSizeModeChange: (mode: SizeMode) => void;
   presentationMode: boolean;
   onTogglePresentationMode: () => void;
+  isSceneOpen: boolean;
+  onToggleScene: () => void;
 }
 
 export function AppToolbar({
@@ -78,6 +80,8 @@ export function AppToolbar({
   onSizeModeChange,
   presentationMode,
   onTogglePresentationMode,
+  isSceneOpen,
+  onToggleScene,
 }: AppToolbarProps) {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState(diagramTitle);
@@ -247,6 +251,16 @@ export function AppToolbar({
             : 'Modo presentación: al hacer clic en un elemento anima sus conexiones (bloquea la edición)'}
         >
           <Activity size={15} />
+        </button>
+
+        {/* Scenes */}
+        <button
+          type="button"
+          onClick={onToggleScene}
+          className={`header-btn${isSceneOpen ? ' header-btn--active' : ''}`}
+          title={isSceneOpen ? 'Cerrar escenas' : 'Escenas: anima una secuencia de nodos en el orden que definas'}
+        >
+          <Video size={15} />
         </button>
 
         <div className="app-header__div" />

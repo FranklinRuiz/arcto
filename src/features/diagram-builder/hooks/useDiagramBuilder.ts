@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent, DragEvent } from 'react';
-import { addEdge, getNodesBounds, getViewportForBounds, MarkerType, reconnectEdge, useEdgesState, useNodesState, type Connection, type Edge, type ReactFlowInstance } from '@xyflow/react';
+import { addEdge, getNodesBounds, getViewportForBounds, MarkerType, reconnectEdge, useEdgesState, useNodesState, type Connection, type Edge, type NodeChange, type ReactFlowInstance } from '@xyflow/react';
 import { toPng } from 'html-to-image';
 import { INITIAL_EDGES, INITIAL_NODES } from '../constants/diagram.constants';
 import { SoftwareNodeComponent } from '../components/SoftwareNode';
@@ -9,19 +9,23 @@ import { IconNodeComponent } from '../components/IconNode';
 import { GroupNodeComponent } from '../components/GroupNode';
 import { LabelNodeComponent } from '../components/LabelNode';
 import { AnnotationNodeComponent } from '../components/AnnotationNode';
-import { NODE_KINDS, type AlignAxis, type EdgeFormData, type GroupFormData, type LabelFormData, type NodeFormData, type PaletteItem, type SoftwareEdge, type SoftwareNode, type TextNodeData } from '../types/diagram.types';
+import { NODE_KINDS, type AlignAxis, type EdgeFormData, type GroupFormData, type LabelFormData, type NodeFormData, type PaletteItem, type Scene, type SoftwareEdge, type SoftwareNode, type TextNodeData } from '../types/diagram.types';
 import { createAnimatedEdge, createAnnotationNode, createGroupNode, createIconNode, createLabelNode, createNode, normalizeNodeData } from '../utils/diagramFactory';
 import { isValidDiagramPayload } from '../utils/diagramValidation';
 
 const STORAGE_KEY = 'arcto-diagram';
 
-function loadFromStorage(): { nodes: SoftwareNode[]; edges: SoftwareEdge[] } | null {
+function loadFromStorage(): { nodes: SoftwareNode[]; edges: SoftwareEdge[]; scenes: Scene[] } | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (!isValidDiagramPayload(parsed)) return null;
-    return parsed as { nodes: SoftwareNode[]; edges: SoftwareEdge[] };
+    return {
+      nodes: parsed.nodes as SoftwareNode[],
+      edges: parsed.edges as SoftwareEdge[],
+      scenes: Array.isArray(parsed.scenes) ? parsed.scenes : [],
+    };
   } catch {
     return null;
   }
@@ -29,7 +33,7 @@ function loadFromStorage(): { nodes: SoftwareNode[]; edges: SoftwareEdge[] } | n
 
 export function useDiagramBuilder() {
   const saved = useMemo(() => loadFromStorage(), []);
-  const [nodes, setNodes, onNodesChange] = useNodesState<SoftwareNode>(saved?.nodes ?? INITIAL_NODES);
+  const [nodes, setNodes, onNodesChangeBase] = useNodesState<SoftwareNode>(saved?.nodes ?? INITIAL_NODES);
   const [edges, setEdges, onEdgesChange] = useEdgesState<SoftwareEdge>(saved?.edges ?? INITIAL_EDGES);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [rfInstance, setRfInstance] = useState<ReactFlowInstance<SoftwareNode, SoftwareEdge> | null>(null);
@@ -37,11 +41,48 @@ export function useDiagramBuilder() {
   const [editingEdgeId, setEditingEdgeId] = useState<string | null>(null);
   const [presentationMode, setPresentationMode] = useState(false);
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
+
+  // ── Scenes: user-defined, ordered node-to-node animated sequences ──
+  const [scenes, setScenes] = useState<Scene[]>(saved?.scenes ?? []);
+  const [recordingSceneId, setRecordingSceneId] = useState<string | null>(null);
+  const [sceneRecordWarning, setSceneRecordWarning] = useState<string | null>(null);
+  const sceneWarningTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [playingSceneId, setPlayingSceneId] = useState<string | null>(null);
+  const [scenePlaybackIndex, setScenePlaybackIndex] = useState(0);
+  const [isScenePlaying, setIsScenePlaying] = useState(false);
+  const [sceneLoop, setSceneLoop] = useState(false);
+
   const togglePresentationMode = useCallback(() => {
-    setPresentationMode((v) => !v);
+    setPresentationMode((v) => {
+      const next = !v;
+      // Presentation and Scene are mutually exclusive — turning one on always
+      // turns the other off, regardless of which one was on first.
+      if (next) {
+        setRecordingSceneId(null);
+        setIsScenePlaying(false);
+        setPlayingSceneId(null);
+        setScenePlaybackIndex(0);
+      }
+      return next;
+    });
     setSelectedNodeId(null);
     setSelectedEdgeId(null);
   }, []);
+
+  const pruneScenesForNodes = useCallback((nodeIds: Set<string>) => {
+    setScenes((current) =>
+      current.map((scene) => ({ ...scene, steps: scene.steps.filter((id) => !nodeIds.has(id)) })),
+    );
+  }, []);
+
+  const onNodesChange = useCallback(
+    (changes: NodeChange<SoftwareNode>[]) => {
+      const removedIds = changes.filter((c) => c.type === 'remove').map((c) => c.id);
+      if (removedIds.length > 0) pruneScenesForNodes(new Set(removedIds));
+      onNodesChangeBase(changes);
+    },
+    [onNodesChangeBase, pruneScenesForNodes],
+  );
 
   const selectedNode = useMemo(() => nodes.find((node) => node.id === selectedNodeId) || null, [nodes, selectedNodeId]);
   const selectedEdge = useMemo(() => edges.find((edge) => edge.id === selectedEdgeId) || null, [edges, selectedEdgeId]);
@@ -96,12 +137,12 @@ export function useDiagramBuilder() {
     if (!isFirstSave.current) setSaveStatus('saving');
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ nodes, edges }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ nodes, edges, scenes }));
       isFirstSave.current = false;
       setSaveStatus('saved');
     }, 600);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
-  }, [nodes, edges]);
+  }, [nodes, edges, scenes]);
 
   const selectNode = useCallback((node: SoftwareNode) => {
     setSelectedNodeId(node.id);
@@ -420,11 +461,13 @@ export function useDiagramBuilder() {
       const edgeIds = new Set(multiEdges.map((e) => e.id));
       setNodes((current) => current.filter((n) => !nodeIds.has(n.id) && !(n.parentId && nodeIds.has(n.parentId))));
       setEdges((current) => current.filter((e) => !nodeIds.has(e.source) && !nodeIds.has(e.target) && !edgeIds.has(e.id)));
+      pruneScenesForNodes(nodeIds);
       setSelectedNodeId(null);
       setEditingEdgeId(null);
     } else if (selectedNodeId) {
       setNodes((current) => current.filter((node) => node.id !== selectedNodeId));
       setEdges((current) => current.filter((edge) => edge.source !== selectedNodeId && edge.target !== selectedNodeId));
+      pruneScenesForNodes(new Set([selectedNodeId]));
       setSelectedNodeId(null);
       setEditingEdgeId(null);
     } else if (selectedEdgeId) {
@@ -432,7 +475,7 @@ export function useDiagramBuilder() {
       setSelectedEdgeId(null);
       setEditingEdgeId(null);
     }
-  }, [nodes, edges, selectedNodeId, selectedEdgeId, presentationMode, setNodes, setEdges]);
+  }, [nodes, edges, selectedNodeId, selectedEdgeId, presentationMode, setNodes, setEdges, pruneScenesForNodes]);
 
   const undo = useCallback(() => {
     if (presentationMode) return;
@@ -476,7 +519,145 @@ export function useDiagramBuilder() {
     setEdges([]);
     setSelectedNodeId(null);
     setEditingEdgeId(null);
+    setScenes([]);
+    setRecordingSceneId(null);
+    setIsScenePlaying(false);
+    setPlayingSceneId(null);
+    setScenePlaybackIndex(0);
   }, [setNodes, setEdges]);
+
+  // ── Scene CRUD ──
+  const createScene = useCallback(() => {
+    const id = `scene-${Date.now()}`;
+    setScenes((current) => [...current, { id, name: `Escena ${current.length + 1}`, steps: [] }]);
+    setPlayingSceneId(null);
+    setIsScenePlaying(false);
+    setRecordingSceneId(id);
+    if (presentationMode) setPresentationMode(false);
+    return id;
+  }, [presentationMode]);
+
+  const deleteScene = useCallback((sceneId: string) => {
+    setScenes((current) => current.filter((s) => s.id !== sceneId));
+    setRecordingSceneId((id) => (id === sceneId ? null : id));
+    setPlayingSceneId((id) => {
+      if (id !== sceneId) return id;
+      setIsScenePlaying(false);
+      setScenePlaybackIndex(0);
+      return null;
+    });
+  }, []);
+
+  const renameScene = useCallback((sceneId: string, name: string) => {
+    const trimmed = name.trim() || 'Escena';
+    setScenes((current) => current.map((s) => (s.id === sceneId ? { ...s, name: trimmed } : s)));
+  }, []);
+
+  // ── Scene recording (click-to-add-node) ──
+  const startRecordingScene = useCallback((sceneId: string) => {
+    setPlayingSceneId(null);
+    setIsScenePlaying(false);
+    setRecordingSceneId(sceneId);
+    if (presentationMode) setPresentationMode(false);
+  }, [presentationMode]);
+
+  const stopRecordingScene = useCallback(() => setRecordingSceneId(null), []);
+
+  const undoLastSceneStep = useCallback((sceneId: string) => {
+    setScenes((current) => current.map((s) => (s.id === sceneId ? { ...s, steps: s.steps.slice(0, -1) } : s)));
+  }, []);
+
+  const recordSceneNode = useCallback(
+    (nodeId: string) => {
+      if (!recordingSceneId) return;
+      setScenes((current) =>
+        current.map((scene) => {
+          if (scene.id !== recordingSceneId) return scene;
+          const lastId = scene.steps[scene.steps.length - 1];
+          if (lastId === nodeId) return scene;
+
+          if (!lastId) return { ...scene, steps: [nodeId] };
+
+          // Valid if ANY node already in the path connects directly to the one just
+          // clicked — not just the last one. That's what lets one node branch out to
+          // several targets (A -> B dead end, click C: A still connects to C, so
+          // playback resolves the source for that hop back to A on its own, with no
+          // need to store a "return to A" step) instead of forcing a single straight line.
+          const hasSource = scene.steps.some((stepId) => edges.some((e) => e.source === stepId && e.target === nodeId));
+          if (!hasSource) {
+            setSceneRecordWarning('No hay una conexión directa entre esos nodos');
+            if (sceneWarningTimerRef.current) clearTimeout(sceneWarningTimerRef.current);
+            sceneWarningTimerRef.current = setTimeout(() => setSceneRecordWarning(null), 2200);
+            return scene;
+          }
+
+          return { ...scene, steps: [...scene.steps, nodeId] };
+        }),
+      );
+    },
+    [recordingSceneId, edges],
+  );
+
+  // ── Scene playback ──
+  const playingScene = useMemo(() => scenes.find((s) => s.id === playingSceneId) ?? null, [scenes, playingSceneId]);
+
+  const playScene = useCallback(
+    (sceneId: string) => {
+      const scene = scenes.find((s) => s.id === sceneId);
+      if (!scene || scene.steps.length < 2) return;
+      setRecordingSceneId(null);
+      setPlayingSceneId(sceneId);
+      setScenePlaybackIndex(0);
+      setIsScenePlaying(true);
+      if (presentationMode) setPresentationMode(false);
+    },
+    [scenes, presentationMode],
+  );
+
+  const pauseScenePlayback = useCallback(() => setIsScenePlaying(false), []);
+  const resumeScenePlayback = useCallback(() => {
+    if (!playingSceneId) return;
+    setScenePlaybackIndex((i) => (playingScene && i >= playingScene.steps.length - 1 ? 0 : i));
+    setIsScenePlaying(true);
+  }, [playingSceneId, playingScene]);
+
+  const stopScenePlayback = useCallback(() => {
+    setIsScenePlaying(false);
+    setPlayingSceneId(null);
+    setScenePlaybackIndex(0);
+  }, []);
+
+  const stepSceneForward = useCallback(() => {
+    setIsScenePlaying(false);
+    setScenePlaybackIndex((i) => (playingScene ? Math.min(i + 1, playingScene.steps.length - 1) : i));
+  }, [playingScene]);
+
+  const stepSceneBackward = useCallback(() => {
+    setIsScenePlaying(false);
+    setScenePlaybackIndex((i) => Math.max(i - 1, 0));
+  }, []);
+
+  useEffect(() => {
+    if (!isScenePlaying || !playingScene) return;
+    // Node beacon/arrival effects now start 0.5s into the step (see index.css) and take
+    // up to another 1.8s to play out — a bit above that (0.5s + 1.8s) so everything has
+    // time to fully complete before the step advances and unmounts it.
+    const durationMs = 2350;
+    const timer = setTimeout(() => {
+      setScenePlaybackIndex((i) => {
+        if (i + 1 >= playingScene.steps.length) {
+          if (sceneLoop) return 0;
+          // Finished — go back to a clean "not playing" state (Reproducir button)
+          // instead of sitting paused on the last step.
+          setIsScenePlaying(false);
+          setPlayingSceneId(null);
+          return 0;
+        }
+        return i + 1;
+      });
+    }, durationMs);
+    return () => clearTimeout(timer);
+  }, [isScenePlaying, scenePlaybackIndex, playingScene, sceneLoop]);
 
   const placeItem = useCallback(
     (payload: PaletteItem | { __isGroup: boolean } | { __isText: boolean } | { __isLabel: boolean } | { __isAnnotation: boolean; icon: string; label: string; color: string; bg: string }) => {
@@ -523,7 +704,7 @@ export function useDiagramBuilder() {
 
   const exportJson = useCallback((title = 'diagrama-software') => {
     const safeFilename = title.trim().replace(/[<>:"/\\|?*]/g, '').replace(/\s+/g, '-') || 'diagrama-software';
-    const data = JSON.stringify({ title, nodes, edges }, null, 2);
+    const data = JSON.stringify({ title, nodes, edges, scenes }, null, 2);
     const blob = new Blob([data], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -531,7 +712,7 @@ export function useDiagramBuilder() {
     link.download = `${safeFilename}.json`;
     link.click();
     URL.revokeObjectURL(url);
-  }, [nodes, edges]);
+  }, [nodes, edges, scenes]);
 
   const exportPng = useCallback((title = 'diagrama-software') => {
     const viewportEl = document.querySelector('.react-flow__viewport') as HTMLElement | null;
@@ -632,6 +813,11 @@ export function useDiagramBuilder() {
             return { ...node, data: normalizeNodeData(node.data) };
           }) as SoftwareNode[]);
           setEdges(parsed.edges);
+          setScenes(Array.isArray(parsed.scenes) ? parsed.scenes : []);
+          setRecordingSceneId(null);
+          setIsScenePlaying(false);
+          setPlayingSceneId(null);
+          setScenePlaybackIndex(0);
           setSelectedNodeId(null);
           setEditingEdgeId(null);
         } catch {
@@ -686,5 +872,26 @@ export function useDiagramBuilder() {
     placeItem,
     presentationMode,
     togglePresentationMode,
+    scenes,
+    recordingSceneId,
+    sceneRecordWarning,
+    createScene,
+    deleteScene,
+    renameScene,
+    startRecordingScene,
+    stopRecordingScene,
+    undoLastSceneStep,
+    recordSceneNode,
+    playingSceneId,
+    isScenePlaying,
+    scenePlaybackIndex,
+    sceneLoop,
+    playScene,
+    pauseScenePlayback,
+    resumeScenePlayback,
+    stopScenePlayback,
+    stepSceneForward,
+    stepSceneBackward,
+    setSceneLoop,
   };
 }

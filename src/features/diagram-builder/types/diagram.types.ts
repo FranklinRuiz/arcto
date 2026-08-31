@@ -153,8 +153,16 @@ export type AnnotationNode = Node<AnnotationNodeData, 'annotationNode'>;
 
 export type DiagramNode = SoftwareNode | TextNode | IconNode | GroupNode | LabelNode | AnnotationNode;
 
+export interface Scene {
+  id: string;
+  name: string;
+  /** Node ids in playback order. Consecutive steps must be joined by a direct edge. */
+  steps: string[];
+}
+
 export interface DiagramPayload {
   title?: string;
   nodes: DiagramNode[];
   edges: SoftwareEdge[];
+  scenes?: Scene[];
 }

@@ -45,10 +45,67 @@ export function DiagramCanvas({ builder, sizeMode }: DiagramCanvasProps) {
   const shellRef = useRef<HTMLElement>(null);
 
   const activeNodeId = builder.presentationMode ? (builder.selectedNode?.id ?? null) : null;
+
+  // Maps "sourceId->targetId" to the first matching edge id, so scene steps
+  // (which only know node order) can resolve which real edge connects them.
+  const edgeLookup = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const edge of builder.edges) {
+      const key = `${edge.source}->${edge.target}`;
+      if (!map.has(key)) map.set(key, edge.id);
+    }
+    return map;
+  }, [builder.edges]);
+
+  const playingScene = useMemo(
+    () => builder.scenes.find((s) => s.id === builder.playingSceneId) ?? null,
+    [builder.scenes, builder.playingSceneId],
+  );
+  const recordingScene = useMemo(
+    () => builder.scenes.find((s) => s.id === builder.recordingSceneId) ?? null,
+    [builder.scenes, builder.recordingSceneId],
+  );
+
   // Only the selected node gets the continuous beacon ring (it's the one "transmitting").
   // Destination nodes stay still and only flash at the instant the flow dot lands on them —
   // this reads as a request arriving, not as an already-active endpoint.
   const { activeNodeIds, activeEdgeIds, arrivalNodeIds } = useMemo(() => {
+    // Scene playback: highlight only the single edge for the current step transition.
+    // The recorded path can branch (see recordSceneNode) — the node right before the
+    // target in the steps array isn't necessarily the one with a real edge to it, so
+    // walk backward from the current index to find the nearest step that actually
+    // connects to it. This also means a dead-end node only ever gets its one arrival
+    // flash: it's never re-selected as a "current" beacon just to bridge to the next target.
+    if (playingScene && playingScene.steps.length > 0) {
+      const targetId = playingScene.steps[builder.scenePlaybackIndex + 1];
+      let sourceId: string | undefined;
+      let edgeId: string | undefined;
+      if (targetId) {
+        for (let i = builder.scenePlaybackIndex; i >= 0; i--) {
+          const candidateId = playingScene.steps[i];
+          const found = edgeLookup.get(`${candidateId}->${targetId}`);
+          if (found) { sourceId = candidateId; edgeId = found; break; }
+        }
+      }
+      const currentId = sourceId ?? playingScene.steps[builder.scenePlaybackIndex];
+      return {
+        activeNodeIds: new Set<string>([currentId]),
+        activeEdgeIds: edgeId ? new Set<string>([edgeId]) : EMPTY_SET,
+        arrivalNodeIds: edgeId && targetId ? new Set<string>([targetId]) : EMPTY_SET,
+      };
+    }
+
+    // Scene recording: highlight the whole path recorded so far, beacon on the latest node.
+    if (recordingScene && recordingScene.steps.length > 0) {
+      const edgeIds = new Set<string>();
+      for (let i = 0; i < recordingScene.steps.length - 1; i++) {
+        const edgeId = edgeLookup.get(`${recordingScene.steps[i]}->${recordingScene.steps[i + 1]}`);
+        if (edgeId) edgeIds.add(edgeId);
+      }
+      const lastId = recordingScene.steps[recordingScene.steps.length - 1];
+      return { activeNodeIds: new Set<string>([lastId]), activeEdgeIds: edgeIds, arrivalNodeIds: EMPTY_SET };
+    }
+
     if (!activeNodeId) return { activeNodeIds: EMPTY_SET, activeEdgeIds: EMPTY_SET, arrivalNodeIds: EMPTY_SET };
     const edgeIds = new Set<string>();
     const targetIds = new Set<string>();
@@ -59,7 +116,9 @@ export function DiagramCanvas({ builder, sizeMode }: DiagramCanvasProps) {
       }
     }
     return { activeNodeIds: new Set<string>([activeNodeId]), activeEdgeIds: edgeIds, arrivalNodeIds: targetIds };
-  }, [activeNodeId, builder.edges]);
+  }, [activeNodeId, builder.edges, playingScene, recordingScene, builder.scenePlaybackIndex, edgeLookup]);
+
+  const scenePlaybackActive = Boolean(playingScene && playingScene.steps.length > 0);
 
   const edgeEditContext = useMemo(() => ({
     editingEdgeId: builder.editingEdge?.id ?? null,
@@ -69,18 +128,34 @@ export function DiagramCanvas({ builder, sizeMode }: DiagramCanvasProps) {
     activeEdgeIds,
     arrivalNodeIds,
     presentationMode: builder.presentationMode,
-  }), [builder.editingEdge?.id, builder.commitInlineEdgeEdit, builder.closeEdgeEditor, activeNodeIds, activeEdgeIds, arrivalNodeIds, builder.presentationMode]);
+    scenePlaybackActive,
+  }), [builder.editingEdge?.id, builder.commitInlineEdgeEdit, builder.closeEdgeEditor, activeNodeIds, activeEdgeIds, arrivalNodeIds, builder.presentationMode, scenePlaybackActive]);
 
   const sizeClass = sizeMode !== 'standard' ? `canvas--size-${sizeMode}` : '';
+  const sceneActive = Boolean(builder.recordingSceneId || builder.playingSceneId);
 
   return (
     <main
       ref={shellRef as React.RefObject<HTMLElement>}
-      className={`canvas-shell${isPanning ? ' canvas-shell--panning' : ''}${sizeClass ? ` ${sizeClass}` : ''}${builder.presentationMode ? ' canvas-shell--presenting' : ''}`}
+      className={`canvas-shell${isPanning ? ' canvas-shell--panning' : ''}${sizeClass ? ` ${sizeClass}` : ''}${builder.presentationMode ? ' canvas-shell--presenting' : ''}${sceneActive ? ' canvas-shell--scene-active' : ''}`}
       onMouseDown={(e) => { if (e.button === 2) setIsPanning(true); }}
       onMouseUp={() => setIsPanning(false)}
       onMouseLeave={() => setIsPanning(false)}
     >
+      {builder.recordingSceneId && (
+        <div className="scene-banner scene-banner--recording">
+          <span className="scene-banner__dot" />
+          Grabando escena — haz clic en nodos conectados en orden
+        </div>
+      )}
+      {!builder.recordingSceneId && playingScene && (
+        <div className="scene-banner scene-banner--playing">
+          Reproduciendo: {playingScene.name} ({builder.scenePlaybackIndex + 1}/{playingScene.steps.length})
+        </div>
+      )}
+      {builder.sceneRecordWarning && (
+        <div className="scene-banner scene-banner--warning">{builder.sceneRecordWarning}</div>
+      )}
       <EdgeEditContext.Provider value={edgeEditContext}>
         <ReactFlow
           nodes={builder.nodes}
@@ -93,7 +168,7 @@ export function DiagramCanvas({ builder, sizeMode }: DiagramCanvasProps) {
           onInit={builder.setRfInstance}
           onDrop={builder.onDrop}
           onDragOver={builder.onDragOver}
-          onNodeClick={(_, node) => builder.selectNode(node)}
+          onNodeClick={(_, node) => (builder.recordingSceneId ? builder.recordSceneNode(node.id) : builder.selectNode(node))}
           onEdgeClick={(_, edge) => builder.selectEdge(edge)}
           onEdgeDoubleClick={(_, edge) => builder.openEdgeEditor(edge)}
           onReconnect={builder.onReconnect}

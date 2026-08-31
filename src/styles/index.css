@@ -806,6 +806,259 @@ textarea {
   font-size: 13px;
 }
 
+/* ── Scene panel ── */
+
+.scene-body {
+  padding-top: 12px;
+}
+
+.scene-new-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 9px 12px;
+  margin-bottom: 14px;
+  border: 1px dashed #c7d2fe;
+  border-radius: 9px;
+  background: #eef2ff;
+  color: #4338ca;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.scene-new-btn:hover {
+  background: #e0e7ff;
+  border-color: #a5b4fc;
+}
+
+.scene-row {
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #e8edf3;
+  border-radius: 10px;
+  background: #fafbfd;
+  transition: border-color 150ms ease, background 150ms ease;
+}
+
+.scene-row--recording {
+  border-color: #fca5a5;
+  background: #fef2f2;
+}
+
+.scene-row--playing {
+  border-color: #a5b4fc;
+  background: #eef2ff;
+}
+
+.scene-row__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.scene-row__name {
+  border: none;
+  background: transparent;
+  padding: 2px 4px;
+  margin: -2px -4px;
+  border-radius: 5px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0f172a;
+  cursor: text;
+  text-align: left;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scene-row__name:hover {
+  background: #f1f5f9;
+}
+
+.scene-row__name-input {
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0f172a;
+  border: 1px solid #818cf8;
+  border-radius: 5px;
+  padding: 2px 5px;
+  outline: none;
+  width: 100%;
+  max-width: 160px;
+}
+
+.scene-row__count {
+  flex-shrink: 0;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.scene-steps {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 3px;
+  margin-top: 8px;
+}
+
+.scene-step-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #475569;
+  white-space: nowrap;
+}
+
+.scene-step-chip--current {
+  border-color: #6366f1;
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.scene-step-chip__arrow {
+  color: #cbd5e1;
+  font-weight: 400;
+}
+
+.scene-step-chip__arrow--jump {
+  color: #f59e0b;
+}
+
+.scene-row__actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 9px;
+}
+
+.scene-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.scene-action-btn:hover {
+  background: #f1f5f9;
+}
+
+.scene-action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.scene-action-btn--primary {
+  background: #4338ca;
+  border-color: #4338ca;
+  color: #ffffff;
+}
+
+.scene-action-btn--primary:hover {
+  background: #3730a3;
+}
+
+.scene-action-btn--danger {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #dc2626;
+}
+
+.scene-action-btn--danger:hover {
+  background: #fee2e2;
+}
+
+.scene-playback-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 9px;
+  padding-top: 9px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.scene-loop-toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+}
+
+/* ── Scene banners (canvas overlays) ── */
+
+.scene-banner {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgb(15 23 42 / 0.12);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.scene-banner--recording {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.scene-banner__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ef4444;
+  animation: beacon-breathe 1.4s ease-in-out infinite;
+}
+
+.scene-banner--playing {
+  background: #eef2ff;
+  color: #3730a3;
+  border: 1px solid #c7d2fe;
+}
+
+.scene-banner--warning {
+  top: auto;
+  bottom: 14px;
+  background: #1f2937;
+  color: #ffffff;
+}
+
 .sidebar__inner::-webkit-scrollbar {
   width: 4px;
 }
@@ -1264,16 +1517,23 @@ textarea.form-control {
   animation: handle-in 200ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
-/* Presentation mode: connection points must stay hidden and inert, even on hover. */
+/* Presentation mode (and Scene recording/playback, which can be active on its own):
+   connection points must stay hidden and inert, even on hover. */
 .canvas-shell--presenting .software-node:hover .software-node__handle,
 .canvas-shell--presenting .icon-node:hover .icon-node__handle,
-.canvas-shell--presenting .group-node-outer:hover .group-node__handle {
+.canvas-shell--presenting .group-node-outer:hover .group-node__handle,
+.canvas-shell--scene-active .software-node:hover .software-node__handle,
+.canvas-shell--scene-active .icon-node:hover .icon-node__handle,
+.canvas-shell--scene-active .group-node-outer:hover .group-node__handle {
   opacity: 0 !important;
   animation: none !important;
 }
 .canvas-shell--presenting .software-node__handle,
 .canvas-shell--presenting .icon-node__handle,
-.canvas-shell--presenting .group-node__handle {
+.canvas-shell--presenting .group-node__handle,
+.canvas-shell--scene-active .software-node__handle,
+.canvas-shell--scene-active .icon-node__handle,
+.canvas-shell--scene-active .group-node__handle {
   pointer-events: none !important;
 }
 
@@ -1597,6 +1857,14 @@ textarea.form-control {
   opacity: 0.35;
   pointer-events: none;
   animation: beacon-breathe 1.6s ease-in-out infinite;
+  animation-delay: 0.5s;
+}
+
+/* During Scene playback, play the pulse once and settle instead of breathing forever —
+   matters most at the last step of a scene, where nothing ever removes the beacon class. */
+.software-node--beacon-once::after {
+  animation-iteration-count: 1;
+  animation-delay: 0.5s;
 }
 
 /* Flash on the destination node, timed to when the flow dot (1.8s travel) arrives. */
@@ -1613,6 +1881,12 @@ textarea.form-control {
   opacity: 0;
   pointer-events: none;
   animation: node-arrival-flash 1.8s ease-out infinite;
+  animation-delay: 0.5s;
+}
+
+.software-node--arrival-once::before {
+  animation-iteration-count: 1;
+  animation-delay: 0.5s;
 }
 
 .react-flow__node.selected > div {
@@ -2120,6 +2394,12 @@ textarea.form-control {
   opacity: 0.35;
   pointer-events: none;
   animation: beacon-breathe 1.6s ease-in-out infinite;
+  animation-delay: 0.5s;
+}
+
+.icon-node--beacon-once .icon-node__icon::after {
+  animation-iteration-count: 1;
+  animation-delay: 0.5s;
 }
 
 @keyframes beacon-breathe {
@@ -2137,6 +2417,12 @@ textarea.form-control {
   opacity: 0;
   pointer-events: none;
   animation: node-arrival-flash 1.8s ease-out infinite;
+  animation-delay: 0.5s;
+}
+
+.icon-node--arrival-once .icon-node__icon::before {
+  animation-iteration-count: 1;
+  animation-delay: 0.5s;
 }
 
 @keyframes node-arrival-flash {

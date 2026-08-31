@@ -62,12 +62,12 @@ const kindColors: Record<NodeKind, { color: string; border: string }> = {
 export function IconNodeComponent({ id, data, selected }: NodeProps<IconNode>) {
   const Icon = iconMap[data.icon] ?? ServerIcon;
   const { color, border } = kindColors[data.kind] ?? kindColors[NODE_KINDS.DEFAULT];
-  const { activeNodeIds, arrivalNodeIds } = useContext(EdgeEditContext);
+  const { activeNodeIds, arrivalNodeIds, scenePlaybackActive } = useContext(EdgeEditContext);
   const isBeacon = activeNodeIds.has(id);
   const isArrival = arrivalNodeIds.has(id);
 
   return (
-    <div className={`icon-node${selected ? ' icon-node--selected' : ''}${isBeacon ? ' icon-node--beacon' : ''}${isArrival ? ' icon-node--arrival' : ''}`}>
+    <div className={`icon-node${selected ? ' icon-node--selected' : ''}${isBeacon ? ' icon-node--beacon' : ''}${isBeacon && scenePlaybackActive ? ' icon-node--beacon-once' : ''}${isArrival ? ' icon-node--arrival' : ''}${isArrival && scenePlaybackActive ? ' icon-node--arrival-once' : ''}`}>
       <Handle id="top"    type="source" position={Position.Top}    className="icon-node__handle" />
       <Handle id="right"  type="source" position={Position.Right}  className="icon-node__handle" />
       <Handle id="bottom" type="source" position={Position.Bottom} className="icon-node__handle" />

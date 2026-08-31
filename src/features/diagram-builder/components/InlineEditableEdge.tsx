@@ -1,4 +1,4 @@
-import { memo, useContext, useEffect, useRef, useState } from 'react';
+import { memo, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { BaseEdge, EdgeLabelRenderer, getSmoothStepPath, getStraightPath, Position, useReactFlow, type EdgeProps } from '@xyflow/react';
 import { EdgeEditContext } from './EdgeEditContext';
 import { ANNOTATION_ICON_MAP } from './AnnotationNode';
@@ -22,8 +22,41 @@ export const InlineEditableEdge = memo((props: EdgeProps) => {
     );
   };
 
-  const { editingEdgeId, onCommit, onCancel, activeEdgeIds } = useContext(EdgeEditContext);
+  const { editingEdgeId, onCommit, onCancel, activeEdgeIds, scenePlaybackActive } = useContext(EdgeEditContext);
   const flowAnimated = activeEdgeIds.has(id);
+  const dotAnimRef = useRef<SVGAnimateMotionElement>(null);
+  const [dotFinished, setDotFinished] = useState(false);
+  const wasAnimatedRef = useRef(false);
+
+  // Reset synchronously, during render, whenever a new activation begins — resetting
+  // this in an effect instead would render one frame too late: the circle stays
+  // unmounted under the still-`true` dotFinished from the last lap, so the ref the
+  // effect below needs is still null and beginElement() silently never gets called
+  // (this is exactly what made the dot vanish on a second Play).
+  if (flowAnimated && !wasAnimatedRef.current && dotFinished) {
+    setDotFinished(false);
+  }
+  wasAnimatedRef.current = flowAnimated;
+
+  useLayoutEffect(() => {
+    if (!flowAnimated) return;
+    const el = dotAnimRef.current;
+    if (!el) return;
+    // Scene playback plays the dot once (repeatCount="1") and freezes it at the
+    // target so it doesn't disappear mid-path — but that leaves it visibly sitting
+    // on the destination node for the rest of the step (the node effects now start
+    // 0.5s later and take a while to play out). Hide it as soon as it actually
+    // finishes instead of waiting for the whole step to end.
+    const handleEnd = () => setDotFinished(true);
+    el.addEventListener('endEvent', handleEnd);
+    // Declarative begin="0s" (the default) is relative to the SVG document's own
+    // timeline, not to when this <animateMotion> was actually inserted — a dot
+    // mounted well after page load can start mid-path, or even mid-loop, instead
+    // of at the source. beginElement() forces a clean start at offset 0% the
+    // moment this hop actually becomes active.
+    el.beginElement();
+    return () => el.removeEventListener('endEvent', handleEnd);
+  }, [flowAnimated]);
 
   const edgeStyle = dashed
     ? { ...style, strokeDasharray: '8 5', animation: flowAnimated ? 'edge-flow-dash 0.6s linear infinite' : 'none' }
@@ -83,9 +116,15 @@ export const InlineEditableEdge = memo((props: EdgeProps) => {
   return (
     <>
       <BaseEdge id={id} path={edgePath} markerEnd={markerEnd} style={edgeStyle} />
-      {flowAnimated && (
+      {flowAnimated && !dotFinished && (
         <circle r="3.5" fill={strokeColor} className="edge-flow-dot">
-          <animateMotion dur="1.8s" repeatCount="indefinite">
+          <animateMotion
+            ref={dotAnimRef}
+            dur="1.8s"
+            begin="indefinite"
+            repeatCount={scenePlaybackActive ? '1' : 'indefinite'}
+            fill={scenePlaybackActive ? 'freeze' : 'remove'}
+          >
             <mpath href={`#${id}`} />
           </animateMotion>
         </circle>
