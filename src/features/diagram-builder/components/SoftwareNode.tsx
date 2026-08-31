@@ -1,4 +1,5 @@
 import { useContext } from 'react';
+import { Check } from 'lucide-react';
 import { Handle, Position, type NodeProps } from '@xyflow/react';
 import type { SoftwareNode } from '../types/diagram.types';
 import { iconMap, ServerIcon } from './icons/DiagramIcons';
@@ -10,15 +11,21 @@ type CSSVarProps = React.CSSProperties & { '--cat-border'?: string; '--cat-bg'?:
 export function SoftwareNodeComponent({ id, data, selected }: NodeProps<SoftwareNode>) {
   const Icon = iconMap[data.icon] ?? ServerIcon;
   const style = getKindStyle(data.kind);
-  const { activeNodeIds, arrivalNodeIds, scenePlaybackActive } = useContext(EdgeEditContext);
+  const { activeNodeIds, arrivalNodeIds, scenePlaybackActive, completedNodeIds } = useContext(EdgeEditContext);
   const isBeacon = activeNodeIds.has(id);
   const isArrival = arrivalNodeIds.has(id);
+  const isCompleted = completedNodeIds.has(id);
 
   return (
     <div
       className={`software-node${selected ? ' software-node--selected' : ''}${isBeacon ? ' software-node--beacon' : ''}${isBeacon && scenePlaybackActive ? ' software-node--beacon-once' : ''}${isArrival ? ' software-node--arrival' : ''}${isArrival && scenePlaybackActive ? ' software-node--arrival-once' : ''}`}
       style={{ '--cat-border': style.border, '--cat-bg': style.bg } as CSSVarProps}
     >
+      {isCompleted && (
+        <span className="software-node__check-badge">
+          <Check size={13} strokeWidth={3} />
+        </span>
+      )}
       <Handle id="top-1" type="source" position={Position.Top}    style={{ left: '10%' }} className="software-node__handle" />
       <Handle id="top-2" type="source" position={Position.Top}    style={{ left: '30%' }} className="software-node__handle" />
       <Handle id="top-3" type="source" position={Position.Top}    style={{ left: '50%' }} className="software-node__handle" />

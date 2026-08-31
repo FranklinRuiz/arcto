@@ -1420,6 +1420,7 @@ textarea.form-control {
 }
 
 .software-node {
+  position: relative;
   min-width: var(--node-min-w);
   max-width: var(--node-max-w);
   padding: var(--node-pad-v) var(--node-pad-h);
@@ -1889,6 +1890,30 @@ textarea.form-control {
   animation-delay: 0.5s;
 }
 
+/* Marks a node that has finished sending to every one of its targets in the
+   current Scene playback (see completedNodeIds in DiagramCanvas). Sits inside
+   the node's own frame, bare — no circle or fill — so it reads as a quiet
+   status mark rather than a floating icon. */
+.software-node__check-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 13px;
+  height: 13px;
+  color: #64748b;
+  pointer-events: none;
+  animation: check-badge-pop 280ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes check-badge-pop {
+  0%   { transform: scale(0); }
+  70%  { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
 .react-flow__node.selected > div {
   box-shadow: none !important;
 }
@@ -2346,6 +2371,7 @@ textarea.form-control {
 /* ── Icon node ── */
 
 .icon-node {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2423,6 +2449,20 @@ textarea.form-control {
 .icon-node--arrival-once .icon-node__icon::before {
   animation-iteration-count: 1;
   animation-delay: 0.5s;
+}
+
+.icon-node__check-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 13px;
+  height: 13px;
+  color: #64748b;
+  pointer-events: none;
+  animation: check-badge-pop 280ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @keyframes node-arrival-flash {

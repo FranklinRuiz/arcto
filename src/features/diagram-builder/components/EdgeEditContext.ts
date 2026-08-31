@@ -14,6 +14,8 @@ export interface EdgeEditContextValue {
   presentationMode: boolean;
   /** True while a Scene is auto-playing — beacon/arrival/dot animations play once per step instead of looping, so a node with no further step (e.g. the end of the sequence) settles instead of pulsing forever. */
   scenePlaybackActive: boolean;
+  /** Ids of nodes that have finished sending to every one of their targets in the current Scene playback — these show a "done" checkmark badge. */
+  completedNodeIds: ReadonlySet<string>;
 }
 
 const EMPTY_SET: ReadonlySet<string> = new Set();
@@ -27,4 +29,5 @@ export const EdgeEditContext = createContext<EdgeEditContextValue>({
   arrivalNodeIds: EMPTY_SET,
   presentationMode: false,
   scenePlaybackActive: false,
+  completedNodeIds: EMPTY_SET,
 });

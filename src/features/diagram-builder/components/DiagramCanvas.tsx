@@ -120,6 +120,34 @@ export function DiagramCanvas({ builder, sizeMode }: DiagramCanvasProps) {
 
   const scenePlaybackActive = Boolean(playingScene && playingScene.steps.length > 0);
 
+  // For every node that ever acts as a resolved source in this scene, the index of
+  // the LAST transition it sends on — once playback moves past that transition, that
+  // node has finished sending to every one of its targets and gets a "done" check.
+  const nodeLastSourceIndex = useMemo(() => {
+    const map = new Map<string, number>();
+    if (!playingScene) return map;
+    for (let i = 0; i < playingScene.steps.length - 1; i++) {
+      const targetId = playingScene.steps[i + 1];
+      for (let j = i; j >= 0; j--) {
+        const candidateId = playingScene.steps[j];
+        if (edgeLookup.get(`${candidateId}->${targetId}`)) {
+          map.set(candidateId, i);
+          break;
+        }
+      }
+    }
+    return map;
+  }, [playingScene, edgeLookup]);
+
+  const completedNodeIds = useMemo(() => {
+    if (!playingScene) return EMPTY_SET;
+    const completed = new Set<string>();
+    for (const [nodeId, lastIndex] of nodeLastSourceIndex) {
+      if (builder.scenePlaybackIndex > lastIndex) completed.add(nodeId);
+    }
+    return completed;
+  }, [playingScene, nodeLastSourceIndex, builder.scenePlaybackIndex]);
+
   const edgeEditContext = useMemo(() => ({
     editingEdgeId: builder.editingEdge?.id ?? null,
     onCommit: builder.commitInlineEdgeEdit,
@@ -129,7 +157,8 @@ export function DiagramCanvas({ builder, sizeMode }: DiagramCanvasProps) {
     arrivalNodeIds,
     presentationMode: builder.presentationMode,
     scenePlaybackActive,
-  }), [builder.editingEdge?.id, builder.commitInlineEdgeEdit, builder.closeEdgeEditor, activeNodeIds, activeEdgeIds, arrivalNodeIds, builder.presentationMode, scenePlaybackActive]);
+    completedNodeIds,
+  }), [builder.editingEdge?.id, builder.commitInlineEdgeEdit, builder.closeEdgeEditor, activeNodeIds, activeEdgeIds, arrivalNodeIds, builder.presentationMode, scenePlaybackActive, completedNodeIds]);
 
   const sizeClass = sizeMode !== 'standard' ? `canvas--size-${sizeMode}` : '';
   const sceneActive = Boolean(builder.recordingSceneId || builder.playingSceneId);
