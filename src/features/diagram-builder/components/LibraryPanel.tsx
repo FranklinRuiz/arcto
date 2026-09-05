@@ -51,12 +51,12 @@ const FILTERS: { key: FilterKey; label: string }[] = [
 const FILTER_GROUPS: Record<FilterKey, string[]> = {
   all:          [],
   ai:           ['Inteligencia Artificial'],
-  services:     ['Servicios', 'Actores', 'Presentación'],
+  services:     ['Servicios', 'Actores', 'Presentación', 'Arquitectura'],
   data:         ['Datos'],
   infra:        ['Infraestructura'],
   integration:  ['Integración'],
   observability: ['Observabilidad'],
-  security:     ['Seguridad'],
+  security:     ['Seguridad', 'Riesgo y Cumplimiento'],
 };
 
 function groupMatchesFilter(groupLabel: string, filter: FilterKey): boolean {

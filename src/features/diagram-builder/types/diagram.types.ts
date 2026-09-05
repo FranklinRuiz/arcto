@@ -53,6 +53,11 @@ export const NODE_KINDS = {
   RAG_PIPELINE:     'rag_pipeline',
   GUARDRAILS:       'guardrails',
   AI_WORKFLOW:      'ai_workflow',
+  // Arquitectura y riesgo
+  LAYER:            'layer',
+  BANK:             'bank',
+  TOKENIZATION:     'tokenization',
+  RISK:             'risk',
 } as const;
 
 export type NodeKind = (typeof NODE_KINDS)[keyof typeof NODE_KINDS];

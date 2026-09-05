@@ -100,6 +100,9 @@ const PROTOCOL_BY_TARGET: Partial<Record<NodeKind, string>> = {
   [NODE_KINDS.SECRETS]:         'HTTPS',
   [NODE_KINDS.SECURITY]:        'HTTPS',
   [NODE_KINDS.API_SECURITY]:    'HTTPS',
+  [NODE_KINDS.BANK]:            'SWIFT',  // interbank/correspondent messaging standard
+  [NODE_KINDS.TOKENIZATION]:    'HTTPS',  // token vault API
+  [NODE_KINDS.RISK]:            'HTTPS',  // risk/fraud engine API
 };
 
 /** Suggests a protocol label for a new connection based on the kind of the two nodes it joins. Blank if none is known. */

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { PALETTE } from '../constants/diagram.constants';
-import { NODE_KINDS, type GroupFormData, type LabelFormData, type NodeFormData, type NodeKind, type SoftwareEdge, type SoftwareNode } from '../types/diagram.types';
+import { PALETTE, getKindStyle } from '../constants/diagram.constants';
+import type { GroupFormData, LabelFormData, NodeFormData, NodeKind, SoftwareEdge, SoftwareNode } from '../types/diagram.types';
 import { buildNodeFormFromNode } from '../utils/diagramFactory';
 import { iconMap } from './icons/DiagramIcons';
 
@@ -13,62 +13,6 @@ interface PalettePanelProps {
   liveUpdateLabel: (nodeId: string, patch: Partial<LabelFormData>) => void;
   liveUpdateEdge: (edgeId: string, patch: { label?: string; color?: string; strokeWidth?: number; shape?: 'smooth' | 'straight' }) => void;
 }
-
-
-const KIND_COLORS: Record<NodeKind, { color: string; bg: string }> = {
-  // Core
-  [NODE_KINDS.DEFAULT]:        { color: '#334155', bg: '#f1f5f9' },
-  [NODE_KINDS.USER]:           { color: '#0284c7', bg: '#f0f9ff' },
-  [NODE_KINDS.FRONTEND]:       { color: '#075985', bg: '#e0f2fe' },
-  [NODE_KINDS.MOBILE]:         { color: '#0e7490', bg: '#cffafe' },
-  [NODE_KINDS.GATEWAY]:        { color: '#c2410c', bg: '#ffedd5' },
-  [NODE_KINDS.BACKEND]:        { color: '#5b21b6', bg: '#ede9fe' },
-  [NODE_KINDS.DATABASE]:       { color: '#047857', bg: '#d1fae5' },
-  [NODE_KINDS.CACHE]:          { color: '#6E7A1F', bg: '#F3F4E1' },
-  [NODE_KINDS.QUEUE]:          { color: '#9d174d', bg: '#fce7f3' },
-  [NODE_KINDS.SECURITY]:       { color: '#92400e', bg: '#fef3c7' },
-  [NODE_KINDS.CLOUD]:          { color: '#3730a3', bg: '#e0e7ff' },
-  [NODE_KINDS.EXTERNAL]:       { color: '#475569', bg: '#e2e8f0' },
-  [NODE_KINDS.WORKER]:         { color: '#be123c', bg: '#ffe4e6' },
-  [NODE_KINDS.ONPREMISE]:      { color: '#1e3a8a', bg: '#dbeafe' },
-  [NODE_KINDS.MAINFRAME]:      { color: '#1c1917', bg: '#e7e5e4' },
-  [NODE_KINDS.AI_MODEL]:       { color: '#7c3aed', bg: '#f5f3ff' },
-  [NODE_KINDS.VECTOR_DB]:      { color: '#059669', bg: '#ecfdf5' },
-  [NODE_KINDS.AI_AGENT]:       { color: '#a21caf', bg: '#fdf4ff' },
-  // Integration
-  [NODE_KINDS.EVENT_BUS]:      { color: '#8A6018', bg: '#FBF3DC' },
-  [NODE_KINDS.PUBSUB]:         { color: '#8A6018', bg: '#FBF3DC' },
-  [NODE_KINDS.WEBHOOK]:        { color: '#8A6018', bg: '#FBF3DC' },
-  [NODE_KINDS.ETL]:            { color: '#8A6018', bg: '#FBF3DC' },
-  [NODE_KINDS.SERVICE_MESH]:   { color: '#8A6018', bg: '#FBF3DC' },
-  // Infrastructure
-  [NODE_KINDS.KUBERNETES]:     { color: '#0E6E7C', bg: '#E3F4F5' },
-  [NODE_KINDS.CONTAINER]:      { color: '#0E6E7C', bg: '#E3F4F5' },
-  [NODE_KINDS.LOAD_BALANCER]:  { color: '#0E6E7C', bg: '#E3F4F5' },
-  [NODE_KINDS.CDN]:            { color: '#0E6E7C', bg: '#E3F4F5' },
-  [NODE_KINDS.OBJECT_STORAGE]: { color: '#0E6E7C', bg: '#E3F4F5' },
-  [NODE_KINDS.FILE_STORAGE]:   { color: '#0E6E7C', bg: '#E3F4F5' },
-  // Observability
-  [NODE_KINDS.LOGGING]:        { color: '#7A3A8A', bg: '#F6EEF7' },
-  [NODE_KINDS.METRICS]:        { color: '#7A3A8A', bg: '#F6EEF7' },
-  [NODE_KINDS.MONITORING]:     { color: '#7A3A8A', bg: '#F6EEF7' },
-  [NODE_KINDS.TRACING]:        { color: '#7A3A8A', bg: '#F6EEF7' },
-  [NODE_KINDS.ALERTING]:       { color: '#7A3A8A', bg: '#F6EEF7' },
-  // Security ext
-  [NODE_KINDS.IAM]:            { color: '#9f1239', bg: '#fff1f2' },
-  [NODE_KINDS.OAUTH2]:         { color: '#9f1239', bg: '#fff1f2' },
-  [NODE_KINDS.KEY_VAULT]:      { color: '#9f1239', bg: '#fff1f2' },
-  [NODE_KINDS.SECRETS]:        { color: '#9f1239', bg: '#fff1f2' },
-  [NODE_KINDS.API_SECURITY]:   { color: '#9f1239', bg: '#fff1f2' },
-  // AI extended
-  [NODE_KINDS.MCP_SERVER]:       { color: '#7c3aed', bg: '#f5f3ff' },
-  [NODE_KINDS.AI_TOOL]:          { color: '#7c3aed', bg: '#f5f3ff' },
-  [NODE_KINDS.PROMPT_TEMPLATE]:  { color: '#7c3aed', bg: '#f5f3ff' },
-  [NODE_KINDS.KNOWLEDGE_BASE]:   { color: '#7c3aed', bg: '#f5f3ff' },
-  [NODE_KINDS.RAG_PIPELINE]:     { color: '#7c3aed', bg: '#f5f3ff' },
-  [NODE_KINDS.GUARDRAILS]:       { color: '#7c3aed', bg: '#f5f3ff' },
-  [NODE_KINDS.AI_WORKFLOW]:      { color: '#7c3aed', bg: '#f5f3ff' },
-};
 
 const PRESET_COLORS = [
   { value: '#5B6472', label: 'Gris' },
@@ -467,7 +411,7 @@ function NodePropertiesPanel({
     onLiveUpdate(node.id, { [field]: value } as Partial<NodeFormData>);
   };
 
-  const c = KIND_COLORS[form.kind];
+  const c = getKindStyle(form.kind);
   const KindIcon = iconMap[form.kind];
 
   return (

@@ -1,80 +1,83 @@
 import { MarkerType } from '@xyflow/react';
 import { NODE_KINDS, type NodeKind, type PaletteItem, type SoftwareEdge, type SoftwareNode } from '../types/diagram.types';
 
-export type NodeCategory =
-  | 'ai' | 'data' | 'cache' | 'services' | 'presentation' | 'actors'
-  | 'integration' | 'infra' | 'observability' | 'security_ext';
+// 6 categorías — tono fijado por categoría, no por nodo (dos nodos de
+// "compute" comparten azul aunque tengan íconos distintos). Colores
+// derivados 1:1 de los oklch(L C H) del set de íconos: compute=250,
+// data=160, messaging=285, observability=70, security=25, ai=340.
+export type NodeCategory = 'compute' | 'data' | 'messaging' | 'observability' | 'security' | 'ai';
 
 export const CATEGORY_STYLES: Record<NodeCategory, { bg: string; color: string; border: string }> = {
-  ai:            { bg: '#EEEDFE', color: '#534AB7', border: '#AFA9EC' },
-  data:          { bg: '#E1F5EE', color: '#0F6E56', border: '#5DCAA5' },
-  cache:         { bg: '#F3F4E1', color: '#6E7A1F', border: '#C9D08A' },
-  services:      { bg: '#FAECE7', color: '#993C1D', border: '#E8AD94' },
-  presentation:  { bg: '#E6F1FB', color: '#185FA5', border: '#85B7EB' },
-  actors:        { bg: '#F1EFE8', color: '#5F5E5A', border: '#B4B2A9' },
-  integration:   { bg: '#FBF3DC', color: '#8A6018', border: '#E0BE72' },
-  infra:         { bg: '#E3F4F5', color: '#0E6E7C', border: '#7FC7D0' },
-  observability: { bg: '#F6EEF7', color: '#7A3A8A', border: '#D3AEDD' },
-  security_ext:  { bg: '#FFF1F2', color: '#9F1239', border: '#FDA4AF' },
+  compute:       { bg: '#E7F3FF', color: '#32669A', border: '#A7C8EA' },
+  data:          { bg: '#E6F7ED', color: '#1F744F', border: '#A3D1B7' },
+  messaging:     { bg: '#F0F0FF', color: '#5E5A9A', border: '#BFBFEA' },
+  observability: { bg: '#FCF0E2', color: '#875814', border: '#DEBE9A' },
+  security:      { bg: '#FFEDEA', color: '#944A46', border: '#E9B6B1' },
+  ai:            { bg: '#FDECF6', color: '#884B75', border: '#E0B6D0' },
 };
 
 export const KIND_CATEGORY: Record<NodeKind, NodeCategory> = {
-  // Core
-  [NODE_KINDS.AI_MODEL]:       'ai',
-  [NODE_KINDS.AI_AGENT]:       'ai',
-  [NODE_KINDS.VECTOR_DB]:      'data',
+  // Cómputo y clientes
+  [NODE_KINDS.DEFAULT]:        'compute',
+  [NODE_KINDS.USER]:           'compute',
+  [NODE_KINDS.FRONTEND]:       'compute',
+  [NODE_KINDS.MOBILE]:         'compute',
+  [NODE_KINDS.GATEWAY]:        'compute',
+  [NODE_KINDS.BACKEND]:        'compute',
+  [NODE_KINDS.WORKER]:         'compute',
+  [NODE_KINDS.CONTAINER]:      'compute',
+  [NODE_KINDS.KUBERNETES]:     'compute',
+  [NODE_KINDS.ONPREMISE]:      'compute',
+  [NODE_KINDS.MAINFRAME]:      'compute',
+  [NODE_KINDS.CLOUD]:          'compute',
+  [NODE_KINDS.EXTERNAL]:       'compute',
+  [NODE_KINDS.LOAD_BALANCER]:  'compute',
+  [NODE_KINDS.CDN]:            'compute',
+  [NODE_KINDS.SERVICE_MESH]:   'compute',
+  // Datos y almacenamiento
   [NODE_KINDS.DATABASE]:       'data',
-  [NODE_KINDS.CACHE]:          'cache',
-  [NODE_KINDS.GATEWAY]:        'services',
-  [NODE_KINDS.BACKEND]:        'services',
-  [NODE_KINDS.WORKER]:         'services',
-  [NODE_KINDS.QUEUE]:          'services',
-  [NODE_KINDS.MAINFRAME]:      'services',
-  [NODE_KINDS.ONPREMISE]:      'services',
-  [NODE_KINDS.CLOUD]:          'services',
-  [NODE_KINDS.SECURITY]:       'services',
-  [NODE_KINDS.FRONTEND]:       'presentation',
-  [NODE_KINDS.MOBILE]:         'presentation',
-  [NODE_KINDS.USER]:           'actors',
-  [NODE_KINDS.EXTERNAL]:       'actors',
-  [NODE_KINDS.DEFAULT]:        'actors',
-  // Integration
-  [NODE_KINDS.EVENT_BUS]:      'integration',
-  [NODE_KINDS.PUBSUB]:         'integration',
-  [NODE_KINDS.WEBHOOK]:        'integration',
-  [NODE_KINDS.ETL]:            'integration',
-  [NODE_KINDS.SERVICE_MESH]:   'integration',
-  // Infrastructure
-  [NODE_KINDS.KUBERNETES]:     'infra',
-  [NODE_KINDS.CONTAINER]:      'infra',
-  [NODE_KINDS.LOAD_BALANCER]:  'infra',
-  [NODE_KINDS.CDN]:            'infra',
-  [NODE_KINDS.OBJECT_STORAGE]: 'infra',
-  [NODE_KINDS.FILE_STORAGE]:   'infra',
-  // Observability
+  [NODE_KINDS.CACHE]:          'data',
+  [NODE_KINDS.QUEUE]:          'data',
+  [NODE_KINDS.OBJECT_STORAGE]: 'data',
+  [NODE_KINDS.FILE_STORAGE]:   'data',
+  [NODE_KINDS.VECTOR_DB]:      'data',
+  [NODE_KINDS.ETL]:            'data',
+  [NODE_KINDS.KNOWLEDGE_BASE]: 'data',
+  [NODE_KINDS.METRICS]:        'data',
+  // Mensajería e integración
+  [NODE_KINDS.EVENT_BUS]:      'messaging',
+  [NODE_KINDS.PUBSUB]:         'messaging',
+  [NODE_KINDS.WEBHOOK]:        'messaging',
+  [NODE_KINDS.MCP_SERVER]:     'messaging',
+  [NODE_KINDS.GUARDRAILS]:     'messaging',
+  // Observabilidad
   [NODE_KINDS.LOGGING]:        'observability',
-  [NODE_KINDS.METRICS]:        'observability',
   [NODE_KINDS.MONITORING]:     'observability',
   [NODE_KINDS.TRACING]:        'observability',
   [NODE_KINDS.ALERTING]:       'observability',
-  // Security ext
-  [NODE_KINDS.IAM]:            'security_ext',
-  [NODE_KINDS.OAUTH2]:         'security_ext',
-  [NODE_KINDS.KEY_VAULT]:      'security_ext',
-  [NODE_KINDS.SECRETS]:        'security_ext',
-  [NODE_KINDS.API_SECURITY]:   'security_ext',
-  // AI extended
-  [NODE_KINDS.MCP_SERVER]:       'ai',
-  [NODE_KINDS.AI_TOOL]:          'ai',
-  [NODE_KINDS.PROMPT_TEMPLATE]:  'ai',
-  [NODE_KINDS.KNOWLEDGE_BASE]:   'ai',
-  [NODE_KINDS.RAG_PIPELINE]:     'ai',
-  [NODE_KINDS.GUARDRAILS]:       'ai',
-  [NODE_KINDS.AI_WORKFLOW]:      'ai',
+  // Seguridad e identidad
+  [NODE_KINDS.SECURITY]:       'security',
+  [NODE_KINDS.API_SECURITY]:   'security',
+  [NODE_KINDS.IAM]:            'security',
+  [NODE_KINDS.OAUTH2]:         'security',
+  [NODE_KINDS.KEY_VAULT]:      'security',
+  [NODE_KINDS.SECRETS]:        'security',
+  [NODE_KINDS.TOKENIZATION]:   'security',
+  [NODE_KINDS.RISK]:           'security',
+  // IA
+  [NODE_KINDS.AI_MODEL]:        'ai',
+  [NODE_KINDS.AI_AGENT]:        'ai',
+  [NODE_KINDS.AI_TOOL]:         'ai',
+  [NODE_KINDS.PROMPT_TEMPLATE]: 'ai',
+  [NODE_KINDS.RAG_PIPELINE]:    'ai',
+  [NODE_KINDS.AI_WORKFLOW]:     'ai',
+  // Arquitectura (agrupado con Cómputo, mismo tono azul en el set de íconos)
+  [NODE_KINDS.LAYER]:          'compute',
+  [NODE_KINDS.BANK]:           'compute',
 };
 
 export function getKindStyle(kind: NodeKind): { bg: string; color: string; border: string } {
-  return CATEGORY_STYLES[KIND_CATEGORY[kind] ?? 'actors'];
+  return CATEGORY_STYLES[KIND_CATEGORY[kind] ?? 'compute'];
 }
 
 interface PaletteGroup {
@@ -364,6 +367,31 @@ export const PALETTE: PaletteItem[] = [
     subtitle: 'Orquestación · DAG',
     description: 'Flujo de trabajo orquestado de pasos de IA: retrieval, razonamiento, generación y acciones.',
   },
+  // Arquitectura y riesgo
+  {
+    type: NODE_KINDS.LAYER,
+    label: 'Capa Arquitectónica',
+    subtitle: 'Presentación · Negocio · Datos',
+    description: 'Marcador visual de una capa lógica de la arquitectura para agrupar componentes por responsabilidad.',
+  },
+  {
+    type: NODE_KINDS.BANK,
+    label: 'Banco / Entidad Financiera',
+    subtitle: 'Core bancario · Contraparte',
+    description: 'Entidad bancaria o institución financiera representada como bloque de dominio: banco emisor, corresponsal o regulador.',
+  },
+  {
+    type: NODE_KINDS.TOKENIZATION,
+    label: 'Tokenización',
+    subtitle: 'PCI DSS · Token Vault',
+    description: 'Servicio que sustituye datos sensibles de tarjeta o cuenta por tokens no reversibles, reduciendo el alcance PCI DSS.',
+  },
+  {
+    type: NODE_KINDS.RISK,
+    label: 'Motor de Riesgo',
+    subtitle: 'Scoring · Antifraude',
+    description: 'Motor de evaluación de riesgo crediticio o antifraude que califica transacciones u operaciones en tiempo real.',
+  },
 ];
 
 const paletteMap = new Map(PALETTE.map((p) => [p.type, p]));
@@ -405,6 +433,14 @@ export const PALETTE_GROUPS: PaletteGroup[] = [
   {
     label: 'Inteligencia Artificial',
     items: [pick('AI_MODEL'), pick('AI_AGENT'), pick('MCP_SERVER'), pick('AI_TOOL'), pick('PROMPT_TEMPLATE'), pick('KNOWLEDGE_BASE'), pick('RAG_PIPELINE'), pick('GUARDRAILS'), pick('AI_WORKFLOW')],
+  },
+  {
+    label: 'Arquitectura',
+    items: [pick('LAYER'), pick('BANK')],
+  },
+  {
+    label: 'Riesgo y Cumplimiento',
+    items: [pick('TOKENIZATION'), pick('RISK')],
   },
 ];
 
