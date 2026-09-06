@@ -27,7 +27,7 @@ export function DiagramBuilderPage() {
   const isWide = useIsWide();
   const [isPropertiesOpen, setIsPropertiesOpen] = useState(false);
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
-  const [isSceneCollapsed, setIsSceneCollapsed] = useState(false);
+  const [isSceneCollapsed, setIsSceneCollapsed] = useState(true);
   const [diagramTitle, setDiagramTitle] = useState(() => {
     try { return localStorage.getItem(TITLE_STORAGE_KEY) || 'Arquitectura sin título'; } catch { return 'Arquitectura sin título'; }
   });
