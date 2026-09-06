@@ -806,10 +806,120 @@ textarea {
   font-size: 13px;
 }
 
-/* ── Scene panel ── */
+/* ── Scene dock ── */
+/* Anchored to the bottom of the canvas instead of a right-hand sidebar, so it
+   never reduces or covers the diagram's width — only a strip of height at
+   the very bottom, which the user can also collapse. */
 
-.scene-body {
-  padding-top: 12px;
+.scene-dock {
+  position: absolute;
+  left: 60px; /* clears the react-flow zoom/fit-view controls docked bottom-left */
+  right: 60px;
+  bottom: 10px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  max-height: 320px;
+  background: #ffffff;
+  border: 1px solid #e8edf3;
+  border-radius: 14px;
+  box-shadow: 0 10px 32px rgb(15 23 42 / 0.12);
+  overflow: hidden;
+  transform: translateY(0);
+  transition: transform 220ms cubic-bezier(0.4, 0, 0.2, 1), opacity 180ms ease, box-shadow 150ms ease;
+}
+
+.scene-dock--hidden {
+  transform: translateY(calc(100% + 24px));
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Only cap and center on very large screens — same compensation a web page's
+   content container applies once it has more room than it needs. Normal
+   desktop widths keep the dock spanning the full canvas. */
+@media (min-width: 1600px) {
+  .scene-dock {
+    left: 50%;
+    right: auto;
+    width: min(1200px, calc(100% - 48px));
+    transform: translateX(-50%);
+  }
+
+  .scene-dock--hidden {
+    transform: translate(-50%, calc(100% + 24px));
+  }
+}
+
+.scene-dock__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 26px;
+  padding: 5px 10px 5px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  flex-shrink: 0;
+}
+
+.scene-dock__header .library-header__title {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  line-height: 1;
+}
+
+.scene-dock__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.scene-dock__close {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 7px;
+  background: #f1f5f9;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.scene-dock__close:hover {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.scene-dock__body {
+  display: flex;
+  flex-direction: column;
+  padding: 0 12px 6px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.scene-dock__body::-webkit-scrollbar { width: 6px; }
+.scene-dock__body::-webkit-scrollbar-track { background: transparent; }
+.scene-dock__body::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 99px; }
+.scene-dock__body::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+
+.scene-dock__empty {
+  padding: 20px 4px;
+}
+
+.scene-new-btn--compact {
+  width: auto;
+  height: 26px;
+  margin-bottom: 0;
+  padding: 0 10px;
+  font-size: 11.5px;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .scene-new-btn {
@@ -819,7 +929,6 @@ textarea {
   gap: 6px;
   width: 100%;
   padding: 9px 12px;
-  margin-bottom: 14px;
   border: 1px dashed #c7d2fe;
   border-radius: 9px;
   background: #eef2ff;
@@ -836,32 +945,79 @@ textarea {
 }
 
 .scene-row {
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #e8edf3;
-  border-radius: 10px;
-  background: #fafbfd;
-  transition: border-color 150ms ease, background 150ms ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 4px;
+  border-bottom: 1px solid #f1f5f9;
+  box-shadow: inset 3px 0 0 0 transparent;
+  transition: box-shadow 150ms ease;
+}
+
+.scene-row:last-child {
+  border-bottom: none;
 }
 
 .scene-row--recording {
-  border-color: #fca5a5;
-  background: #fef2f2;
+  box-shadow: inset 3px 0 0 0 #ef4444;
 }
 
 .scene-row--playing {
-  border-color: #a5b4fc;
-  background: #eef2ff;
+  box-shadow: inset 3px 0 0 0 #6366f1;
+}
+
+.scene-row__content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
 }
 
 .scene-row__header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
 }
 
+.scene-row__primary-btn {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 50%;
+  background: #eef2ff;
+  color: #4338ca;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.scene-row__primary-btn:hover:not(:disabled) {
+  background: #e0e7ff;
+}
+
+.scene-row__primary-btn:disabled {
+  background: #f1f5f9;
+  color: #cbd5e1;
+  cursor: default;
+}
+
+.scene-row__primary-btn--recording {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.scene-row__primary-btn--playing {
+  background: #4338ca;
+  color: #ffffff;
+}
+
 .scene-row__name {
+  flex: 1;
+  min-width: 0;
   border: none;
   background: transparent;
   padding: 2px 4px;
@@ -872,7 +1028,6 @@ textarea {
   color: #0f172a;
   cursor: text;
   text-align: left;
-  max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -883,6 +1038,8 @@ textarea {
 }
 
 .scene-row__name-input {
+  flex: 1;
+  min-width: 0;
   font: inherit;
   font-size: 12.5px;
   font-weight: 700;
@@ -891,8 +1048,6 @@ textarea {
   border-radius: 5px;
   padding: 2px 5px;
   outline: none;
-  width: 100%;
-  max-width: 160px;
 }
 
 .scene-row__count {
@@ -903,13 +1058,62 @@ textarea {
   white-space: nowrap;
 }
 
+.scene-row__actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.scene-icon-btn {
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.scene-icon-btn:hover:not(:disabled) {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.scene-icon-btn:disabled {
+  color: #cbd5e1;
+  cursor: default;
+}
+
+.scene-icon-btn--active {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.scene-icon-btn--danger {
+  color: #b91c1c;
+}
+
+.scene-icon-btn--danger:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
 .scene-steps {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 3px;
-  margin-top: 8px;
+  overflow-x: auto;
 }
+
+.scene-steps::-webkit-scrollbar { height: 4px; }
+.scene-steps::-webkit-scrollbar-track { background: transparent; }
+.scene-steps::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 99px; }
 
 .scene-step-chip {
   display: inline-flex;
@@ -923,6 +1127,7 @@ textarea {
   font-weight: 600;
   color: #475569;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .scene-step-chip--current {
@@ -932,84 +1137,13 @@ textarea {
 }
 
 .scene-step-chip__arrow {
+  display: inline-flex;
+  align-items: center;
   color: #cbd5e1;
-  font-weight: 400;
 }
 
 .scene-step-chip__arrow--jump {
   color: #f59e0b;
-}
-
-.scene-row__actions {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  margin-top: 9px;
-}
-
-.scene-action-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  height: 24px;
-  padding: 0 8px;
-  border: 1px solid #e2e8f0;
-  border-radius: 7px;
-  background: #ffffff;
-  color: #475569;
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
-}
-
-.scene-action-btn:hover {
-  background: #f1f5f9;
-}
-
-.scene-action-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.scene-action-btn--primary {
-  background: #4338ca;
-  border-color: #4338ca;
-  color: #ffffff;
-}
-
-.scene-action-btn--primary:hover {
-  background: #3730a3;
-}
-
-.scene-action-btn--danger {
-  background: #fef2f2;
-  border-color: #fecaca;
-  color: #dc2626;
-}
-
-.scene-action-btn--danger:hover {
-  background: #fee2e2;
-}
-
-.scene-playback-controls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-top: 9px;
-  padding-top: 9px;
-  border-top: 1px solid #e2e8f0;
-}
-
-.scene-loop-toggle {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 10.5px;
-  font-weight: 600;
-  color: #64748b;
-  cursor: pointer;
 }
 
 /* ── Scene banners (canvas overlays) ── */
@@ -3273,6 +3407,14 @@ textarea.form-control {
 
   .library-panel--collapsed {
     transform: translateX(100%);
+  }
+
+  /* Scene dock: same bottom-anchored layout, tighter insets */
+  .scene-dock {
+    left: 56px;
+    right: 56px;
+    bottom: 8px;
+    max-height: 45vh;
   }
 }
 

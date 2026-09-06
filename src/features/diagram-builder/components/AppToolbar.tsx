@@ -258,7 +258,7 @@ export function AppToolbar({
           type="button"
           onClick={onToggleScene}
           className={`header-btn${isSceneOpen ? ' header-btn--active' : ''}`}
-          title={isSceneOpen ? 'Cerrar escenas' : 'Escenas: anima una secuencia de nodos en el orden que definas'}
+          title={isSceneOpen ? 'Ocultar escenas' : 'Escenas: anima una secuencia de nodos en el orden que definas'}
         >
           <Video size={15} />
         </button>
@@ -285,12 +285,12 @@ export function AppToolbar({
         {/* File actions */}
         <label
           className="header-btn-label"
-          title={presentationMode ? 'Importar deshabilitado en modo presentación' : 'Importar diagrama desde JSON'}
+          title={presentationMode ? 'Importar deshabilitado en modo presentación' : 'Importar diagrama (.arcto)'}
           style={presentationMode ? { opacity: 0.45, pointerEvents: 'none' } : undefined}
         >
           <Upload size={14} />
           <span>Importar</span>
-          <input type="file" accept="application/json" className="visually-hidden" onChange={importJson} disabled={presentationMode} />
+          <input type="file" accept=".arcto,.json,application/json" className="visually-hidden" onChange={importJson} disabled={presentationMode} />
         </label>
         <div className="app-header__more-wrap" ref={exportWrapRef}>
           <button
@@ -312,7 +312,7 @@ export function AppToolbar({
                 className="more-menu-item"
               >
                 <FileJson size={14} />
-                <span>Exportar como JSON</span>
+                <span>Exportar como .arcto</span>
               </button>
               <button
                 type="button"

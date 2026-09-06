@@ -709,7 +709,7 @@ export function useDiagramBuilder() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${safeFilename}.json`;
+    link.download = `${safeFilename}.arcto`;
     link.click();
     URL.revokeObjectURL(url);
   }, [nodes, edges, scenes]);
