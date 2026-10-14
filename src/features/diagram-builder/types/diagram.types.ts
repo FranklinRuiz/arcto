@@ -121,7 +121,7 @@ export interface EdgeAnnotationData {
   color: string;
   bg: string;
 }
-export type SoftwareEdge = Edge<{ dashed?: boolean; shape?: EdgeShape; annotations?: EdgeAnnotationData[] }>;
+export type SoftwareEdge = Edge<{ dashed?: boolean; shape?: EdgeShape; annotations?: EdgeAnnotationData[]; c4?: boolean; technology?: string }>;
 
 export interface TextNodeData extends Record<string, unknown> {
   text: string;
@@ -156,7 +156,45 @@ export interface AnnotationNodeData extends Record<string, unknown> {
 }
 export type AnnotationNode = Node<AnnotationNodeData, 'annotationNode'>;
 
-export type DiagramNode = SoftwareNode | TextNode | IconNode | GroupNode | LabelNode | AnnotationNode;
+// ── C4 model (c4model.com notation) ──
+export type C4Shape = 'box' | 'person' | 'browser' | 'shell' | 'folder' | 'cylinder' | 'bucket' | 'component' | 'ellipse';
+
+export interface C4NodeData extends Record<string, unknown> {
+  label: string;
+  /** Element type shown in brackets, e.g. "Software System", "Container". */
+  c4Type: string;
+  technology: string;
+  description: string;
+  shape: C4Shape;
+  color: string;
+}
+export type C4Node = Node<C4NodeData, 'c4Node'>;
+
+export type C4BoundaryVariant = 'boundary' | 'deployment' | 'group';
+
+export interface C4BoundaryData extends Record<string, unknown> {
+  label: string;
+  c4Type: string;
+  technology: string;
+  variant: C4BoundaryVariant;
+  color: string;
+  /** Deployment nodes only, e.g. "x1..10". Non-empty draws the stacked outline. */
+  instances: string;
+}
+export type C4BoundaryNode = Node<C4BoundaryData, 'c4Boundary'>;
+
+export interface C4PaletteEntry {
+  id: string;
+  label: string;
+  subtitle: string;
+  group: 'Elementos' | 'Límites';
+  node?: C4NodeData;
+  boundary?: C4BoundaryData;
+}
+
+export type C4PalettePayload = { __isC4: true; id: string };
+
+export type DiagramNode = SoftwareNode | TextNode | IconNode | GroupNode | LabelNode | AnnotationNode | C4Node | C4BoundaryNode;
 
 export interface Scene {
   id: string;

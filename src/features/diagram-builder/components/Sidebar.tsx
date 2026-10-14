@@ -1,4 +1,4 @@
-import type { GroupFormData, LabelFormData, NodeFormData, SoftwareEdge, SoftwareNode } from '../types/diagram.types';
+import type { C4BoundaryData, C4NodeData, GroupFormData, LabelFormData, NodeFormData, SoftwareEdge, SoftwareNode } from '../types/diagram.types';
 import { PalettePanel } from './PalettePanel';
 
 interface SidebarProps {
@@ -9,10 +9,11 @@ interface SidebarProps {
   liveUpdateNode: (nodeId: string, patch: Partial<NodeFormData>) => void;
   liveUpdateGroup: (nodeId: string, patch: Partial<GroupFormData>) => void;
   liveUpdateLabel: (nodeId: string, patch: Partial<LabelFormData>) => void;
-  liveUpdateEdge: (edgeId: string, patch: { label?: string; color?: string; strokeWidth?: number; shape?: 'smooth' | 'straight' }) => void;
+  liveUpdateC4: (nodeId: string, patch: Partial<C4NodeData> | Partial<C4BoundaryData>) => void;
+  liveUpdateEdge: (edgeId: string, patch: { label?: string; technology?: string; color?: string; strokeWidth?: number; shape?: 'smooth' | 'straight' }) => void;
 }
 
-export function Sidebar({ isOpen, selectedNode, selectedEdge, toggleEdgeAsync, liveUpdateNode, liveUpdateGroup, liveUpdateLabel, liveUpdateEdge }: SidebarProps) {
+export function Sidebar({ isOpen, selectedNode, selectedEdge, toggleEdgeAsync, liveUpdateNode, liveUpdateGroup, liveUpdateLabel, liveUpdateC4, liveUpdateEdge }: SidebarProps) {
   return (
     <aside className={`sidebar${isOpen ? '' : ' sidebar--collapsed'}`}>
       <div className="sidebar__inner">
@@ -23,6 +24,7 @@ export function Sidebar({ isOpen, selectedNode, selectedEdge, toggleEdgeAsync, l
           liveUpdateNode={liveUpdateNode}
           liveUpdateGroup={liveUpdateGroup}
           liveUpdateLabel={liveUpdateLabel}
+          liveUpdateC4={liveUpdateC4}
           liveUpdateEdge={liveUpdateEdge}
         />
       </div>

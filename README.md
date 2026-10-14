@@ -1,6 +1,6 @@
 # Arcto — Architecture Diagrams
 
-> Herramienta web open source para diseñar diagramas de arquitectura de software de forma visual e interactiva.
+> Herramienta web open source para diseñar diagramas de arquitectura de software de forma visual e interactiva, incluidos diagramas con el modelo C4.
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)](https://react.dev)
@@ -19,6 +19,7 @@
 
 - [¿Qué es Arcto?](#qué-es-arcto)
 - [Características](#características)
+  - [Diagramas C4](#diagramas-c4)
 - [Stack](#stack)
 - [Desarrollo local](#desarrollo-local)
 - [Estructura del proyecto](#estructura-del-proyecto)
@@ -31,6 +32,8 @@
 ## ¿Qué es Arcto?
 
 Arcto es un editor de diagramas de arquitectura que corre completamente en el navegador — sin backend, sin cuenta, sin instalación. Diseña la arquitectura de tu sistema arrastrando componentes al lienzo, conectándolos y exportando el resultado como JSON o imagen para compartirlo con tu equipo.
+
+También puedes dibujar los seis diagramas del [modelo C4](https://c4model.com/diagrams) (System Context, Container, Component, System Landscape, Dynamic y Deployment) con la misma notación que usa su documentación.
 
 ---
 
@@ -54,6 +57,26 @@ Arcto es un editor de diagramas de arquitectura que corre completamente en el na
 Además: **contenedores de dominio** (para agrupar y delimitar zonas/capas del diagrama) y **anotaciones** (texto libre, etiquetas).
 
 ![Panel de elementos con búsqueda y filtros por categoría](docs/element.png)
+
+### Diagramas C4
+El filtro **C4** del panel de elementos reúne las piezas para dibujar los seis diagramas del [modelo C4](https://c4model.com/diagrams) con la notación de c4model.com: fondo blanco, contorno y texto del color del elemento, y relaciones grises discontinuas.
+
+![Container diagram C4 hecho en Arcto, con el filtro C4 del panel de elementos abierto](docs/c4.png)
+
+| Grupo | Elementos |
+|---|---|
+| C4 · Elementos | Persona, Sistema de software, Contenedor, Navegador, Terminal, Carpeta, Base de datos, Bucket, Componente, Nodo de infraestructura |
+| C4 · Límites | Límite de sistema, Límite de contenedor, Nodo de despliegue, Grupo |
+
+- Cada elemento muestra **nombre**, **`[Tipo: tecnología]`** y **descripción**, editables desde el panel de propiedades junto con el color.
+- Los elementos tienen tamaño fijo; los límites, nodos de despliegue y grupos se redimensionan para envolver a otros elementos.
+- El nodo de despliegue acepta **instancias** (p. ej. `x1..10`) y dibuja el contorno apilado.
+- Cualquier conexión que toque un elemento C4 se crea como **relación C4**: recta, gris y discontinua, con descripción y `[tecnología]` sobre la línea. En los diagramas dinámicos, numera los pasos en la descripción (`1: Submits credentials to`).
+
+Diagramas de ejemplo listos para **Importar**:
+
+- [`docs/examples/c4-container-diagram.json`](docs/examples/c4-container-diagram.json): Container View del Internet Banking System
+- [`docs/examples/c4-component-diagram.json`](docs/examples/c4-component-diagram.json): Component View del Backend
 
 ### Lienzo interactivo
 - Arrastrar y soltar elementos desde la paleta
@@ -139,9 +162,12 @@ src/
 ├── features/
 │   └── diagram-builder/
 │       ├── components/
+│       │   ├── c4/C4ShapeSvg.tsx        # formas C4 (persona, cilindro, navegador…)
 │       │   ├── icons/DiagramIcons.tsx   # todos los SVG del proyecto
 │       │   ├── AnnotationNode.tsx
 │       │   ├── AppToolbar.tsx
+│       │   ├── C4BoundaryNode.tsx       # límites, nodos de despliegue y grupos C4
+│       │   ├── C4Node.tsx               # elementos C4
 │       │   ├── DiagramCanvas.tsx
 │       │   ├── EdgeEditContext.ts
 │       │   ├── GroupNode.tsx            # contenedores de dominio
@@ -153,7 +179,9 @@ src/
 │       │   ├── Sidebar.tsx
 │       │   ├── SoftwareNode.tsx
 │       │   └── TextNode.tsx
-│       ├── constants/diagram.constants.ts
+│       ├── constants/
+│       │   ├── c4.constants.ts          # paleta y colores C4
+│       │   └── diagram.constants.ts
 │       ├── hooks/useDiagramBuilder.ts   # lógica central del editor
 │       ├── pages/DiagramBuilderPage.tsx
 │       ├── types/diagram.types.ts
@@ -161,6 +189,7 @@ src/
 │       │   ├── diagramFactory.ts        # creación de nodos/edges + inferencia de protocolo
 │       │   └── diagramValidation.ts
 │       └── __tests__/
+│           ├── c4.test.ts
 │           ├── diagramFactory.test.ts
 │           └── diagramValidation.test.ts
 └── styles/index.css

@@ -11,6 +11,8 @@ export const InlineEditableEdge = memo((props: EdgeProps) => {
   const { setEdges } = useReactFlow();
   const dashed = Boolean((data as Record<string, unknown>)?.dashed);
   const annotations = ((data as Record<string, unknown>)?.annotations ?? []) as EdgeAnnotationData[];
+  const isC4 = Boolean((data as Record<string, unknown>)?.c4);
+  const technology = isC4 ? String((data as Record<string, unknown>)?.technology ?? '').trim() : '';
 
   const removeAnnotation = (annotationId: string) => {
     setEdges((current) =>
@@ -149,16 +151,19 @@ export const InlineEditableEdge = memo((props: EdgeProps) => {
               style={{ width: inputWidth }}
             />
           </div>
-        ) : label ? (
+        ) : label || technology ? (
           <div
-            className="edge-label-display"
+            className={`edge-label-display${isC4 ? ' edge-label-display--c4' : ''}`}
             style={{
               position: 'absolute',
-              transform: `translate(-50%, calc(-50% - 10px)) translate(${labelX}px, ${labelY}px)`,
+              transform: isC4
+                ? `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`
+                : `translate(-50%, calc(-50% - 10px)) translate(${labelX}px, ${labelY}px)`,
               pointerEvents: 'none',
             }}
           >
-            {String(label)}
+            {label ? String(label) : null}
+            {technology && <span className="edge-label-display__tech">[{technology}]</span>}
           </div>
         ) : null}
 

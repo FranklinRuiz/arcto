@@ -9,8 +9,11 @@ import { IconNodeComponent } from '../components/IconNode';
 import { GroupNodeComponent } from '../components/GroupNode';
 import { LabelNodeComponent } from '../components/LabelNode';
 import { AnnotationNodeComponent } from '../components/AnnotationNode';
-import { NODE_KINDS, type AlignAxis, type EdgeFormData, type GroupFormData, type LabelFormData, type NodeFormData, type PaletteItem, type Scene, type SoftwareEdge, type SoftwareNode, type TextNodeData } from '../types/diagram.types';
-import { createAnimatedEdge, createAnnotationNode, createGroupNode, createIconNode, createLabelNode, createNode, normalizeNodeData } from '../utils/diagramFactory';
+import { C4NodeComponent } from '../components/C4Node';
+import { C4BoundaryNodeComponent } from '../components/C4BoundaryNode';
+import { findC4Entry } from '../constants/c4.constants';
+import { NODE_KINDS, type AlignAxis, type C4BoundaryData, type C4NodeData, type C4PalettePayload, type EdgeFormData, type GroupFormData, type LabelFormData, type NodeFormData, type PaletteItem, type Scene, type SoftwareEdge, type SoftwareNode, type TextNodeData } from '../types/diagram.types';
+import { createAnimatedEdge, createAnnotationNode, createC4Boundary, createC4Edge, createC4Node, createGroupNode, createIconNode, createLabelNode, createNode, normalizeNodeData } from '../utils/diagramFactory';
 import { isValidDiagramPayload } from '../utils/diagramValidation';
 
 const STORAGE_KEY = 'arcto-diagram';
@@ -104,6 +107,8 @@ export function useDiagramBuilder() {
     groupNode: GroupNodeComponent,
     labelNode: LabelNodeComponent,
     annotationNode: AnnotationNodeComponent,
+    c4Node: C4NodeComponent,
+    c4Boundary: C4BoundaryNodeComponent,
   }), []);
 
   // ── Historial para deshacer ──
@@ -210,6 +215,19 @@ export function useDiagramBuilder() {
       const sourceKind = sourceNode?.type === 'softwareNode' || sourceNode?.type === 'iconNode' ? sourceNode.data.kind : undefined;
       const targetKind = targetNode?.type === 'softwareNode' || targetNode?.type === 'iconNode' ? targetNode.data.kind : undefined;
 
+      // Any connection touching a C4 element is a C4 relationship.
+      const isC4 = [sourceNode, targetNode].some((n) => (n?.type as string | undefined) === 'c4Node' || (n?.type as string | undefined) === 'c4Boundary');
+      if (isC4) {
+        const c4Edge = createC4Edge({
+          source: params.source || '',
+          target: params.target || '',
+          sourceHandle: params.sourceHandle,
+          targetHandle: params.targetHandle,
+        });
+        setEdges((current) => addEdge(c4Edge, current));
+        return;
+      }
+
       const newEdge = createAnimatedEdge({
         source: params.source || '',
         target: params.target || '',
@@ -304,6 +322,16 @@ export function useDiagramBuilder() {
             setNodes((current) => current.concat(newNode as unknown as SoftwareNode));
             setSelectedNodeId(newNode.id);
           }
+        } else if (payload.__isC4) {
+          const entry = findC4Entry(payload.id);
+          if (!entry) return;
+          // Appended (not prepended like groups) so a boundary dropped inside another stays on top of it.
+          const created = entry.boundary
+            ? createC4Boundary({ entry, position: { x: position.x - 260, y: position.y - 180 } })
+            : createC4Node({ entry, position: { x: position.x - 110, y: position.y - 75 } });
+          if (!created) return;
+          setNodes((current) => current.concat(created as unknown as SoftwareNode));
+          setSelectedNodeId(created.id);
         } else if (payload.__isIcon) {
           const item = payload as unknown as PaletteItem;
           const newNode = createIconNode({ item, position });
@@ -335,7 +363,7 @@ export function useDiagramBuilder() {
   );
 
   const liveUpdateEdge = useCallback(
-    (edgeId: string, patch: { label?: string; color?: string; strokeWidth?: number; shape?: 'smooth' | 'straight' }) => {
+    (edgeId: string, patch: { label?: string; technology?: string; color?: string; strokeWidth?: number; shape?: 'smooth' | 'straight' }) => {
       setEdges((current) =>
         current.map((edge) => {
           if (edge.id !== edgeId) return edge;
@@ -355,6 +383,9 @@ export function useDiagramBuilder() {
           if (patch.shape !== undefined) {
             next.data = { ...next.data, shape: patch.shape };
           }
+          if (patch.technology !== undefined) {
+            next.data = { ...next.data, technology: patch.technology };
+          }
           return next;
         }),
       );
@@ -364,6 +395,17 @@ export function useDiagramBuilder() {
 
   const liveUpdateGroup = useCallback(
     (nodeId: string, patch: Partial<GroupFormData>) => {
+      setNodes((current) =>
+        current.map((node) =>
+          node.id === nodeId ? { ...node, data: { ...node.data, ...patch } } : node,
+        ),
+      );
+    },
+    [setNodes],
+  );
+
+  const liveUpdateC4 = useCallback(
+    (nodeId: string, patch: Partial<C4NodeData> | Partial<C4BoundaryData>) => {
       setNodes((current) =>
         current.map((node) =>
           node.id === nodeId ? { ...node, data: { ...node.data, ...patch } } : node,
@@ -660,7 +702,7 @@ export function useDiagramBuilder() {
   }, [isScenePlaying, scenePlaybackIndex, playingScene, sceneLoop]);
 
   const placeItem = useCallback(
-    (payload: PaletteItem | { __isGroup: boolean } | { __isText: boolean } | { __isLabel: boolean } | { __isAnnotation: boolean; icon: string; label: string; color: string; bg: string }) => {
+    (payload: PaletteItem | { __isGroup: boolean } | { __isText: boolean } | { __isLabel: boolean } | { __isAnnotation: boolean; icon: string; label: string; color: string; bg: string } | C4PalettePayload) => {
       if (!rfInstance || presentationMode) return;
       const container = document.querySelector('.canvas-shell');
       const rect = container?.getBoundingClientRect();
@@ -687,6 +729,15 @@ export function useDiagramBuilder() {
         const newNode = createLabelNode({ position });
         setNodes((current) => current.concat(newNode as unknown as SoftwareNode));
         setSelectedNodeId(newNode.id);
+      } else if ('__isC4' in payload) {
+        const entry = findC4Entry(payload.id);
+        if (!entry) return;
+        const created = entry.boundary
+          ? createC4Boundary({ entry, position: { x: position.x - 260, y: position.y - 180 } })
+          : createC4Node({ entry, position: { x: position.x - 110, y: position.y - 75 } });
+        if (!created) return;
+        setNodes((current) => current.concat(created as unknown as SoftwareNode));
+        setSelectedNodeId(created.id);
       } else if ('__isAnnotation' in payload) {
         const p = payload as { __isAnnotation: boolean; icon: string; label: string; color: string; bg: string };
         const newNode = createAnnotationNode({ position, icon: p.icon, label: p.label, color: p.color, bg: p.bg });
@@ -809,7 +860,7 @@ export function useDiagramBuilder() {
           }
 
           setNodes(parsed.nodes.map((node) => {
-            if (node.type === 'textNode' || node.type === 'groupNode' || node.type === 'labelNode' || node.type === 'annotationNode') return node as unknown as SoftwareNode;
+            if (node.type === 'textNode' || node.type === 'groupNode' || node.type === 'labelNode' || node.type === 'annotationNode' || node.type === 'c4Node' || node.type === 'c4Boundary') return node as unknown as SoftwareNode;
             return { ...node, data: normalizeNodeData(node.data) };
           }) as SoftwareNode[]);
           setEdges(parsed.edges);
@@ -867,6 +918,7 @@ export function useDiagramBuilder() {
     liveUpdateEdge,
     liveUpdateGroup,
     liveUpdateLabel,
+    liveUpdateC4,
     liveUpdateNode,
     updateTextNodeData,
     placeItem,

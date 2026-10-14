@@ -1,5 +1,6 @@
 import { MarkerType, type XYPosition } from '@xyflow/react';
-import { NODE_KINDS, type AnnotationNode, type EdgeFormData, type GroupNode, type IconNode, type LabelNode, type NodeFormData, type NodeKind, type PaletteItem, type SoftwareEdge, type SoftwareNode, type SoftwareNodeData } from '../types/diagram.types';
+import { C4_BOUNDARY_SIZE, C4_GREY, getC4NodeSize } from '../constants/c4.constants';
+import { NODE_KINDS, type AnnotationNode, type C4BoundaryNode, type C4Node, type C4PaletteEntry, type EdgeFormData, type GroupNode, type IconNode, type LabelNode, type NodeFormData, type NodeKind, type PaletteItem, type SoftwareEdge, type SoftwareNode, type SoftwareNodeData } from '../types/diagram.types';
 
 function isNodeKind(value: unknown): value is NodeKind {
   return Object.values(NODE_KINDS).includes(value as NodeKind);
@@ -134,6 +135,54 @@ export function createAnimatedEdge(params: {
     markerEnd: { type: MarkerType.ArrowClosed },
     style: { strokeWidth: 1.9 },
     data: { dashed: false, shape: 'smooth' as const },
+  };
+}
+
+/** A C4 relationship: grey, dashed, straight, with a filled arrowhead. */
+export function createC4Edge(params: {
+  source: string;
+  target: string;
+  sourceHandle?: string | null;
+  targetHandle?: string | null;
+}): SoftwareEdge {
+  return {
+    id: `edge-${params.source}-${params.target}-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    source: params.source,
+    target: params.target,
+    sourceHandle: params.sourceHandle,
+    targetHandle: params.targetHandle,
+    type: 'smoothstep',
+    animated: false,
+    label: '',
+    markerEnd: { type: MarkerType.ArrowClosed, color: C4_GREY },
+    style: { stroke: C4_GREY, strokeWidth: 1.9 },
+    data: { dashed: true, shape: 'straight' as const, c4: true, technology: '' },
+  };
+}
+
+export function createC4Node(params: { entry: C4PaletteEntry; position: XYPosition }): C4Node | null {
+  if (!params.entry.node) return null;
+  const size = getC4NodeSize(params.entry.node.shape);
+  return {
+    id: `c4-${params.entry.id}-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    type: 'c4Node',
+    position: params.position,
+    width: size.width,
+    height: size.height,
+    data: { ...params.entry.node },
+  };
+}
+
+export function createC4Boundary(params: { entry: C4PaletteEntry; position: XYPosition }): C4BoundaryNode | null {
+  if (!params.entry.boundary) return null;
+  return {
+    id: `c4-${params.entry.id}-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    type: 'c4Boundary',
+    position: params.position,
+    width: C4_BOUNDARY_SIZE.width,
+    height: C4_BOUNDARY_SIZE.height,
+    zIndex: -1,
+    data: { ...params.entry.boundary },
   };
 }
 

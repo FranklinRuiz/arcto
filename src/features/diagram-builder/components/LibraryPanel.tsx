@@ -1,6 +1,8 @@
 import { useState, type DragEvent } from 'react';
 import { PALETTE, PALETTE_GROUPS, getKindStyle } from '../constants/diagram.constants';
-import { NODE_KINDS, type PaletteItem } from '../types/diagram.types';
+import { C4_PALETTE } from '../constants/c4.constants';
+import { NODE_KINDS, type C4PaletteEntry, type C4PalettePayload, type PaletteItem } from '../types/diagram.types';
+import { C4ShapeSvg } from './c4/C4ShapeSvg';
 import { iconMap, ServerIcon, TypeIcon } from './icons/DiagramIcons';
 import { ANNOTATION_ICON_MAP, ANNOTATION_DESCRIPTIONS } from './AnnotationNode';
 import { Shapes } from 'lucide-react';
@@ -9,10 +11,10 @@ interface LibraryPanelProps {
   isOpen: boolean;
   onClose: () => void;
   onDragStart: (event: DragEvent<HTMLButtonElement>, item: PaletteItem) => void;
-  onClickItem: (payload: PaletteItem | { __isGroup: boolean } | { __isText: boolean } | { __isLabel: boolean } | { __isAnnotation: boolean; icon: string; label: string; color: string; bg: string }) => void;
+  onClickItem: (payload: PaletteItem | { __isGroup: boolean } | { __isText: boolean } | { __isLabel: boolean } | { __isAnnotation: boolean; icon: string; label: string; color: string; bg: string } | C4PalettePayload) => void;
 }
 
-type FilterKey = 'all' | 'ai' | 'services' | 'data' | 'infra' | 'integration' | 'observability' | 'security';
+type FilterKey = 'all' | 'c4' | 'ai' | 'services' | 'data' | 'infra' | 'integration' | 'observability' | 'security';
 type CSSVarProps = React.CSSProperties & { '--hover-border'?: string };
 
 interface AnnotationGroup {
@@ -39,6 +41,7 @@ const ANNOTATION_GROUPS: AnnotationGroup[] = [
 
 const FILTERS: { key: FilterKey; label: string }[] = [
   { key: 'all',          label: 'Todo' },
+  { key: 'c4',          label: 'C4' },
   { key: 'ai',          label: 'IA' },
   { key: 'services',    label: 'Servicios' },
   { key: 'data',        label: 'Datos' },
@@ -50,6 +53,7 @@ const FILTERS: { key: FilterKey; label: string }[] = [
 
 const FILTER_GROUPS: Record<FilterKey, string[]> = {
   all:          [],
+  c4:           [],
   ai:           ['Inteligencia Artificial'],
   services:     ['Servicios', 'Actores', 'Presentación', 'Arquitectura'],
   data:         ['Datos'],
@@ -64,6 +68,40 @@ function groupMatchesFilter(groupLabel: string, filter: FilterKey): boolean {
   return FILTER_GROUPS[filter].includes(groupLabel);
 }
 
+
+const C4_GROUPS: C4PaletteEntry['group'][] = ['Elementos', 'Límites'];
+
+function C4EntryIcon({ entry }: { entry: C4PaletteEntry }) {
+  if (entry.node) {
+    const isPerson = entry.node.shape === 'person';
+    return (
+      <C4ShapeSvg
+        shape={entry.node.shape}
+        width={isPerson ? 24 : 26}
+        height={isPerson ? 24 : 18}
+        color={entry.node.color}
+        strokeWidth={1.7}
+        detail={0.13}
+      />
+    );
+  }
+  const variant = entry.boundary?.variant;
+  const color = entry.boundary?.color ?? '#444444';
+  return (
+    <svg width="26" height="20" viewBox="0 0 26 20" fill="none" aria-hidden="true">
+      {variant === 'deployment' && <path d="M5 4V1.5h19.5V15H22" stroke={color} strokeWidth="1" />}
+      <rect
+        x="1.5" y={variant === 'deployment' ? 4.5 : 1.5}
+        width={variant === 'deployment' ? 20 : 23} height={variant === 'deployment' ? 14 : 17}
+        rx={variant === 'group' ? 0 : 2.5}
+        stroke={color}
+        strokeWidth={variant === 'deployment' ? 1 : 1.7}
+        strokeDasharray={variant === 'group' ? '1.5 2.5' : undefined}
+      />
+      <path d={variant === 'deployment' ? 'M4 15.5h8' : 'M4.5 15h9'} stroke={color} strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
 
 function DragHandle() {
   return (
@@ -109,6 +147,17 @@ export function LibraryPanel({ isOpen, onClose, onDragStart, onClickItem }: Libr
       : group.icons,
   })).filter((group) => group.icons.length > 0);
 
+  const c4Sections = (activeFilter === 'all' || activeFilter === 'c4' ? C4_GROUPS : [])
+    .map((group) => ({
+      label: group,
+      items: C4_PALETTE.filter(
+        (entry) =>
+          entry.group === group &&
+          (!q || 'c4'.includes(q) || entry.label.toLowerCase().includes(q) || entry.subtitle.toLowerCase().includes(q)),
+      ),
+    }))
+    .filter((section) => section.items.length > 0);
+
   const filteredGroups = PALETTE_GROUPS
     .map((group) => ({
       ...group,
@@ -120,7 +169,7 @@ export function LibraryPanel({ isOpen, onClose, onDragStart, onClickItem }: Libr
 
   const showAnnotationAccordions = !q || filteredAnnotationGroups.length > 0;
   const showUtilSections = q || activeFilter === 'all';
-  const hasResults = (showUtilSections && (showHero || showAnnotationAccordions || showGroup || showText || showLabel)) || filteredGroups.length > 0;
+  const hasResults = (showUtilSections && (showHero || showAnnotationAccordions || showGroup || showText || showLabel)) || filteredGroups.length > 0 || c4Sections.length > 0;
 
   function toggleGroup(label: string) {
     setOpenGroups((prev) => {
@@ -353,6 +402,45 @@ export function LibraryPanel({ isOpen, onClose, onDragStart, onClickItem }: Libr
             </div>
           </div>
         )}
+
+        {c4Sections.map((section) => (
+          <div key={`c4-${section.label}`} className="library-section">
+            <div className="library-section__title">
+              C4 · {section.label} <span className="library-section__count">{section.items.length}</span>
+            </div>
+            <div className="library-grid">
+              {section.items.map((entry) => {
+                const payload: C4PalettePayload = { __isC4: true, id: entry.id };
+                const color = entry.node?.color ?? entry.boundary?.color ?? '#444444';
+                return (
+                  <button
+                    key={`c4-${entry.id}`}
+                    type="button"
+                    draggable
+                    onDragStart={(e) => {
+                      e.dataTransfer.setData('application/reactflow', JSON.stringify(payload));
+                      e.dataTransfer.effectAllowed = 'move';
+                      dragGhost(entry.label, e);
+                    }}
+                    onClick={() => onClickItem(payload)}
+                    className="library-item"
+                    title={entry.subtitle}
+                    style={{ '--hover-border': color } as CSSVarProps}
+                  >
+                    <div className="library-item__icon library-item__icon--c4">
+                      <C4EntryIcon entry={entry} />
+                    </div>
+                    <div className="library-item__info">
+                      <div className="library-item__label">{entry.label}</div>
+                      <div className="library-item__subtitle">{entry.subtitle}</div>
+                    </div>
+                    <div className="library-item__drag"><DragHandle /></div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
 
         {filteredGroups.map((group) => (
           <div key={group.label} className="library-section">

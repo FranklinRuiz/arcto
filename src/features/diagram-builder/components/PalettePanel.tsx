@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { PALETTE, getKindStyle } from '../constants/diagram.constants';
-import type { GroupFormData, LabelFormData, NodeFormData, NodeKind, SoftwareEdge, SoftwareNode } from '../types/diagram.types';
+import { C4_COLORS, formatC4Meta } from '../constants/c4.constants';
+import type { C4BoundaryData, C4NodeData, GroupFormData, LabelFormData, NodeFormData, NodeKind, SoftwareEdge, SoftwareNode } from '../types/diagram.types';
 import { buildNodeFormFromNode } from '../utils/diagramFactory';
 import { iconMap } from './icons/DiagramIcons';
+import { C4ShapeSvg } from './c4/C4ShapeSvg';
 
 interface PalettePanelProps {
   selectedNode: SoftwareNode | null;
@@ -11,7 +13,8 @@ interface PalettePanelProps {
   liveUpdateNode: (nodeId: string, patch: Partial<NodeFormData>) => void;
   liveUpdateGroup: (nodeId: string, patch: Partial<GroupFormData>) => void;
   liveUpdateLabel: (nodeId: string, patch: Partial<LabelFormData>) => void;
-  liveUpdateEdge: (edgeId: string, patch: { label?: string; color?: string; strokeWidth?: number; shape?: 'smooth' | 'straight' }) => void;
+  liveUpdateC4: (nodeId: string, patch: Partial<C4NodeData> | Partial<C4BoundaryData>) => void;
+  liveUpdateEdge: (edgeId: string, patch: { label?: string; technology?: string; color?: string; strokeWidth?: number; shape?: 'smooth' | 'straight' }) => void;
 }
 
 const PRESET_COLORS = [
@@ -83,8 +86,9 @@ const EDGE_SHAPES = [
 function EdgePropertiesPanel({ edge, onToggleAsync, onLiveUpdate }: {
   edge: SoftwareEdge;
   onToggleAsync: () => void;
-  onLiveUpdate: (patch: { color?: string; strokeWidth?: number; shape?: 'smooth' | 'straight' }) => void;
+  onLiveUpdate: (patch: { label?: string; technology?: string; color?: string; strokeWidth?: number; shape?: 'smooth' | 'straight' }) => void;
 }) {
+  const isC4 = Boolean(edge.data?.c4);
   const isAsync = Boolean(edge.data?.dashed);
   const edgeLabel = typeof edge.label === 'string' ? edge.label : '';
   const edgeColor = (edge.style as { stroke?: string } | undefined)?.stroke ?? '#94a3b8';
@@ -107,6 +111,30 @@ function EdgePropertiesPanel({ edge, onToggleAsync, onLiveUpdate }: {
       </div>
       <div className="props-body">
         <div className="form-grid">
+          {isC4 && (
+            <>
+              <label className="form-field">
+                <span>Descripción</span>
+                <input
+                  value={edgeLabel}
+                  onChange={(e) => onLiveUpdate({ label: e.target.value })}
+                  className="form-control"
+                  placeholder="Ej: Makes API requests to"
+                  maxLength={80}
+                />
+              </label>
+              <label className="form-field">
+                <span>Tecnología</span>
+                <input
+                  value={edge.data?.technology ?? ''}
+                  onChange={(e) => onLiveUpdate({ technology: e.target.value })}
+                  className="form-control"
+                  placeholder="Ej: JSON/HTTPS"
+                  maxLength={40}
+                />
+              </label>
+            </>
+          )}
           <div className="form-field">
             <span>Tipo</span>
             <div className="edge-type-row">
@@ -593,11 +621,160 @@ function LabelPropertiesPanel({
   );
 }
 
-export function PalettePanel({ selectedNode, selectedEdge, toggleEdgeAsync, liveUpdateNode, liveUpdateGroup, liveUpdateLabel, liveUpdateEdge }: PalettePanelProps) {
+function C4ColorField({ color, onChange }: { color: string; onChange: (color: string) => void }) {
+  return (
+    <div className="form-field">
+      <span>Color</span>
+      <div className="group-color-grid">
+        {C4_COLORS.map((c) => (
+          <button
+            key={c.value}
+            type="button"
+            className={`group-color-swatch${color === c.value ? ' group-color-swatch--active' : ''}`}
+            style={{ background: c.value }}
+            title={c.label}
+            onClick={() => onChange(c.value)}
+          />
+        ))}
+        <input
+          type="color"
+          className="group-color-custom"
+          value={color}
+          onChange={(e) => onChange(e.target.value)}
+          title="Color personalizado"
+        />
+      </div>
+    </div>
+  );
+}
+
+function C4NodePropertiesPanel({
+  node,
+  onLiveUpdate,
+}: {
+  node: SoftwareNode;
+  onLiveUpdate: (nodeId: string, patch: Partial<C4NodeData>) => void;
+}) {
+  const data = node.data as unknown as C4NodeData;
+  const update = (patch: Partial<C4NodeData>) => onLiveUpdate(node.id, patch);
+
+  return (
+    <div className="node-props-panel">
+      <div className="props-header">
+        <div className="props-header__icon c4-props-icon">
+          <C4ShapeSvg shape={data.shape} width={24} height={data.shape === 'person' ? 24 : 16} color={data.color} strokeWidth={1.6} detail={0.12} />
+        </div>
+        <div className="props-header__text">
+          <div className="props-header__title">{data.label || 'Sin nombre'}</div>
+          <div className="props-header__subtitle">{formatC4Meta(data.c4Type, data.technology) || 'Elemento C4'}</div>
+        </div>
+      </div>
+      <div className="props-body">
+        <div className="form-grid">
+          <label className="form-field">
+            <span>Nombre</span>
+            <input value={data.label} onChange={(e) => update({ label: e.target.value })} className="form-control" placeholder="Ej: Internet Banking System" maxLength={60} />
+          </label>
+          <label className="form-field">
+            <span>Tipo</span>
+            <input value={data.c4Type} onChange={(e) => update({ c4Type: e.target.value })} className="form-control" placeholder="Ej: Software System, Container" maxLength={40} />
+          </label>
+          <label className="form-field">
+            <span>Tecnología</span>
+            <input value={data.technology} onChange={(e) => update({ technology: e.target.value })} className="form-control" placeholder="Ej: Java y Spring Boot" maxLength={60} />
+          </label>
+          <label className="form-field">
+            <span>Descripción</span>
+            <textarea value={data.description} onChange={(e) => update({ description: e.target.value })} className="form-control" placeholder="Qué hace este elemento" rows={3} maxLength={200} />
+          </label>
+          <C4ColorField color={data.color} onChange={(color) => update({ color })} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const C4_BOUNDARY_TITLES: Record<C4BoundaryData['variant'], string> = {
+  boundary: 'Límite C4',
+  deployment: 'Nodo de despliegue',
+  group: 'Grupo C4',
+};
+
+function C4BoundaryPropertiesPanel({
+  node,
+  onLiveUpdate,
+}: {
+  node: SoftwareNode;
+  onLiveUpdate: (nodeId: string, patch: Partial<C4BoundaryData>) => void;
+}) {
+  const data = node.data as unknown as C4BoundaryData;
+  const update = (patch: Partial<C4BoundaryData>) => onLiveUpdate(node.id, patch);
+
+  return (
+    <div className="node-props-panel">
+      <div className="props-header">
+        <div className="props-header__icon" style={{ background: data.color + '22', color: data.color }}>
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <rect x="1" y="1" width="11" height="11" rx={data.variant === 'group' ? '0.5' : '2.5'} stroke="currentColor" strokeWidth="1.5" strokeDasharray={data.variant === 'group' ? '1 2' : undefined} />
+          </svg>
+        </div>
+        <div className="props-header__text">
+          <div className="props-header__title">{data.label || 'Sin nombre'}</div>
+          <div className="props-header__subtitle">{C4_BOUNDARY_TITLES[data.variant]}</div>
+        </div>
+      </div>
+      <div className="props-body">
+        <div className="form-grid">
+          <label className="form-field">
+            <span>Nombre</span>
+            <input value={data.label} onChange={(e) => update({ label: e.target.value })} className="form-control" placeholder="Ej: Internet Banking System" maxLength={60} />
+          </label>
+          {data.variant === 'boundary' && (
+            <label className="form-field">
+              <span>Tipo</span>
+              <input value={data.c4Type} onChange={(e) => update({ c4Type: e.target.value })} className="form-control" placeholder="Ej: Software System, Container" maxLength={40} />
+            </label>
+          )}
+          {data.variant === 'deployment' && (
+            <>
+              <label className="form-field">
+                <span>Tecnología</span>
+                <input value={data.technology} onChange={(e) => update({ technology: e.target.value })} className="form-control" placeholder="Ej: Docker, AWS Region" maxLength={60} />
+              </label>
+              <label className="form-field">
+                <span>Instancias</span>
+                <input value={data.instances} onChange={(e) => update({ instances: e.target.value })} className="form-control" placeholder="Ej: x1..10" maxLength={12} />
+              </label>
+            </>
+          )}
+          <C4ColorField color={data.color} onChange={(color) => update({ color })} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function PalettePanel({ selectedNode, selectedEdge, toggleEdgeAsync, liveUpdateNode, liveUpdateGroup, liveUpdateLabel, liveUpdateC4, liveUpdateEdge }: PalettePanelProps) {
   const nodeType = selectedNode?.type as string | undefined;
   const isSoftwareSelected = nodeType === 'softwareNode' || nodeType === 'iconNode';
   const isGroupSelected = nodeType === 'groupNode';
   const isLabelSelected = nodeType === 'labelNode';
+
+  if (nodeType === 'c4Node' && selectedNode) {
+    return (
+      <section className="palette-section">
+        <C4NodePropertiesPanel node={selectedNode} onLiveUpdate={liveUpdateC4} />
+      </section>
+    );
+  }
+
+  if (nodeType === 'c4Boundary' && selectedNode) {
+    return (
+      <section className="palette-section">
+        <C4BoundaryPropertiesPanel node={selectedNode} onLiveUpdate={liveUpdateC4} />
+      </section>
+    );
+  }
 
   if (isLabelSelected && selectedNode) {
     return (

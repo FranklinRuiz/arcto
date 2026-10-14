@@ -46,7 +46,7 @@ export function DiagramBuilderPage() {
   useEffect(() => {
     if (builder.presentationMode) { setIsPropertiesOpen(false); setIsLibraryOpen(false); return; }
     const nodeType = builder.selectedNode?.type as string | undefined;
-    const isPropertiesNode = nodeType === 'softwareNode' || nodeType === 'iconNode' || nodeType === 'groupNode' || nodeType === 'labelNode';
+    const isPropertiesNode = nodeType === 'softwareNode' || nodeType === 'iconNode' || nodeType === 'groupNode' || nodeType === 'labelNode' || nodeType === 'c4Node' || nodeType === 'c4Boundary';
     const hasEdge = !!builder.selectedEdge;
     setIsPropertiesOpen(isPropertiesNode || hasEdge);
   }, [builder.selectedNode, builder.selectedEdge, builder.presentationMode]);
@@ -117,6 +117,7 @@ export function DiagramBuilderPage() {
           liveUpdateNode={builder.liveUpdateNode}
           liveUpdateGroup={builder.liveUpdateGroup}
           liveUpdateLabel={builder.liveUpdateLabel}
+          liveUpdateC4={builder.liveUpdateC4}
           liveUpdateEdge={builder.liveUpdateEdge}
         />
         <LibraryPanel

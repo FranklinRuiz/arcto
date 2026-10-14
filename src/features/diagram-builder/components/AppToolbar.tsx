@@ -174,13 +174,14 @@ export function AppToolbar({
             onBlur={commitTitle}
             onKeyDown={onTitleKeyDown}
             maxLength={60}
+            style={{ width: `${Math.max(180, titleDraft.length * 7.2 + 24)}px` }}
             aria-label="Nombre del diagrama"
           />
         ) : (
           <button
             className="app-header__title-btn"
             onClick={() => { if (presentationMode) return; setTitleDraft(diagramTitle); setIsEditingTitle(true); }}
-            title={presentationMode ? diagramTitle : 'Haz clic para renombrar'}
+            title={presentationMode ? diagramTitle : `${diagramTitle} · Haz clic para renombrar`}
           >
             {diagramTitle}
           </button>
