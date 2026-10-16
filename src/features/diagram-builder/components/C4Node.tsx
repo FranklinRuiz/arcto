@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { Handle, Position, type NodeProps } from '@xyflow/react';
 import type { C4Node } from '../types/diagram.types';
-import { formatC4Meta, getC4NodeSize } from '../constants/c4.constants';
+import { c4HasTechnology, formatC4Meta, getC4NodeSize } from '../constants/c4.constants';
 import { C4ShapeSvg, c4TextInsets } from './c4/C4ShapeSvg';
 import { EdgeEditContext } from './EdgeEditContext';
 
@@ -18,7 +18,7 @@ export function C4NodeComponent({ id, data, selected, width, height }: NodeProps
   const w = width ?? fallback.width;
   const h = height ?? fallback.height;
   const insets = c4TextInsets(data.shape, w, h);
-  const meta = formatC4Meta(data.c4Type, data.technology);
+  const meta = formatC4Meta(data.c4Type, c4HasTechnology(data.shape, data.c4Type) ? data.technology : '');
   const isBeacon = activeNodeIds.has(id);
   const isArrival = arrivalNodeIds.has(id);
 

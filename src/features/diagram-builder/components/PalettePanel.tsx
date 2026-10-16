@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { PALETTE, getKindStyle } from '../constants/diagram.constants';
-import { C4_COLORS, formatC4Meta } from '../constants/c4.constants';
+import { C4_COLORS, c4HasTechnology, formatC4Meta } from '../constants/c4.constants';
 import type { C4BoundaryData, C4NodeData, GroupFormData, LabelFormData, NodeFormData, NodeKind, SoftwareEdge, SoftwareNode } from '../types/diagram.types';
 import { buildNodeFormFromNode } from '../utils/diagramFactory';
 import { iconMap } from './icons/DiagramIcons';
@@ -666,7 +666,7 @@ function C4NodePropertiesPanel({
         </div>
         <div className="props-header__text">
           <div className="props-header__title">{data.label || 'Sin nombre'}</div>
-          <div className="props-header__subtitle">{formatC4Meta(data.c4Type, data.technology) || 'Elemento C4'}</div>
+          <div className="props-header__subtitle">{formatC4Meta(data.c4Type, c4HasTechnology(data.shape, data.c4Type) ? data.technology : '') || 'Elemento C4'}</div>
         </div>
       </div>
       <div className="props-body">
@@ -679,10 +679,12 @@ function C4NodePropertiesPanel({
             <span>Tipo</span>
             <input value={data.c4Type} onChange={(e) => update({ c4Type: e.target.value })} className="form-control" placeholder="Ej: Software System, Container" maxLength={40} />
           </label>
-          <label className="form-field">
-            <span>Tecnología</span>
-            <input value={data.technology} onChange={(e) => update({ technology: e.target.value })} className="form-control" placeholder="Ej: Java y Spring Boot" maxLength={60} />
-          </label>
+          {c4HasTechnology(data.shape, data.c4Type) && (
+            <label className="form-field">
+              <span>Tecnología</span>
+              <input value={data.technology} onChange={(e) => update({ technology: e.target.value })} className="form-control" placeholder="Ej: Java y Spring Boot" maxLength={60} />
+            </label>
+          )}
           <label className="form-field">
             <span>Descripción</span>
             <textarea value={data.description} onChange={(e) => update({ description: e.target.value })} className="form-control" placeholder="Qué hace este elemento" rows={3} maxLength={200} />

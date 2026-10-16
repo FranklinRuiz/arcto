@@ -3485,7 +3485,8 @@ textarea.form-control {
 
 .c4-node__meta {
   margin-top: 2px;
-  font-size: 8.5px;
+  font-size: 11px;
+  font-weight: 500;
   line-height: 1.3;
   overflow-wrap: anywhere;
 }
@@ -3584,7 +3585,8 @@ textarea.form-control {
 }
 
 .c4-boundary__meta {
-  font-size: 8.5px;
+  font-size: 11px;
+  font-weight: 500;
   line-height: 1.3;
   white-space: nowrap;
   overflow: hidden;
@@ -3614,7 +3616,8 @@ textarea.form-control {
 }
 
 .edge-label-display__tech {
-  font-size: 8.5px;
+  font-size: 11px;
+  font-weight: 500;
 }
 
 .library-item__icon--c4 {

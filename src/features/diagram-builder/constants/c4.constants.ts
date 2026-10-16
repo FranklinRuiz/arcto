@@ -85,6 +85,11 @@ export function findC4Entry(id: unknown): C4PaletteEntry | undefined {
   return C4_PALETTE.find((entry) => entry.id === id);
 }
 
+/** Person and Software System carry no technology in the C4 notation — only Container, Component, Infrastructure Node and Deployment Node do. */
+export function c4HasTechnology(shape: C4Shape, c4Type: string): boolean {
+  return shape !== 'person' && c4Type.trim() !== 'Software System';
+}
+
 /** "[Container: Java]" — the bracketed type line every C4 element carries. */
 export function formatC4Meta(c4Type: string, technology: string): string {
   const type = (c4Type ?? '').trim();
