@@ -14,10 +14,10 @@ export const C4_COLORS = [
 export const C4_BLUE = '#1168bd';
 export const C4_GREY = '#444444';
 
-const BOX_SIZE = { width: 225, height: 150 };
+const BOX_SIZE = { width: 180, height: 120 };
 
 export function getC4NodeSize(shape: C4Shape): { width: number; height: number } {
-  return shape === 'person' ? { width: 200, height: 200 } : BOX_SIZE;
+  return shape === 'person' ? { width: 160, height: 160 } : BOX_SIZE;
 }
 
 export const C4_BOUNDARY_SIZE = { width: 520, height: 360 };

@@ -11,7 +11,7 @@ import { LabelNodeComponent } from '../components/LabelNode';
 import { AnnotationNodeComponent } from '../components/AnnotationNode';
 import { C4NodeComponent } from '../components/C4Node';
 import { C4BoundaryNodeComponent } from '../components/C4BoundaryNode';
-import { findC4Entry } from '../constants/c4.constants';
+import { findC4Entry, getC4NodeSize } from '../constants/c4.constants';
 import { NODE_KINDS, type AlignAxis, type C4BoundaryData, type C4NodeData, type C4PalettePayload, type EdgeFormData, type GroupFormData, type LabelFormData, type NodeFormData, type PaletteItem, type Scene, type SoftwareEdge, type SoftwareNode, type TextNodeData } from '../types/diagram.types';
 import { createAnimatedEdge, createAnnotationNode, createC4Boundary, createC4Edge, createC4Node, createGroupNode, createIconNode, createLabelNode, createNode, normalizeNodeData } from '../utils/diagramFactory';
 import { isValidDiagramPayload } from '../utils/diagramValidation';
@@ -24,8 +24,17 @@ function loadFromStorage(): { nodes: SoftwareNode[]; edges: SoftwareEdge[]; scen
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (!isValidDiagramPayload(parsed)) return null;
+    const nodes = (parsed.nodes as Array<{ type?: string; data?: unknown }>).map((node) => {
+      // C4 nodes aren't user-resizable — always re-apply the current default
+      // size so diagrams saved before a size tweak pick it up on load.
+      if (node.type !== 'c4Node') return node;
+      const size = getC4NodeSize((node.data as C4NodeData).shape);
+      // `measured` is what React Flow actually renders at — it's cached from
+      // the last session and must be overwritten too, not just width/height.
+      return { ...node, width: size.width, height: size.height, measured: size };
+    });
     return {
-      nodes: parsed.nodes as SoftwareNode[],
+      nodes: nodes as SoftwareNode[],
       edges: parsed.edges as SoftwareEdge[],
       scenes: Array.isArray(parsed.scenes) ? parsed.scenes : [],
     };
