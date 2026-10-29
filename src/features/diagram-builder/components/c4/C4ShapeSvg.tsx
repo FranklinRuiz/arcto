@@ -19,7 +19,7 @@ function c4ShapeMetrics(shape: C4Shape, w: number, h: number, u = 1) {
     personBodyTop: w * 0.225 * 1.75,
     browserBar: 25 * u,
     browserFrame: 5 * u,
-    folderTab: 18 * u,
+    folderTab: 12 * u,
     cylinderRy: h * 0.1,
     bucketInset: shape === 'bucket' ? w * 0.07 : 0,
     lugW: w * 0.133,
@@ -100,11 +100,17 @@ export function C4ShapeSvg({ shape, width: w, height: h, color, strokeWidth: sw 
       );
       break;
     case 'folder': {
+      // Tab like c4model.com: rounded top corners, inset from the left edge,
+      // with the body's top line running underneath it.
       const th = m.folderTab;
+      const r = 5 * u;
+      const tabLeft = w * 0.04;
+      const tabRight = w * 0.36;
       body = (
         <>
-          <path d={`M${o},${th + 6 * u}V${o + 5 * u}a${5 * u},${5 * u} 0 0 1 ${5 * u},${-5 * u}H${w * 0.34}l${th * 0.7},${th - o}`} {...stroke} />
           <rect x={o} y={th} width={W} height={h - th - o} rx={5 * u} {...stroke} />
+          <path d={`M${tabLeft},${th}V${o + r}a${r},${r} 0 0 1 ${r},${-r}H${tabRight - r}a${r},${r} 0 0 1 ${r},${r}V${th}`} {...stroke} />
+          <path d={`M${o + 5 * u},${th}H${w - o - 5 * u}`} fill="none" stroke={color} strokeWidth={sw} />
         </>
       );
       break;

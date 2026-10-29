@@ -15,8 +15,8 @@ describe('C4 elements', () => {
     expect(node?.type).toBe('c4Node');
     expect(node?.data.shape).toBe('person');
     expect(node?.data.c4Type).toBe('Person');
-    expect(node?.width).toBe(200);
-    expect(node?.height).toBe(200);
+    expect(node?.width).toBe(160);
+    expect(node?.height).toBe(160);
   });
 
   it('creates a boundary node that sits behind elements', () => {
