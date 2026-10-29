@@ -139,6 +139,7 @@ export function LibraryPanel({ isOpen, onClose, onDragStart, onClickItem }: Libr
   const showGroup = !q || 'contenedor'.includes(q) || 'zona'.includes(q) || 'dominio'.includes(q);
   const showText  = !q || 'texto'.includes(q) || 'anotación'.includes(q) || 'texto libre'.includes(q);
   const showLabel = !q || 'etiqueta'.includes(q) || 'caja'.includes(q) || 'label'.includes(q);
+  const showTitle = !q || 'título del diagrama'.includes(q) || 'titulo'.includes(q) || 'c4'.includes(q) || 'vista'.includes(q);
 
   const filteredAnnotationGroups = ANNOTATION_GROUPS.map((group) => ({
     ...group,
@@ -169,7 +170,7 @@ export function LibraryPanel({ isOpen, onClose, onDragStart, onClickItem }: Libr
 
   const showAnnotationAccordions = !q || filteredAnnotationGroups.length > 0;
   const showUtilSections = q || activeFilter === 'all';
-  const hasResults = (showUtilSections && (showHero || showAnnotationAccordions || showGroup || showText || showLabel)) || filteredGroups.length > 0 || c4Sections.length > 0;
+  const hasResults = (showUtilSections && (showHero || showAnnotationAccordions || showGroup || showText || showLabel || showTitle)) || filteredGroups.length > 0 || c4Sections.length > 0;
 
   function toggleGroup(label: string) {
     setOpenGroups((prev) => {
@@ -346,10 +347,10 @@ export function LibraryPanel({ isOpen, onClose, onDragStart, onClickItem }: Libr
           </div>
         )}
 
-        {showUtilSections && (showText || showLabel) && (
+        {showUtilSections && (showText || showLabel || showTitle) && (
           <div className="library-section">
             <div className="library-section__title">
-              Anotaciones <span className="library-section__count">{[showText, showLabel].filter(Boolean).length}</span>
+              Anotaciones <span className="library-section__count">{[showText, showLabel, showTitle].filter(Boolean).length}</span>
             </div>
             <div className="library-grid">
               {showText && (
@@ -399,6 +400,34 @@ export function LibraryPanel({ isOpen, onClose, onDragStart, onClickItem }: Libr
                   <div className="library-item__drag"><DragHandle /></div>
                 </button>
               )}
+              {showTitle && (() => {
+                const payload: C4PalettePayload = { __isC4: true, id: 'diagram-title' };
+                return (
+                  <button
+                    type="button"
+                    draggable
+                    onDragStart={(e) => {
+                      e.dataTransfer.setData('application/reactflow', JSON.stringify(payload));
+                      e.dataTransfer.effectAllowed = 'move';
+                      dragGhost('Título del diagrama', e);
+                    }}
+                    onClick={() => onClickItem(payload)}
+                    className="library-item"
+                  >
+                    <div className="library-item__icon" style={{ background: '#f1f5f9', color: '#444444' }}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round">
+                        <path d="M3 9h18" strokeWidth="2.4" />
+                        <path d="M3 15h12" strokeWidth="1.6" />
+                      </svg>
+                    </div>
+                    <div className="library-item__info">
+                      <div className="library-item__label">Título del diagrama</div>
+                      <div className="library-item__subtitle">Vista C4 y descripción</div>
+                    </div>
+                    <div className="library-item__drag"><DragHandle /></div>
+                  </button>
+                );
+              })()}
             </div>
           </div>
         )}

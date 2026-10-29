@@ -11,9 +11,10 @@ import { LabelNodeComponent } from '../components/LabelNode';
 import { AnnotationNodeComponent } from '../components/AnnotationNode';
 import { C4NodeComponent } from '../components/C4Node';
 import { C4BoundaryNodeComponent } from '../components/C4BoundaryNode';
+import { C4TitleNodeComponent } from '../components/C4TitleNode';
 import { findC4Entry, getC4NodeSize } from '../constants/c4.constants';
-import { type AlignAxis, type C4BoundaryData, type C4NodeData, type C4PalettePayload, type EdgeFormData, type GroupFormData, type LabelFormData, type NodeFormData, type PaletteItem, type Scene, type SoftwareEdge, type SoftwareNode, type TextNodeData } from '../types/diagram.types';
-import { createAnimatedEdge, createAnnotationNode, createC4Boundary, createC4Edge, createC4Node, createGroupNode, createIconNode, createLabelNode, createNode, normalizeNodeData } from '../utils/diagramFactory';
+import { type AlignAxis, type C4BoundaryData, type C4NodeData, type C4TitleData, type C4PalettePayload, type EdgeFormData, type GroupFormData, type LabelFormData, type NodeFormData, type PaletteItem, type Scene, type SoftwareEdge, type SoftwareNode, type TextNodeData } from '../types/diagram.types';
+import { createAnimatedEdge, createAnnotationNode, createC4Boundary, createC4Edge, createC4Node, createC4Title, createGroupNode, createIconNode, createLabelNode, createNode, normalizeNodeData } from '../utils/diagramFactory';
 import { isValidDiagramPayload } from '../utils/diagramValidation';
 
 const STORAGE_KEY = 'arcto-diagram';
@@ -118,6 +119,7 @@ export function useDiagramBuilder() {
     annotationNode: AnnotationNodeComponent,
     c4Node: C4NodeComponent,
     c4Boundary: C4BoundaryNodeComponent,
+    c4Title: C4TitleNodeComponent,
   }), []);
 
   // ── Historial para deshacer ──
@@ -320,7 +322,9 @@ export function useDiagramBuilder() {
           // Appended (not prepended like groups) so a boundary dropped inside another stays on top of it.
           const created = entry.boundary
             ? createC4Boundary({ entry, position: { x: position.x - 260, y: position.y - 180 } })
-            : createC4Node({ entry, position: { x: position.x - 110, y: position.y - 75 } });
+            : entry.title
+              ? createC4Title({ entry, position: { x: position.x - 160, y: position.y - 20 } })
+              : createC4Node({ entry, position: { x: position.x - 110, y: position.y - 75 } });
           if (!created) return;
           setNodes((current) => current.concat(created as unknown as SoftwareNode));
           setSelectedNodeId(created.id);
@@ -397,7 +401,7 @@ export function useDiagramBuilder() {
   );
 
   const liveUpdateC4 = useCallback(
-    (nodeId: string, patch: Partial<C4NodeData> | Partial<C4BoundaryData>) => {
+    (nodeId: string, patch: Partial<C4NodeData> | Partial<C4BoundaryData> | Partial<C4TitleData>) => {
       setNodes((current) =>
         current.map((node) =>
           node.id === nodeId ? { ...node, data: { ...node.data, ...patch } } : node,
@@ -726,7 +730,9 @@ export function useDiagramBuilder() {
         if (!entry) return;
         const created = entry.boundary
           ? createC4Boundary({ entry, position: { x: position.x - 260, y: position.y - 180 } })
-          : createC4Node({ entry, position: { x: position.x - 110, y: position.y - 75 } });
+          : entry.title
+            ? createC4Title({ entry, position: { x: position.x - 160, y: position.y - 20 } })
+            : createC4Node({ entry, position: { x: position.x - 110, y: position.y - 75 } });
         if (!created) return;
         setNodes((current) => current.concat(created as unknown as SoftwareNode));
         setSelectedNodeId(created.id);
@@ -852,7 +858,7 @@ export function useDiagramBuilder() {
           }
 
           setNodes(parsed.nodes.map((node) => {
-            if (node.type === 'textNode' || node.type === 'groupNode' || node.type === 'labelNode' || node.type === 'annotationNode' || node.type === 'c4Node' || node.type === 'c4Boundary') return node as unknown as SoftwareNode;
+            if (node.type === 'textNode' || node.type === 'groupNode' || node.type === 'labelNode' || node.type === 'annotationNode' || node.type === 'c4Node' || node.type === 'c4Boundary' || node.type === 'c4Title') return node as unknown as SoftwareNode;
             return { ...node, data: normalizeNodeData(node.data) };
           }) as SoftwareNode[]);
           setEdges(parsed.edges);

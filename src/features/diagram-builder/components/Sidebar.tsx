@@ -1,4 +1,4 @@
-import type { C4BoundaryData, C4NodeData, GroupFormData, LabelFormData, NodeFormData, SoftwareEdge, SoftwareNode } from '../types/diagram.types';
+import type { C4BoundaryData, C4NodeData, C4TitleData, GroupFormData, LabelFormData, NodeFormData, SoftwareEdge, SoftwareNode } from '../types/diagram.types';
 import { PalettePanel } from './PalettePanel';
 
 interface SidebarProps {
@@ -9,7 +9,7 @@ interface SidebarProps {
   liveUpdateNode: (nodeId: string, patch: Partial<NodeFormData>) => void;
   liveUpdateGroup: (nodeId: string, patch: Partial<GroupFormData>) => void;
   liveUpdateLabel: (nodeId: string, patch: Partial<LabelFormData>) => void;
-  liveUpdateC4: (nodeId: string, patch: Partial<C4NodeData> | Partial<C4BoundaryData>) => void;
+  liveUpdateC4: (nodeId: string, patch: Partial<C4NodeData> | Partial<C4BoundaryData> | Partial<C4TitleData>) => void;
   liveUpdateEdge: (edgeId: string, patch: { label?: string; technology?: string; color?: string; strokeWidth?: number; shape?: 'smooth' | 'straight' }) => void;
 }
 

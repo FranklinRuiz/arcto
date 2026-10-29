@@ -46,7 +46,7 @@ export function DiagramBuilderPage() {
   useEffect(() => {
     if (builder.presentationMode) { setIsPropertiesOpen(false); setIsLibraryOpen(false); return; }
     const nodeType = builder.selectedNode?.type as string | undefined;
-    const isPropertiesNode = nodeType === 'softwareNode' || nodeType === 'iconNode' || nodeType === 'groupNode' || nodeType === 'labelNode' || nodeType === 'c4Node' || nodeType === 'c4Boundary';
+    const isPropertiesNode = nodeType === 'softwareNode' || nodeType === 'iconNode' || nodeType === 'groupNode' || nodeType === 'labelNode' || nodeType === 'c4Node' || nodeType === 'c4Boundary' || nodeType === 'c4Title';
     const hasEdge = !!builder.selectedEdge;
     setIsPropertiesOpen(isPropertiesNode || hasEdge);
   }, [builder.selectedNode, builder.selectedEdge, builder.presentationMode]);

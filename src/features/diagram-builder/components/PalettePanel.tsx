@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { PALETTE, getKindStyle } from '../constants/diagram.constants';
 import { C4_COLORS, c4HasTechnology, formatC4Meta } from '../constants/c4.constants';
-import type { C4BoundaryData, C4NodeData, GroupFormData, LabelFormData, NodeFormData, NodeKind, SoftwareEdge, SoftwareNode } from '../types/diagram.types';
+import type { C4BoundaryData, C4NodeData, C4TitleData, GroupFormData, LabelFormData, NodeFormData, NodeKind, SoftwareEdge, SoftwareNode } from '../types/diagram.types';
 import { buildNodeFormFromNode } from '../utils/diagramFactory';
 import { iconMap } from './icons/DiagramIcons';
 import { C4ShapeSvg } from './c4/C4ShapeSvg';
@@ -13,7 +13,7 @@ interface PalettePanelProps {
   liveUpdateNode: (nodeId: string, patch: Partial<NodeFormData>) => void;
   liveUpdateGroup: (nodeId: string, patch: Partial<GroupFormData>) => void;
   liveUpdateLabel: (nodeId: string, patch: Partial<LabelFormData>) => void;
-  liveUpdateC4: (nodeId: string, patch: Partial<C4NodeData> | Partial<C4BoundaryData>) => void;
+  liveUpdateC4: (nodeId: string, patch: Partial<C4NodeData> | Partial<C4BoundaryData> | Partial<C4TitleData>) => void;
   liveUpdateEdge: (edgeId: string, patch: { label?: string; technology?: string; color?: string; strokeWidth?: number; shape?: 'smooth' | 'straight' }) => void;
 }
 
@@ -702,6 +702,46 @@ const C4_BOUNDARY_TITLES: Record<C4BoundaryData['variant'], string> = {
   group: 'Grupo C4',
 };
 
+function C4TitlePropertiesPanel({
+  node,
+  onLiveUpdate,
+}: {
+  node: SoftwareNode;
+  onLiveUpdate: (nodeId: string, patch: Partial<C4TitleData>) => void;
+}) {
+  const data = node.data as unknown as C4TitleData;
+  const update = (patch: Partial<C4TitleData>) => onLiveUpdate(node.id, patch);
+
+  return (
+    <div className="node-props-panel">
+      <div className="props-header">
+        <div className="props-header__icon c4-props-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#444444" strokeLinecap="round">
+            <path d="M1.5 4.5h11" strokeWidth="1.8" />
+            <path d="M1.5 9h8" strokeWidth="1.2" />
+          </svg>
+        </div>
+        <div className="props-header__text">
+          <div className="props-header__title">{data.label || 'Sin título'}</div>
+          <div className="props-header__subtitle">Título del diagrama</div>
+        </div>
+      </div>
+      <div className="props-body">
+        <div className="form-grid">
+          <label className="form-field">
+            <span>Título</span>
+            <input value={data.label} onChange={(e) => update({ label: e.target.value })} className="form-control" placeholder="Ej: System Context View: Internet Banking System" maxLength={120} />
+          </label>
+          <label className="form-field">
+            <span>Descripción</span>
+            <textarea value={data.description} onChange={(e) => update({ description: e.target.value })} className="form-control" placeholder="Ej: The system context diagram for a fictional Internet Banking System" rows={3} maxLength={240} />
+          </label>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function C4BoundaryPropertiesPanel({
   node,
   onLiveUpdate,
@@ -766,6 +806,14 @@ export function PalettePanel({ selectedNode, selectedEdge, toggleEdgeAsync, live
     return (
       <section className="palette-section">
         <C4NodePropertiesPanel node={selectedNode} onLiveUpdate={liveUpdateC4} />
+      </section>
+    );
+  }
+
+  if (nodeType === 'c4Title' && selectedNode) {
+    return (
+      <section className="palette-section">
+        <C4TitlePropertiesPanel node={selectedNode} onLiveUpdate={liveUpdateC4} />
       </section>
     );
   }

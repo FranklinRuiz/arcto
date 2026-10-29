@@ -76,6 +76,10 @@ export const C4_PALETTE: C4PaletteEntry[] = [
     boundary: { label: 'Nodo de despliegue', c4Type: 'Deployment Node', technology: 'Tecnología', variant: 'deployment', color: C4_GREY, instances: '' },
   },
   {
+    id: 'diagram-title', label: 'Título del diagrama', subtitle: 'Vista y descripción', group: 'Diagrama',
+    title: { label: 'System Context View: Nombre del sistema', description: 'Descripción breve del diagrama' },
+  },
+  {
     id: 'group', label: 'Grupo', subtitle: 'Empresa, equipo, proveedor', group: 'Límites',
     boundary: { label: 'Grupo', c4Type: '', technology: '', variant: 'group', color: C4_GREY, instances: '' },
   },

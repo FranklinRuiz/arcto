@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { C4_PALETTE, findC4Entry, formatC4Meta } from '../constants/c4.constants';
-import { createC4Boundary, createC4Edge, createC4Node } from '../utils/diagramFactory';
+import { createC4Boundary, createC4Edge, createC4Node, createC4Title } from '../utils/diagramFactory';
 
 describe('C4 elements', () => {
   it('formats the bracketed type line', () => {
@@ -32,10 +32,19 @@ describe('C4 elements', () => {
     expect(createC4Boundary({ entry: findC4Entry('person')!, position: { x: 0, y: 0 } })).toBeNull();
   });
 
-  it('gives every palette entry exactly one of node or boundary', () => {
+  it('gives every palette entry exactly one of node, boundary or title', () => {
     for (const entry of C4_PALETTE) {
-      expect(Boolean(entry.node) !== Boolean(entry.boundary)).toBe(true);
+      expect([entry.node, entry.boundary, entry.title].filter(Boolean)).toHaveLength(1);
     }
+  });
+
+  it('creates a diagram title with its view name and description', () => {
+    const node = createC4Title({ entry: findC4Entry('diagram-title')!, position: { x: 0, y: 0 } });
+
+    expect(node?.type).toBe('c4Title');
+    expect(node?.data.label).toContain('View');
+    expect(node?.data.description).not.toBe('');
+    expect(createC4Title({ entry: findC4Entry('person')!, position: { x: 0, y: 0 } })).toBeNull();
   });
 
   it('creates a dashed grey straight relationship', () => {

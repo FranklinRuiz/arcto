@@ -3630,3 +3630,28 @@ textarea.form-control {
   background: #ffffff;
   border: 1px solid #e2e8f0;
 }
+
+/* C4 diagram title: view name, then a one-line description, in the c4model.com gray. */
+.c4-title {
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-family: Tahoma, "Segoe UI", Arial, sans-serif;
+  color: #444444;
+  white-space: nowrap;
+}
+
+.c4-title--selected {
+  outline: 1.5px dashed #94a3b8;
+  outline-offset: 3px;
+}
+
+.c4-title__name {
+  font-size: 20px;
+  line-height: 1.25;
+}
+
+.c4-title__desc {
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 1.3;
+}

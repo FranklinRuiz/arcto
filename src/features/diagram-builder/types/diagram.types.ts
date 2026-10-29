@@ -218,18 +218,26 @@ export interface C4BoundaryData extends Record<string, unknown> {
 }
 export type C4BoundaryNode = Node<C4BoundaryData, 'c4Boundary'>;
 
+/** Diagram title as written under every c4model.com diagram: the view, then a one-line description. */
+export interface C4TitleData extends Record<string, unknown> {
+  label: string;
+  description: string;
+}
+export type C4TitleNode = Node<C4TitleData, 'c4Title'>;
+
 export interface C4PaletteEntry {
   id: string;
   label: string;
   subtitle: string;
-  group: 'Elementos' | 'Límites';
+  group: 'Elementos' | 'Límites' | 'Diagrama';
   node?: C4NodeData;
   boundary?: C4BoundaryData;
+  title?: C4TitleData;
 }
 
 export type C4PalettePayload = { __isC4: true; id: string };
 
-export type DiagramNode = SoftwareNode | TextNode | IconNode | GroupNode | LabelNode | AnnotationNode | C4Node | C4BoundaryNode;
+export type DiagramNode = SoftwareNode | TextNode | IconNode | GroupNode | LabelNode | AnnotationNode | C4Node | C4BoundaryNode | C4TitleNode;
 
 export interface Scene {
   id: string;

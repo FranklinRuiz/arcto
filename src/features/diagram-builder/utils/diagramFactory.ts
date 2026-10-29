@@ -1,6 +1,6 @@
 import { MarkerType, type XYPosition } from '@xyflow/react';
 import { C4_BOUNDARY_SIZE, C4_GREY, getC4NodeSize } from '../constants/c4.constants';
-import { NODE_KINDS, type AnnotationNode, type C4BoundaryNode, type C4Node, type C4PaletteEntry, type EdgeFormData, type GroupNode, type IconNode, type LabelNode, type NodeFormData, type NodeKind, type PaletteItem, type SoftwareEdge, type SoftwareNode, type SoftwareNodeData } from '../types/diagram.types';
+import { NODE_KINDS, type AnnotationNode, type C4BoundaryNode, type C4Node, type C4TitleNode, type C4PaletteEntry, type EdgeFormData, type GroupNode, type IconNode, type LabelNode, type NodeFormData, type NodeKind, type PaletteItem, type SoftwareEdge, type SoftwareNode, type SoftwareNodeData } from '../types/diagram.types';
 
 function isNodeKind(value: unknown): value is NodeKind {
   return Object.values(NODE_KINDS).includes(value as NodeKind);
@@ -206,6 +206,16 @@ export function createC4Boundary(params: { entry: C4PaletteEntry; position: XYPo
     height: C4_BOUNDARY_SIZE.height,
     zIndex: -1,
     data: { ...params.entry.boundary },
+  };
+}
+
+export function createC4Title(params: { entry: C4PaletteEntry; position: XYPosition }): C4TitleNode | null {
+  if (!params.entry.title) return null;
+  return {
+    id: `c4-${params.entry.id}-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    type: 'c4Title',
+    position: params.position,
+    data: { ...params.entry.title },
   };
 }
 
