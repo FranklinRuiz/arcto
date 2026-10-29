@@ -104,6 +104,29 @@ const PROTOCOL_BY_TARGET: Partial<Record<NodeKind, string>> = {
   [NODE_KINDS.BANK]:            'SWIFT',  // interbank/correspondent messaging standard
   [NODE_KINDS.TOKENIZATION]:    'HTTPS',  // token vault API
   [NODE_KINDS.RISK]:            'HTTPS',  // risk/fraud engine API
+  // System Design Kit
+  [NODE_KINDS.GRAPHQL]:              'HTTPS',
+  [NODE_KINDS.SERVERLESS]:           'HTTPS',
+  [NODE_KINDS.TIME_SERIES_DB]:       'HTTP',
+  [NODE_KINDS.DATA_WAREHOUSE]:       'JDBC',
+  [NODE_KINDS.DATA_LAKE]:            'HTTPS',
+  [NODE_KINDS.SEARCH_ENGINE]:        'HTTPS',
+  [NODE_KINDS.BI_REPORTING]:         'JDBC',
+  [NODE_KINDS.INTERNET]:             'HTTPS',
+  [NODE_KINDS.DNS]:                  'DNS',
+  [NODE_KINDS.REVERSE_PROXY]:        'HTTPS',
+  [NODE_KINDS.VPN]:                  'IPsec',
+  [NODE_KINDS.VIRTUAL_MACHINE]:      'SSH',
+  [NODE_KINDS.STREAMING]:            'Kafka',
+  [NODE_KINDS.ESB]:                  'SOAP',
+  [NODE_KINDS.IPAAS]:                'HTTPS',
+  [NODE_KINDS.EMAIL]:                'SMTP',
+  [NODE_KINDS.PAYMENT_NETWORK]:      'ISO 8583',
+  [NODE_KINDS.APM]:                  'OTLP',
+  [NODE_KINDS.DASHBOARD]:            'HTTPS',
+  [NODE_KINDS.HSM]:                  'PKCS#11',
+  [NODE_KINDS.EMBEDDINGS]:           'HTTPS',
+  [NODE_KINDS.ARTIFACT_REGISTRY]:    'HTTPS',
 };
 
 /** Suggests a protocol label for a new connection based on the kind of the two nodes it joins. Blank if none is known. */

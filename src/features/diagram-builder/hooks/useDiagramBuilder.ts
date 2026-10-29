@@ -12,7 +12,7 @@ import { AnnotationNodeComponent } from '../components/AnnotationNode';
 import { C4NodeComponent } from '../components/C4Node';
 import { C4BoundaryNodeComponent } from '../components/C4BoundaryNode';
 import { findC4Entry, getC4NodeSize } from '../constants/c4.constants';
-import { NODE_KINDS, type AlignAxis, type C4BoundaryData, type C4NodeData, type C4PalettePayload, type EdgeFormData, type GroupFormData, type LabelFormData, type NodeFormData, type PaletteItem, type Scene, type SoftwareEdge, type SoftwareNode, type TextNodeData } from '../types/diagram.types';
+import { type AlignAxis, type C4BoundaryData, type C4NodeData, type C4PalettePayload, type EdgeFormData, type GroupFormData, type LabelFormData, type NodeFormData, type PaletteItem, type Scene, type SoftwareEdge, type SoftwareNode, type TextNodeData } from '../types/diagram.types';
 import { createAnimatedEdge, createAnnotationNode, createC4Boundary, createC4Edge, createC4Node, createGroupNode, createIconNode, createLabelNode, createNode, normalizeNodeData } from '../utils/diagramFactory';
 import { isValidDiagramPayload } from '../utils/diagramValidation';
 
@@ -181,23 +181,6 @@ export function useDiagramBuilder() {
   const closeEdgeEditor = useCallback(() => {
     setEditingEdgeId(null);
   }, []);
-
-  const toggleEdgeDashed = useCallback(
-    (edgeId: string) => {
-      setEdges((current) =>
-        current.map((edge) => {
-          if (edge.id !== edgeId) return edge;
-          const nowDashed = !edge.data?.dashed;
-          return {
-            ...edge,
-            animated: false,
-            data: { ...edge.data, dashed: nowDashed },
-          };
-        }),
-      );
-    },
-    [setEdges],
-  );
 
   const toggleEdgeAsync = useCallback(
     (edgeId: string) => {

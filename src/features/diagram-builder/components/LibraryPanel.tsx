@@ -57,7 +57,7 @@ const FILTER_GROUPS: Record<FilterKey, string[]> = {
   ai:           ['Inteligencia Artificial'],
   services:     ['Servicios', 'Actores', 'Presentación', 'Arquitectura'],
   data:         ['Datos'],
-  infra:        ['Infraestructura'],
+  infra:        ['Infraestructura', 'DevOps'],
   integration:  ['Integración'],
   observability: ['Observabilidad'],
   security:     ['Seguridad', 'Riesgo y Cumplimiento'],
